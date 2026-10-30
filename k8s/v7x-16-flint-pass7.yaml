@@ -1,0 +1,128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pin-v7x-16-spot-nodes
+  namespace: default
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: pin-v7x-16-spot-nodes
+  template:
+    metadata:
+      labels:
+        app: pin-v7x-16-spot-nodes
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: tpu-v7x-16-pool
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: DoNotSchedule
+        labelSelector:
+          matchLabels:
+            app: pin-v7x-16-spot-nodes
+      tolerations:
+      - key: "google.com/tpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "cloud.google.com/gke-spot"
+        operator: "Exists"
+        effect: "NoSchedule"
+      containers:
+      - name: pin
+        image: gcr.io/google-containers/pause:3.2
+        resources:
+          requests:
+            cpu: "50m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flint-v7x-16-pass7-svc
+  namespace: default
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    job-name: flint-v7x-16-pass7
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flint-v7x-16-pass7
+  namespace: default
+spec:
+  completions: 4
+  parallelism: 4
+  completionMode: Indexed
+  backoffLimit: 30
+  template:
+    metadata:
+      labels:
+        app: flint-v7x-16-pass7
+      annotations:
+        gke-gcsfuse/volumes: "true"
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+    spec:
+      serviceAccountName: default
+      subdomain: flint-v7x-16-pass7-svc
+      restartPolicy: OnFailure
+      nodeSelector:
+        cloud.google.com/gke-nodepool: tpu-v7x-16-pool
+        cloud.google.com/gke-tpu-accelerator: tpu7x
+        cloud.google.com/gke-tpu-topology: 2x2x4
+      tolerations:
+      - key: "google.com/tpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "cloud.google.com/gke-spot"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "cloud.google.com/gke-queued"
+        operator: "Exists"
+        effect: "NoSchedule"
+      containers:
+      - name: trainer
+        image: us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/torchtpu/torchtitan-flint:v0.2.0
+        imagePullPolicy: IfNotPresent
+        command: ["python3", "/scripts/run_flint_pass7_v7x_next.py"]
+        args:
+        - --chip-type=v7x
+        - --nnodes=4
+        - --nproc-per-node=8
+        - --master-addr=flint-v7x-16-pass7-0.flint-v7x-16-pass7-svc.default.svc.cluster.local
+        - --slice-name=v7x-16-2x2x4
+        - --output-dir=/models/flint-results
+        env:
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token
+              key: HF_TOKEN
+        - name: PJRT_DEVICE
+          value: "TPU"
+        resources:
+          requests:
+            google.com/tpu: "4"
+          limits:
+            google.com/tpu: "4"
+        volumeMounts:
+        - name: models-gcs
+          mountPath: /models
+        - name: pass7-script
+          mountPath: /scripts
+        - name: dshm
+          mountPath: /dev/shm
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+      - name: models-gcs
+        persistentVolumeClaim:
+          claimName: tpu-models-gcs-pvc
+      - name: pass7-script
+        configMap:
+          name: flint-pass7-script

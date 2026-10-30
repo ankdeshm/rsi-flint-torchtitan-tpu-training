@@ -1,0 +1,1183 @@
+{
+  "updated_at_utc": "2026-10-30T09:37:11.566984+00:00",
+  "slice_name": "v7x-16-2x2x4",
+  "chip_type": "v7x",
+  "world_size_ranks": 32,
+  "flops_per_token": 17385000000.0,
+  "peak_bf16_tflops_per_rank": 1153.5,
+  "results": [
+    {
+      "name": "p5_01_native_n49_moe_routing_comp_opt_mb48",
+      "lane": "Pass5 Native (ALL49 Attn + ALL49 MoERouting + CompiledOpt, mb=48 / 98K tok/rank)",
+      "status": "FAIL(rc=1)",
+      "return_code": 1,
+      "duration_s": 216.9,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass5-0.flint-v7x-16-pass5-svc.default.svc.cluster.local:29901",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.examples.flint",
+        "--config=flint_40b_p5_n49_moe_route_comp_opt",
+        "--training.steps=15",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--tpu_config.mfu_benchmark_start_step=3",
+        "--training.num_tokens_per_microbatch_per_dp_rank=98304",
+        "--training.num_tokens_per_train_step=3145728"
+      ],
+      "env_overrides": {},
+      "metrics": {
+        "num_logged_steps": 8,
+        "first_loss": 12.32154,
+        "final_loss": 12.32154,
+        "steady_tps": 511.0,
+        "peak_tps": 511.0,
+        "steady_mfu_pct": 0.77,
+        "peak_mfu_pct": 0.77,
+        "peak_mem_gib": 21.96,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.32154,
+            "tps_per_rank": 511.0,
+            "logged_mfu_pct": 0.77,
+            "calc_mfu_pct": 0.77,
+            "mem_gib": 21.96
+          },
+          {
+            "step": 1,
+            "loss": 12.32154,
+            "tps_per_rank": 511.0,
+            "logged_mfu_pct": 0.77,
+            "calc_mfu_pct": 0.77,
+            "mem_gib": 21.96
+          },
+          {
+            "step": 1,
+            "loss": 12.32154,
+            "tps_per_rank": 511.0,
+            "logged_mfu_pct": 0.77,
+            "calc_mfu_pct": 0.77,
+            "mem_gib": 21.96
+          },
+          {
+            "step": 1,
+            "loss": 12.32154,
+            "tps_per_rank": 511.0,
+            "logged_mfu_pct": 0.77,
+            "calc_mfu_pct": 0.77,
+            "mem_gib": 21.96
+          },
+          {
+            "step": 1,
+            "loss": 12.32154,
+            "tps_per_rank": 511.0,
+            "logged_mfu_pct": 0.77,
+            "calc_mfu_pct": 0.77,
+            "mem_gib": 21.96
+          },
+          {
+            "step": 1,
+            "loss": 12.32154,
+            "tps_per_rank": 511.0,
+            "logged_mfu_pct": 0.77,
+            "calc_mfu_pct": 0.77,
+            "mem_gib": 21.96
+          },
+          {
+            "step": 1,
+            "loss": 12.32154,
+            "tps_per_rank": 511.0,
+            "logged_mfu_pct": 0.77,
+            "calc_mfu_pct": 0.77,
+            "mem_gib": 21.96
+          },
+          {
+            "step": 1,
+            "loss": 12.32154,
+            "tps_per_rank": 511.0,
+            "logged_mfu_pct": 0.77,
+            "calc_mfu_pct": 0.77,
+            "mem_gib": 21.96
+          }
+        ]
+      }
+    },
+    {
+      "name": "p5_02_native_n43_moe_routing_comp_opt_tgmm1024_mb48",
+      "lane": "Pass5 Native (n43 Attn + ALL49 MoERouting + CompiledOpt + BwdTGMM1024, mb=48)",
+      "status": "FAIL(rc=1)",
+      "return_code": 1,
+      "duration_s": 182.7,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass5-0.flint-v7x-16-pass5-svc.default.svc.cluster.local:29902",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.examples.flint",
+        "--config=flint_40b_p5_n43_moe_route_comp_opt_tgmm1024",
+        "--training.steps=15",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--tpu_config.mfu_benchmark_start_step=3",
+        "--training.num_tokens_per_microbatch_per_dp_rank=98304",
+        "--training.num_tokens_per_train_step=3145728"
+      ],
+      "env_overrides": {},
+      "metrics": {
+        "num_logged_steps": 0,
+        "steady_tps": 0.0,
+        "steady_mfu_pct": 0.0
+      }
+    },
+    {
+      "name": "p5_03_native_n49_moe_routing_comp_opt_tgmm1024_mb44",
+      "lane": "Pass5 Native (ALL49 Attn + ALL49 MoERouting + CompiledOpt + BwdTGMM1024, mb=44)",
+      "status": "FAIL(rc=1)",
+      "return_code": 1,
+      "duration_s": 197.9,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass5-0.flint-v7x-16-pass5-svc.default.svc.cluster.local:29903",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.examples.flint",
+        "--config=flint_40b_p5_n49_moe_route_comp_opt_tgmm1024",
+        "--training.steps=15",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--tpu_config.mfu_benchmark_start_step=3",
+        "--training.num_tokens_per_microbatch_per_dp_rank=90112",
+        "--training.num_tokens_per_train_step=2883584"
+      ],
+      "env_overrides": {},
+      "metrics": {
+        "num_logged_steps": 0,
+        "steady_tps": 0.0,
+        "steady_mfu_pct": 0.0
+      }
+    },
+    {
+      "name": "p5_04_hf_pr123_paired_gmm_b1024_mb32",
+      "lane": "Pass5 HF Backend PR #123 (Real Flint + AttnOnlyAC + Paired W1/W3 Pallas GMM + b=1024, mb=32)",
+      "status": "PASS",
+      "return_code": 0,
+      "duration_s": 237.1,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass5-0.flint-v7x-16-pass5-svc.default.svc.cluster.local:29904",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=2048",
+        "--training.steps=15",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--loss.b_block_size=1024",
+        "--training.num_tokens_per_microbatch_per_dp_rank=65536",
+        "--training.num_tokens_per_train_step=2097152",
+        "--splash_attention_kernel.sa_block_q=512",
+        "--splash_attention_kernel.sa_block_kv=512",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512",
+        "--extra-libtpu-init-flags=xla_tpu_enable_sparse_core_collective_aggregator=true xla_tpu_enable_latency_hiding_layer_scheduler=true xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true xla_tpu_dvfs_p_state=7"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=1024,pallas_grouped_mm_tgmm_tiling=512:2048:0,pallas_grouped_mm_w2_tgmm_tiling=512:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=512:0:2048"
+      },
+      "metrics": {
+        "num_logged_steps": 120,
+        "first_loss": 12.31149,
+        "final_loss": 3.44342,
+        "steady_tps": 11728.6,
+        "peak_tps": 11754.0,
+        "steady_mfu_pct": 17.68,
+        "peak_mfu_pct": 17.72,
+        "peak_mem_gib": 11.81,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.31149,
+            "tps_per_rank": 478.0,
+            "logged_mfu_pct": 0.72,
+            "calc_mfu_pct": 0.72,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 1,
+            "loss": 12.31149,
+            "tps_per_rank": 478.0,
+            "logged_mfu_pct": 0.72,
+            "calc_mfu_pct": 0.72,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 1,
+            "loss": 12.31149,
+            "tps_per_rank": 478.0,
+            "logged_mfu_pct": 0.72,
+            "calc_mfu_pct": 0.72,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 1,
+            "loss": 12.31149,
+            "tps_per_rank": 478.0,
+            "logged_mfu_pct": 0.72,
+            "calc_mfu_pct": 0.72,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 1,
+            "loss": 12.31149,
+            "tps_per_rank": 478.0,
+            "logged_mfu_pct": 0.72,
+            "calc_mfu_pct": 0.72,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 1,
+            "loss": 12.31149,
+            "tps_per_rank": 478.0,
+            "logged_mfu_pct": 0.72,
+            "calc_mfu_pct": 0.72,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 1,
+            "loss": 12.31149,
+            "tps_per_rank": 478.0,
+            "logged_mfu_pct": 0.72,
+            "calc_mfu_pct": 0.72,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 1,
+            "loss": 12.31149,
+            "tps_per_rank": 478.0,
+            "logged_mfu_pct": 0.72,
+            "calc_mfu_pct": 0.72,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 2,
+            "loss": 6.21434,
+            "tps_per_rank": 11718.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.661,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 2,
+            "loss": 6.21434,
+            "tps_per_rank": 11718.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.661,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 2,
+            "loss": 6.21434,
+            "tps_per_rank": 11718.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.661,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 2,
+            "loss": 6.21434,
+            "tps_per_rank": 11718.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.661,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 2,
+            "loss": 6.21434,
+            "tps_per_rank": 11718.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.661,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 2,
+            "loss": 6.21434,
+            "tps_per_rank": 11718.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.661,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 2,
+            "loss": 6.21434,
+            "tps_per_rank": 11718.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.661,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 2,
+            "loss": 6.21434,
+            "tps_per_rank": 11718.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.661,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 3,
+            "loss": 10.87814,
+            "tps_per_rank": 11715.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.656,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 3,
+            "loss": 10.87814,
+            "tps_per_rank": 11716.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.658,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 3,
+            "loss": 10.87814,
+            "tps_per_rank": 11715.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.656,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 3,
+            "loss": 10.87814,
+            "tps_per_rank": 11716.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.658,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 3,
+            "loss": 10.87814,
+            "tps_per_rank": 11715.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.656,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 3,
+            "loss": 10.87814,
+            "tps_per_rank": 11715.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.656,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 3,
+            "loss": 10.87814,
+            "tps_per_rank": 11715.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.656,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 3,
+            "loss": 10.87814,
+            "tps_per_rank": 11715.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.656,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 4,
+            "loss": 23.78002,
+            "tps_per_rank": 11719.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.662,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 4,
+            "loss": 23.78002,
+            "tps_per_rank": 11719.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.662,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 4,
+            "loss": 23.78002,
+            "tps_per_rank": 11719.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.662,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 4,
+            "loss": 23.78002,
+            "tps_per_rank": 11719.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.662,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 4,
+            "loss": 23.78002,
+            "tps_per_rank": 11719.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.662,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 4,
+            "loss": 23.78002,
+            "tps_per_rank": 11718.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.661,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 4,
+            "loss": 23.78002,
+            "tps_per_rank": 11718.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.661,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 4,
+            "loss": 23.78002,
+            "tps_per_rank": 11719.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.662,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 5,
+            "loss": 12.09405,
+            "tps_per_rank": 11737.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.689,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 5,
+            "loss": 12.09405,
+            "tps_per_rank": 11737.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.689,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 5,
+            "loss": 12.09405,
+            "tps_per_rank": 11738.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.691,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 5,
+            "loss": 12.09405,
+            "tps_per_rank": 11737.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.689,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 5,
+            "loss": 12.09405,
+            "tps_per_rank": 11737.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.689,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 5,
+            "loss": 12.09405,
+            "tps_per_rank": 11737.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.689,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 5,
+            "loss": 12.09405,
+            "tps_per_rank": 11737.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.689,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 5,
+            "loss": 12.09405,
+            "tps_per_rank": 11737.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.689,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 6,
+            "loss": 8.06243,
+            "tps_per_rank": 11712.0,
+            "logged_mfu_pct": 17.65,
+            "calc_mfu_pct": 17.652,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 6,
+            "loss": 8.06243,
+            "tps_per_rank": 11712.0,
+            "logged_mfu_pct": 17.65,
+            "calc_mfu_pct": 17.652,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 6,
+            "loss": 8.06243,
+            "tps_per_rank": 11712.0,
+            "logged_mfu_pct": 17.65,
+            "calc_mfu_pct": 17.652,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 6,
+            "loss": 8.06243,
+            "tps_per_rank": 11712.0,
+            "logged_mfu_pct": 17.65,
+            "calc_mfu_pct": 17.652,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 6,
+            "loss": 8.06243,
+            "tps_per_rank": 11713.0,
+            "logged_mfu_pct": 17.65,
+            "calc_mfu_pct": 17.653,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 6,
+            "loss": 8.06243,
+            "tps_per_rank": 11712.0,
+            "logged_mfu_pct": 17.65,
+            "calc_mfu_pct": 17.652,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 6,
+            "loss": 8.06243,
+            "tps_per_rank": 11712.0,
+            "logged_mfu_pct": 17.65,
+            "calc_mfu_pct": 17.652,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 6,
+            "loss": 8.06243,
+            "tps_per_rank": 11712.0,
+            "logged_mfu_pct": 17.65,
+            "calc_mfu_pct": 17.652,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 7,
+            "loss": 6.78127,
+            "tps_per_rank": 11701.0,
+            "logged_mfu_pct": 17.63,
+            "calc_mfu_pct": 17.635,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 7,
+            "loss": 6.78127,
+            "tps_per_rank": 11701.0,
+            "logged_mfu_pct": 17.63,
+            "calc_mfu_pct": 17.635,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 7,
+            "loss": 6.78127,
+            "tps_per_rank": 11701.0,
+            "logged_mfu_pct": 17.63,
+            "calc_mfu_pct": 17.635,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 7,
+            "loss": 6.78127,
+            "tps_per_rank": 11701.0,
+            "logged_mfu_pct": 17.63,
+            "calc_mfu_pct": 17.635,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 7,
+            "loss": 6.78127,
+            "tps_per_rank": 11701.0,
+            "logged_mfu_pct": 17.63,
+            "calc_mfu_pct": 17.635,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 7,
+            "loss": 6.78127,
+            "tps_per_rank": 11701.0,
+            "logged_mfu_pct": 17.63,
+            "calc_mfu_pct": 17.635,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 7,
+            "loss": 6.78127,
+            "tps_per_rank": 11701.0,
+            "logged_mfu_pct": 17.63,
+            "calc_mfu_pct": 17.635,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 7,
+            "loss": 6.78127,
+            "tps_per_rank": 11700.0,
+            "logged_mfu_pct": 17.63,
+            "calc_mfu_pct": 17.634,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 8,
+            "loss": 5.29627,
+            "tps_per_rank": 11737.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.689,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 8,
+            "loss": 5.29627,
+            "tps_per_rank": 11738.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.691,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 8,
+            "loss": 5.29627,
+            "tps_per_rank": 11738.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.691,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 8,
+            "loss": 5.29627,
+            "tps_per_rank": 11738.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.691,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 8,
+            "loss": 5.29627,
+            "tps_per_rank": 11738.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.691,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 8,
+            "loss": 5.29627,
+            "tps_per_rank": 11738.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.691,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 8,
+            "loss": 5.29627,
+            "tps_per_rank": 11737.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.689,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 8,
+            "loss": 5.29627,
+            "tps_per_rank": 11737.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.689,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 9,
+            "loss": 4.65974,
+            "tps_per_rank": 11727.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.674,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 9,
+            "loss": 4.65974,
+            "tps_per_rank": 11727.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.674,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 9,
+            "loss": 4.65974,
+            "tps_per_rank": 11727.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.674,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 9,
+            "loss": 4.65974,
+            "tps_per_rank": 11727.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.674,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 9,
+            "loss": 4.65974,
+            "tps_per_rank": 11727.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.674,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 9,
+            "loss": 4.65974,
+            "tps_per_rank": 11726.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.673,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 9,
+            "loss": 4.65974,
+            "tps_per_rank": 11727.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.674,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 9,
+            "loss": 4.65974,
+            "tps_per_rank": 11726.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.673,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 10,
+            "loss": 4.1586,
+            "tps_per_rank": 11722.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.667,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 10,
+            "loss": 4.1586,
+            "tps_per_rank": 11722.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.667,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 10,
+            "loss": 4.1586,
+            "tps_per_rank": 11723.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.668,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 10,
+            "loss": 4.1586,
+            "tps_per_rank": 11722.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.667,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 10,
+            "loss": 4.1586,
+            "tps_per_rank": 11722.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.667,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 10,
+            "loss": 4.1586,
+            "tps_per_rank": 11723.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.668,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 10,
+            "loss": 4.1586,
+            "tps_per_rank": 11723.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.668,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 10,
+            "loss": 4.1586,
+            "tps_per_rank": 11722.0,
+            "logged_mfu_pct": 17.67,
+            "calc_mfu_pct": 17.667,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 11,
+            "loss": 3.67555,
+            "tps_per_rank": 11750.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.709,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 11,
+            "loss": 3.67555,
+            "tps_per_rank": 11750.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.709,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 11,
+            "loss": 3.67555,
+            "tps_per_rank": 11749.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.708,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 11,
+            "loss": 3.67555,
+            "tps_per_rank": 11749.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.708,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 11,
+            "loss": 3.67555,
+            "tps_per_rank": 11750.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.709,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 11,
+            "loss": 3.67555,
+            "tps_per_rank": 11749.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.708,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 11,
+            "loss": 3.67555,
+            "tps_per_rank": 11749.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.708,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 11,
+            "loss": 3.67555,
+            "tps_per_rank": 11749.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.708,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 12,
+            "loss": 3.61778,
+            "tps_per_rank": 11733.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.683,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 12,
+            "loss": 3.61778,
+            "tps_per_rank": 11734.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.685,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 12,
+            "loss": 3.61778,
+            "tps_per_rank": 11734.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.685,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 12,
+            "loss": 3.61778,
+            "tps_per_rank": 11733.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.683,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 12,
+            "loss": 3.61778,
+            "tps_per_rank": 11733.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.683,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 12,
+            "loss": 3.61778,
+            "tps_per_rank": 11734.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.685,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 12,
+            "loss": 3.61778,
+            "tps_per_rank": 11733.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.683,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 12,
+            "loss": 3.61778,
+            "tps_per_rank": 11733.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.683,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 13,
+            "loss": 3.65697,
+            "tps_per_rank": 11753.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.714,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 13,
+            "loss": 3.65697,
+            "tps_per_rank": 11754.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.715,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 13,
+            "loss": 3.65697,
+            "tps_per_rank": 11753.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.714,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 13,
+            "loss": 3.65697,
+            "tps_per_rank": 11753.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.714,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 13,
+            "loss": 3.65697,
+            "tps_per_rank": 11753.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.714,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 13,
+            "loss": 3.65697,
+            "tps_per_rank": 11753.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.714,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 13,
+            "loss": 3.65697,
+            "tps_per_rank": 11753.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.714,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 13,
+            "loss": 3.65697,
+            "tps_per_rank": 11753.0,
+            "logged_mfu_pct": 17.71,
+            "calc_mfu_pct": 17.714,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 14,
+            "loss": 3.48789,
+            "tps_per_rank": 11735.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.686,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 14,
+            "loss": 3.48789,
+            "tps_per_rank": 11734.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.685,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 14,
+            "loss": 3.48789,
+            "tps_per_rank": 11735.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.686,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 14,
+            "loss": 3.48789,
+            "tps_per_rank": 11734.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.685,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 14,
+            "loss": 3.48789,
+            "tps_per_rank": 11735.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.686,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 14,
+            "loss": 3.48789,
+            "tps_per_rank": 11734.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.685,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 14,
+            "loss": 3.48789,
+            "tps_per_rank": 11734.0,
+            "logged_mfu_pct": 17.68,
+            "calc_mfu_pct": 17.685,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 14,
+            "loss": 3.48789,
+            "tps_per_rank": 11735.0,
+            "logged_mfu_pct": 17.69,
+            "calc_mfu_pct": 17.686,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 15,
+            "loss": 3.44342,
+            "tps_per_rank": 11717.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.659,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 15,
+            "loss": 3.44342,
+            "tps_per_rank": 11717.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.659,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 15,
+            "loss": 3.44342,
+            "tps_per_rank": 11717.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.659,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 15,
+            "loss": 3.44342,
+            "tps_per_rank": 11717.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.659,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 15,
+            "loss": 3.44342,
+            "tps_per_rank": 11717.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.659,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 15,
+            "loss": 3.44342,
+            "tps_per_rank": 11717.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.659,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 15,
+            "loss": 3.44342,
+            "tps_per_rank": 11717.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.659,
+            "mem_gib": 11.81
+          },
+          {
+            "step": 15,
+            "loss": 3.44342,
+            "tps_per_rank": 11716.0,
+            "logged_mfu_pct": 17.66,
+            "calc_mfu_pct": 17.658,
+            "mem_gib": 11.81
+          }
+        ]
+      }
+    }
+  ]
+}
