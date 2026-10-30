@@ -32,7 +32,7 @@ spec:
       subdomain: flint-v7x-8-svc
       restartPolicy: OnFailure
       nodeSelector:
-        cloud.google.com/gke-nodepool: ank-v7-queued-pool
+        cloud.google.com/gke-nodepool: tpu-v7x-8-pool
         cloud.google.com/gke-tpu-accelerator: tpu7x
         cloud.google.com/gke-tpu-topology: 2x2x2
       tolerations:

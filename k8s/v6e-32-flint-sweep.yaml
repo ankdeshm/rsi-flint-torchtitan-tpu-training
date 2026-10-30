@@ -31,7 +31,7 @@ spec:
       subdomain: flint-v6e-32-svc
       restartPolicy: OnFailure
       nodeSelector:
-        cloud.google.com/gke-nodepool: ank-tpu-v6e-32-spot
+        cloud.google.com/gke-nodepool: tpu-v6e-32-pool
         cloud.google.com/gke-tpu-accelerator: tpu-v6e-slice
         cloud.google.com/gke-tpu-topology: 4x8
       tolerations:

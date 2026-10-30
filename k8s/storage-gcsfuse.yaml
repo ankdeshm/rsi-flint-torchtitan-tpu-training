@@ -12,7 +12,7 @@ allowVolumeExpansion: true
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: ank-usc1-models-pv
+  name: tpu-models-gcs-pv
 spec:
   accessModes:
   - ReadWriteMany
@@ -50,5 +50,5 @@ spec:
   resources:
     requests:
       storage: 10Ti
-  volumeName: ank-usc1-models-pv
+  volumeName: tpu-models-gcs-pv
   storageClassName: gcsfuse-sc
