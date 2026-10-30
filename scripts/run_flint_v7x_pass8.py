@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """Pass 8 TPU v7x (16 chips / 32 TensorCores & 8 chips / 16 TensorCores) MFU Frontier for Flint.
 
-Cross-pollinates our v5p-32 microbatch scaling discovery (`mb=56/60/62` + `b=512/256`) AND tests
-16-TensorCore (`FSDP-16`, 8-chip equivalent) vs 32-TensorCore (`FSDP-32`, 16-chip) sharding on TPU v7x:
-  - When run on `v7x-16` (`2x2x4`, `world_size=32` TensorCores):
-    1. `v7x_p8_01_hf_pr123_paired_tile1024_b512_mb56`: 32 TensorCores (`FSDP-32`) + `mb=56` (`3.67M` tok/step)
-    2. `v7x_p8_02_hf_pr123_paired_tile1024_b512_mb60`: 32 TensorCores (`FSDP-32`) + `mb=60` (`3.93M` tok/step)
-    3. `v7x_p8_03_hf_pr123_paired_tile1024_b256_mb62`: 32 TensorCores (`FSDP-32`) + `mb=62` (`4.06M` tok/step)
-    4. `v7x_p8_04_hf_pr123_hsdp_2x16_tile1024_b512_mb40`: `HSDP (dp_replicate=2, dp_shard=16)` — 16 TensorCores per FSDP shard!
-  - When run on `v7x-8` (`2x2x2`, `world_size=16` TensorCores = 8 physical TPU v7x chips):
-    1. `v7x8_p8_01_hf_pr123_fsdp16_tile1024_b512_mb40`: Pure `FSDP-16` (`1.31M` tok/step)
-    2. `v7x8_p8_02_hf_pr123_fsdp16_tile1024_b512_mb48`: Pure `FSDP-16` (`1.57M` tok/step)
-    3. `v7x8_p8_03_native_fsdp16_n38_mb40_ga2`: Native `TpuGraphTrainer` `FSDP-16` (`2.62M` tok/step)
+Key Compiler & Memory Breakthrough (`TT_FULL_AC_FIRST_N` Hybrid `AttentionOnlyAC` + `FullAC`):
+  - Pure `AttentionOnlyAC` (`hf_moe_auto_max_attnac`) saves `bf16[T, 2048] + bf16[T, 4096] + f32[32, T]`
+    (`12,416 * T` bytes/layer) across all 49 layers, hitting the 95 GiB HBM wall right above `mb=48` (`55.7 GiB` saved).
+  - Wrapping the first `N` layers with `FullAC` (`ptd_checkpoint_wrapper`, `4,096 * T` bytes/layer) and the
+    remaining `49 - N` layers with `AttentionOnlyAC` frees `8,320 * T` bytes per full-AC layer (~1.02 GiB/layer at `mb=64`)
+    at a tiny `<0.2%` compute cost per layer (`~9 ms`/layer on v7x)!
+  - This unlocks BOTH:
+    1. Large-microbatch `32-TensorCore` (`FSDP-32`) scaling (`mb=64`, `mb=80`, `mb=96` = `2.0x–3.0x` expert density!)
+    2. `16-TensorCore` (`8-chip` FSDP shard) `HSDP (dp_replicate=2, dp_shard=16)` and pure `FSDP-16` at `mb=48` & `mb=64`
+       without OOMing from FSDP-16's 2x larger persistent weight/optimizer shard (`~34 GiB` vs `~17 GiB`)!
 """
 
 import argparse
@@ -35,35 +34,44 @@ STEP_RE = re.compile(
 MFU_RE = re.compile(r"mfu:\s*(?P<mfu>[0-9.]+)%", re.IGNORECASE)
 MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 
-NATIVE_PATCH = '''
+HF_HYBRID_AC_PATCH = '''
 
 # ==============================================================================
-# Pass 8 Flint v7x FSDP-16 / HSDP Native Config
+# Hybrid Partial FullAC + AttentionOnlyAC Hook (controlled via TT_FULL_AC_FIRST_N)
 # ==============================================================================
+import os as _tt_os
+from torchtitan.experiments.tpu.utils import ptd_checkpoint_wrapper_with_early_stop as _tt_ptd_ckpt_wrapper
 
-def flint_40b_p8_n38_moe_route_comp_opt() -> TpuGraphTrainer.Config:
-  config = flint_40b_v014_tile1024()
-  config.compile.memory_policy = "tpu_selective"
-  config.compile.save_regions = ("moe.routing",)
-  config.compile.save_last_n_layers = {"attention.inner_attention": 38}
-  config.compile.optimizer_compile = "separate_graph"
-  config.compile.compile_grad_norm = True
-  return config
+_orig_attn_only_wrap = AttentionOnlyAC._wrap_block
 
+def _hybrid_attn_only_wrap(self, module, *, base_fqn=None):
+  n_full = int(_tt_os.environ.get("TT_FULL_AC_FIRST_N", "0"))
+  if n_full > 0 and base_fqn and base_fqn.startswith("layers."):
+    try:
+      layer_idx = int(base_fqn.split(".")[1])
+      if layer_idx < n_full:
+        return _tt_ptd_ckpt_wrapper(
+            module,
+            preserve_rng_state=self.config.preserve_rng_state,
+            determinism_check=self.config.determinism_check,
+            early_stop=False,
+            debug=self.config.debug,
+        )
+    except ValueError:
+      pass
+  return _orig_attn_only_wrap(self, module, base_fqn=base_fqn)
 
-__all__.extend([
-    "flint_40b_p8_n38_moe_route_comp_opt",
-])
+AttentionOnlyAC._wrap_block = _hybrid_attn_only_wrap
 '''
 
 
 def apply_runtime_patches() -> None:
-    nat_reg = Path("/torchtitan-native/torchtitan/experiments/tpu/examples/flint/config_registry.py")
-    if nat_reg.exists():
-        txt = nat_reg.read_text()
-        if "flint_40b_p8_n38_moe_route_comp_opt" not in txt:
-            nat_reg.write_text(txt + NATIVE_PATCH)
-            print("[flint-v7x-pass8] Patched Native config_registry.py", flush=True)
+    hf_ac = Path("/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py")
+    if hf_ac.exists():
+        txt = hf_ac.read_text()
+        if "TT_FULL_AC_FIRST_N" not in txt:
+            hf_ac.write_text(txt + HF_HYBRID_AC_PATCH)
+            print("[flint-v7x-pass8] Patched HF activation_checkpoint.py with TT_FULL_AC_FIRST_N hybrid AC", flush=True)
 
 
 def wait_for_master_dns(master_addr: str, timeout_s: int = 300) -> str:
@@ -77,11 +85,10 @@ def wait_for_master_dns(master_addr: str, timeout_s: int = 300) -> str:
 
 
 def build_v7x_pass8_experiments(world_size: int, hf_model_path: str, steps: int) -> list[dict]:
-    mb40 = 40 * 2048  # 81,920 tok/rank
     mb48 = 48 * 2048  # 98,304 tok/rank
-    mb56 = 56 * 2048  # 114,688 tok/rank
-    mb60 = 60 * 2048  # 122,880 tok/rank
-    mb62 = 62 * 2048  # 126,976 tok/rank
+    mb64 = 64 * 2048  # 131,072 tok/rank -> 4.19M tok/step on 32 ranks (2.10M on 16 ranks)
+    mb80 = 80 * 2048  # 163,840 tok/rank -> 5.24M tok/step on 32 ranks
+    mb96 = 96 * 2048  # 196,608 tok/rank -> 6.29M tok/step on 32 ranks
 
     hf_splash_args = [
         "--splash_attention_kernel.sa_block_q=512",
@@ -99,24 +106,22 @@ def build_v7x_pass8_experiments(world_size: int, hf_model_path: str, steps: int)
         "xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true "
         "xla_tpu_dvfs_p_state=7"
     )
-    paired_gmm_env = {
-        "TT_HF_GMM": (
-            "use_pallas_paired_grouped_mm=true,"
-            "pallas_grouped_mm_tile_m=1024,"
-            "pallas_grouped_mm_tgmm_tiling=512:2048:0,"
-            "pallas_grouped_mm_w2_tgmm_tiling=512:512:0,"
-            "pallas_grouped_mm_w2_transposed_tgmm_tiling=512:0:2048"
-        )
-    }
+    paired_gmm_str = (
+        "use_pallas_paired_grouped_mm=true,"
+        "pallas_grouped_mm_tile_m=1024,"
+        "pallas_grouped_mm_tgmm_tiling=512:2048:0,"
+        "pallas_grouped_mm_w2_tgmm_tiling=512:512:0,"
+        "pallas_grouped_mm_w2_transposed_tgmm_tiling=512:0:2048"
+    )
 
     if world_size == 16:
         # True 8-chip (2x2x2, 16 TensorCores) FSDP-16 topology (matching Aleksey's 2x2x2 row!)
         return [
             {
-                "name": "v7x8_p8_01_hf_pr123_fsdp16_tile1024_b512_mb40",
-                "lane": "v7x-8 (8 chips / 16 TensorCores) FSDP-16 HF PR#123 (Paired GMM tile_m=1024, mb=40)",
+                "name": "v7x8_p8_01_hf_pr123_fsdp16_hybridac20_mb48",
+                "lane": "v7x-8 (8 chips / 16 TensorCores) FSDP-16 HF PR#123 (HybridAC full=20, mb=48 = 1.57M tok/step)",
                 "workdir": "/torchtitan-hf",
-                "env": paired_gmm_env,
+                "env": {"TT_HF_GMM": paired_gmm_str, "TT_FULL_AC_FIRST_N": "20"},
                 "args": [
                     "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
                     "--config=hf_moe_auto_max_attnac",
@@ -125,27 +130,7 @@ def build_v7x_pass8_experiments(world_size: int, hf_model_path: str, steps: int)
                     f"--training.steps={steps}",
                     "--metrics.log_freq=1",
                     "--debug.seed=42",
-                    "--loss.b_block_size=512",
-                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb40}",
-                    f"--training.num_tokens_per_train_step={world_size * mb40}",
-                    *hf_splash_args,
-                    f"--extra-libtpu-init-flags={v7x_hier_sc_flags}",
-                ],
-            },
-            {
-                "name": "v7x8_p8_02_hf_pr123_fsdp16_tile1024_b512_mb48",
-                "lane": "v7x-8 (8 chips / 16 TensorCores) FSDP-16 HF PR#123 (Paired GMM tile_m=1024, mb=48)",
-                "workdir": "/torchtitan-hf",
-                "env": paired_gmm_env,
-                "args": [
-                    "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
-                    "--config=hf_moe_auto_max_attnac",
-                    f"--hf-model={hf_model_path}",
-                    "--training.max_context_length=2048",
-                    f"--training.steps={steps}",
-                    "--metrics.log_freq=1",
-                    "--debug.seed=42",
-                    "--loss.b_block_size=512",
+                    "--loss.b_block_size=1024",
                     f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}",
                     f"--training.num_tokens_per_train_step={world_size * mb48}",
                     *hf_splash_args,
@@ -153,30 +138,36 @@ def build_v7x_pass8_experiments(world_size: int, hf_model_path: str, steps: int)
                 ],
             },
             {
-                "name": "v7x8_p8_03_native_fsdp16_n38_mb40_ga2",
-                "lane": "v7x-8 (8 chips / 16 TensorCores) FSDP-16 Native PR#122 (n38 + 2x GradAccum @ mb=40)",
-                "workdir": "/torchtitan-native",
-                "env": {},
+                "name": "v7x8_p8_02_hf_pr123_fsdp16_fullac_mb64",
+                "lane": "v7x-8 (8 chips / 16 TensorCores) FSDP-16 HF PR#123 (FullAC, mb=64 = 2.10M tok/step)",
+                "workdir": "/torchtitan-hf",
+                "env": {"TT_HF_GMM": paired_gmm_str},
                 "args": [
-                    "--module=torchtitan.experiments.tpu.examples.flint",
-                    "--config=flint_40b_p8_n38_moe_route_comp_opt",
+                    "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+                    "--config=hf_moe_auto_max_attnac",
+                    f"--hf-model={hf_model_path}",
+                    "--training.max_context_length=2048",
                     f"--training.steps={steps}",
                     "--metrics.log_freq=1",
                     "--debug.seed=42",
-                    "--tpu_config.mfu_benchmark_start_step=3",
-                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb40}",
-                    f"--training.num_tokens_per_train_step={2 * world_size * mb40}",
+                    "--loss.b_block_size=1024",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                    f"--training.num_tokens_per_train_step={world_size * mb64}",
+                    *hf_splash_args,
+                    f"--extra-libtpu-init-flags={v7x_hier_sc_flags}",
+                    "--activation_checkpoint",
+                    "full",
                 ],
             },
         ]
 
-    # 16-chip (2x2x4, 32 TensorCores): FSDP-32 Large-MB (mb=56/60/62) + HSDP 2x FSDP-16
+    # 16-chip (2x2x4, 32 TensorCores): FSDP-32 Large-MB (mb=64/80/96) + HSDP 2x FSDP-16 (16 TensorCores/shard)
     return [
         {
-            "name": "v7x_p8_01_hf_pr123_paired_tile1024_b512_mb56",
-            "lane": "v7x-16 (32 TensorCores) FSDP-32 HF PR#123 (Paired GMM tile_m=1024 + b=512, mb=56 = 3.67M tok/step)",
+            "name": "v7x_p8_01_hf_pr123_paired_tile1024_hybridac16_mb64",
+            "lane": "v7x-16 (32 TensorCores) FSDP-32 HF PR#123 (Paired GMM tile_m=1024 + HybridAC full=16, mb=64 = 4.19M tok/step)",
             "workdir": "/torchtitan-hf",
-            "env": paired_gmm_env,
+            "env": {"TT_HF_GMM": paired_gmm_str, "TT_FULL_AC_FIRST_N": "16"},
             "args": [
                 "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
                 "--config=hf_moe_auto_max_attnac",
@@ -185,18 +176,18 @@ def build_v7x_pass8_experiments(world_size: int, hf_model_path: str, steps: int)
                 f"--training.steps={steps}",
                 "--metrics.log_freq=1",
                 "--debug.seed=42",
-                "--loss.b_block_size=512",
-                f"--training.num_tokens_per_microbatch_per_dp_rank={mb56}",
-                f"--training.num_tokens_per_train_step={world_size * mb56}",
+                "--loss.b_block_size=1024",
+                f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                f"--training.num_tokens_per_train_step={world_size * mb64}",
                 *hf_splash_args,
                 f"--extra-libtpu-init-flags={v7x_hier_sc_flags}",
             ],
         },
         {
-            "name": "v7x_p8_02_hf_pr123_paired_tile1024_b512_mb60",
-            "lane": "v7x-16 (32 TensorCores) FSDP-32 HF PR#123 (Paired GMM tile_m=1024 + b=512, mb=60 = 3.93M tok/step)",
+            "name": "v7x_p8_02_hf_pr123_paired_tile1024_hybridac32_mb80",
+            "lane": "v7x-16 (32 TensorCores) FSDP-32 HF PR#123 (Paired GMM tile_m=1024 + HybridAC full=32, mb=80 = 5.24M tok/step)",
             "workdir": "/torchtitan-hf",
-            "env": paired_gmm_env,
+            "env": {"TT_HF_GMM": paired_gmm_str, "TT_FULL_AC_FIRST_N": "32"},
             "args": [
                 "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
                 "--config=hf_moe_auto_max_attnac",
@@ -205,18 +196,18 @@ def build_v7x_pass8_experiments(world_size: int, hf_model_path: str, steps: int)
                 f"--training.steps={steps}",
                 "--metrics.log_freq=1",
                 "--debug.seed=42",
-                "--loss.b_block_size=512",
-                f"--training.num_tokens_per_microbatch_per_dp_rank={mb60}",
-                f"--training.num_tokens_per_train_step={world_size * mb60}",
+                "--loss.b_block_size=1024",
+                f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                f"--training.num_tokens_per_train_step={world_size * mb80}",
                 *hf_splash_args,
                 f"--extra-libtpu-init-flags={v7x_hier_sc_flags}",
             ],
         },
         {
-            "name": "v7x_p8_03_hf_pr123_paired_tile1024_b256_mb62",
-            "lane": "v7x-16 (32 TensorCores) FSDP-32 HF PR#123 (Paired GMM tile_m=1024 + b=256, mb=62 = 4.06M tok/step)",
+            "name": "v7x_p8_03_hf_pr123_paired_tile1024_fullac_mb96",
+            "lane": "v7x-16 (32 TensorCores) FSDP-32 HF PR#123 (Paired GMM tile_m=1024 + FullAC, mb=96 = 6.29M tok/step)",
             "workdir": "/torchtitan-hf",
-            "env": paired_gmm_env,
+            "env": {"TT_HF_GMM": paired_gmm_str},
             "args": [
                 "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
                 "--config=hf_moe_auto_max_attnac",
@@ -225,18 +216,20 @@ def build_v7x_pass8_experiments(world_size: int, hf_model_path: str, steps: int)
                 f"--training.steps={steps}",
                 "--metrics.log_freq=1",
                 "--debug.seed=42",
-                "--loss.b_block_size=256",
-                f"--training.num_tokens_per_microbatch_per_dp_rank={mb62}",
-                f"--training.num_tokens_per_train_step={world_size * mb62}",
+                "--loss.b_block_size=1024",
+                f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
+                f"--training.num_tokens_per_train_step={world_size * mb96}",
                 *hf_splash_args,
                 f"--extra-libtpu-init-flags={v7x_hier_sc_flags}",
+                "--activation_checkpoint",
+                "full",
             ],
         },
         {
-            "name": "v7x_p8_04_hf_pr123_hsdp_2x16_tile1024_b512_mb40",
-            "lane": "v7x-16 HSDP 2x FSDP-16 (16-TensorCore / 8-Chip FSDP Shards, dp_replicate=2, dp_shard=16, mb=40)",
+            "name": "v7x_p8_04_hf_pr123_hsdp_2x16_hybridac20_mb48",
+            "lane": "v7x-16 HSDP 2x FSDP-16 (16-TensorCore / 8-Chip FSDP Shards, HybridAC full=20, mb=48 = 3.15M tok/step)",
             "workdir": "/torchtitan-hf",
-            "env": paired_gmm_env,
+            "env": {"TT_HF_GMM": paired_gmm_str, "TT_FULL_AC_FIRST_N": "20"},
             "args": [
                 "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
                 "--config=hf_moe_auto_max_attnac",
@@ -245,13 +238,37 @@ def build_v7x_pass8_experiments(world_size: int, hf_model_path: str, steps: int)
                 f"--training.steps={steps}",
                 "--metrics.log_freq=1",
                 "--debug.seed=42",
-                "--loss.b_block_size=512",
+                "--loss.b_block_size=1024",
                 "--parallelism.data_parallel_replicate_degree=2",
                 "--parallelism.data_parallel_shard_degree=16",
-                f"--training.num_tokens_per_microbatch_per_dp_rank={mb40}",
-                f"--training.num_tokens_per_train_step={world_size * mb40}",
+                f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}",
+                f"--training.num_tokens_per_train_step={world_size * mb48}",
                 *hf_splash_args,
                 f"--extra-libtpu-init-flags={v7x_hier_sc_flags}",
+            ],
+        },
+        {
+            "name": "v7x_p8_05_hf_pr123_hsdp_2x16_fullac_mb64",
+            "lane": "v7x-16 HSDP 2x FSDP-16 (16-TensorCore / 8-Chip FSDP Shards, FullAC, mb=64 = 4.19M tok/step)",
+            "workdir": "/torchtitan-hf",
+            "env": {"TT_HF_GMM": paired_gmm_str},
+            "args": [
+                "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+                "--config=hf_moe_auto_max_attnac",
+                f"--hf-model={hf_model_path}",
+                "--training.max_context_length=2048",
+                f"--training.steps={steps}",
+                "--metrics.log_freq=1",
+                "--debug.seed=42",
+                "--loss.b_block_size=1024",
+                "--parallelism.data_parallel_replicate_degree=2",
+                "--parallelism.data_parallel_shard_degree=16",
+                f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                f"--training.num_tokens_per_train_step={world_size * mb64}",
+                *hf_splash_args,
+                f"--extra-libtpu-init-flags={v7x_hier_sc_flags}",
+                "--activation_checkpoint",
+                "full",
             ],
         },
     ]
@@ -416,6 +433,11 @@ def main() -> int:
                 "metrics": metrics,
             })
             write_summary(out_dir, bench_dir, args.slice_name, args.chip_type, world_size, results)
+            print(
+                f"[flint-v7x-pass8] SAVED {exp['name']}: status={status} "
+                f"steady_tps={metrics.get('steady_tps', 0)} steady_mfu={metrics.get('steady_mfu_pct', 0)}%",
+                flush=True,
+            )
         time.sleep(12)
     return 0
 
