@@ -107,10 +107,10 @@ def build_v5p_pass6_experiments(world_size: int, hf_model_path: str, steps: int)
 
     return [
         {
-            "name": "v5p_p6_01_hf_pr123_hybridac16_mb64",
-            "lane": "v5p-32 Pass6 HF PR#123 (Paired GMM tile_m=256 + HybridAC full=16, mb=64 = 4.19M tok/step)",
+            "name": "v5p_p6_01_hf_pr123_hybridac18_mb64",
+            "lane": "v5p-32 Pass6 HF PR#123 (Paired GMM tile_m=256 + HybridAC full=18, mb=64 = 4.19M tok/step)",
             "workdir": "/torchtitan-hf",
-            "env": {"TT_HF_GMM": gmm_env, "TT_FULL_AC_FIRST_N": "16"},
+            "env": {"TT_HF_GMM": gmm_env, "TT_FULL_AC_FIRST_N": "18"},
             "args": [
                 "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
                 "--config=hf_moe_auto_max_attnac",
@@ -126,10 +126,10 @@ def build_v5p_pass6_experiments(world_size: int, hf_model_path: str, steps: int)
             ],
         },
         {
-            "name": "v5p_p6_02_hf_pr123_hybridac32_mb80",
-            "lane": "v5p-32 Pass6 HF PR#123 (Paired GMM tile_m=256 + HybridAC full=32, mb=80 = 5.24M tok/step)",
+            "name": "v5p_p6_02_hf_pr123_hybridac36_mb80",
+            "lane": "v5p-32 Pass6 HF PR#123 (Paired GMM tile_m=256 + HybridAC full=36, mb=80 = 5.24M tok/step)",
             "workdir": "/torchtitan-hf",
-            "env": {"TT_HF_GMM": gmm_env, "TT_FULL_AC_FIRST_N": "32"},
+            "env": {"TT_HF_GMM": gmm_env, "TT_FULL_AC_FIRST_N": "36"},
             "args": [
                 "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
                 "--config=hf_moe_auto_max_attnac",
@@ -145,10 +145,10 @@ def build_v5p_pass6_experiments(world_size: int, hf_model_path: str, steps: int)
             ],
         },
         {
-            "name": "v5p_p6_03_hf_pr123_fullac_mb96",
-            "lane": "v5p-32 Pass6 HF PR#123 (Paired GMM tile_m=256 + FullAC, mb=96 = 6.29M tok/step)",
+            "name": "v5p_p6_03_hf_pr123_fullac49_mb96",
+            "lane": "v5p-32 Pass6 HF PR#123 (Paired GMM tile_m=256 + FullAC-49, mb=96 = 6.29M tok/step)",
             "workdir": "/torchtitan-hf",
-            "env": {"TT_HF_GMM": gmm_env},
+            "env": {"TT_HF_GMM": gmm_env, "TT_FULL_AC_FIRST_N": "49"},
             "args": [
                 "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
                 "--config=hf_moe_auto_max_attnac",
@@ -161,15 +161,13 @@ def build_v5p_pass6_experiments(world_size: int, hf_model_path: str, steps: int)
                 f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
                 f"--training.num_tokens_per_train_step={world_size * mb96}",
                 *hf_splash,
-                "--activation_checkpoint",
-                "full",
             ],
         },
         {
-            "name": "v5p_p6_04_hf_pr123_hsdp_2x16_hybridac20_mb48",
-            "lane": "v5p-32 Pass6 HSDP 2x FSDP-16 (dp_replicate=2, dp_shard=16 + HybridAC full=20, mb=48 = 3.15M tok/step)",
+            "name": "v5p_p6_04_hf_pr123_hsdp_2x16_hybridac28_mb48",
+            "lane": "v5p-32 Pass6 HSDP 2x FSDP-16 (dp_replicate=2, dp_shard=16 + HybridAC full=28, mb=48 = 3.15M tok/step)",
             "workdir": "/torchtitan-hf",
-            "env": {"TT_HF_GMM": gmm_env, "TT_FULL_AC_FIRST_N": "20"},
+            "env": {"TT_HF_GMM": gmm_env, "TT_FULL_AC_FIRST_N": "28"},
             "args": [
                 "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
                 "--config=hf_moe_auto_max_attnac",
@@ -183,6 +181,27 @@ def build_v5p_pass6_experiments(world_size: int, hf_model_path: str, steps: int)
                 "--parallelism.data_parallel_shard_degree=16",
                 f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}",
                 f"--training.num_tokens_per_train_step={world_size * mb48}",
+                *hf_splash,
+            ],
+        },
+        {
+            "name": "v5p_p6_05_hf_pr123_hsdp_2x16_fullac49_mb64",
+            "lane": "v5p-32 Pass6 HSDP 2x FSDP-16 (dp_replicate=2, dp_shard=16 + FullAC-49, mb=64 = 4.19M tok/step)",
+            "workdir": "/torchtitan-hf",
+            "env": {"TT_HF_GMM": gmm_env, "TT_FULL_AC_FIRST_N": "49"},
+            "args": [
+                "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+                "--config=hf_moe_auto_max_attnac",
+                f"--hf-model={hf_model_path}",
+                "--training.max_context_length=2048",
+                f"--training.steps={steps}",
+                "--metrics.log_freq=1",
+                "--debug.seed=42",
+                "--loss.b_block_size=1024",
+                "--parallelism.data_parallel_replicate_degree=2",
+                "--parallelism.data_parallel_shard_degree=16",
+                f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                f"--training.num_tokens_per_train_step={world_size * mb64}",
                 *hf_splash,
             ],
         },
