@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 3 Surgical HBM-Calibrated MFU Hillclimb for RSI Flint (`RecursiveSI/flint` 40B MoE) on v7x-16 (32 ranks).
+"""Pass 3 Surgical HBM-Calibrated MFU Hillclimb for Flint (`RecursiveSI/flint` 40B MoE) on v7x-16 (32 ranks).
 
 Grounded in exact XLA memory diagnostics from Pass 1 & Pass 2 on 96 GiB TPU v7x TensorCores:
   - At `mb=32` (65,536 tok/rank) + `n49` (all 49 Splash attention layers saved), ~76 GiB HBM is used (~20 GiB free).
@@ -47,7 +47,7 @@ MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 NATIVE_PATCH = '''
 
 # ==============================================================================
-# Pass 3 RSI Flint Surgical HBM-Calibrated MFU Hillclimb Configs
+# Pass 3 Flint Surgical HBM-Calibrated MFU Hillclimb Configs
 # ==============================================================================
 
 def flint_40b_p3_comp_opt() -> TpuGraphTrainer.Config:
@@ -370,7 +370,7 @@ def write_summary(out_dir: Path, bench_dir: Path, slice_name: str, chip_type: st
     (out_dir / "summary.json").write_text(json.dumps(payload, indent=2))
 
     md_lines = [
-        f"# RSI Flint (`RecursiveSI/flint` 40B MoE) Pass 3 Surgical MFU Hillclimb — `{slice_name}`",
+        f"# Flint (`RecursiveSI/flint` 40B MoE) Pass 3 Surgical MFU Hillclimb — `{slice_name}`",
         "",
         f"- **Updated (UTC):** `{payload['updated_at_utc']}`",
         f"- **Chip / World Size:** `{chip_type}` (`{world_size}` ranks, `{PEAK_BF16_TFLOPS_PER_RANK.get(chip_type)}` BF16 TFLOP/s/rank, `17.385` GFLOP/token)",

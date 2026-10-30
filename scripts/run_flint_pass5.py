@@ -38,7 +38,7 @@ MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 BASE_PATCH = '''
 
 # ==============================================================================
-# Pass 5 RSI Flint Final Native Peak-MFU Configs
+# Pass 5 Flint Final Native Peak-MFU Configs
 # ==============================================================================
 
 def _set_bwd_tgmm_1024(config) -> None:
@@ -264,7 +264,7 @@ def write_summary(out_dir: Path, bench_dir: Path, slice_name: str, chip_type: st
     (out_dir / "summary.json").write_text(json.dumps(payload, indent=2))
 
     md_lines = [
-        f"# RSI Flint (`RecursiveSI/flint` 40B MoE) Pass 5 Final Hillclimb — `{slice_name}`",
+        f"# Flint (`RecursiveSI/flint` 40B MoE) Pass 5 Final Hillclimb — `{slice_name}`",
         "",
         f"- **Updated (UTC):** `{payload['updated_at_utc']}`",
         f"- **Chip / World Size:** `{chip_type}` (`{world_size}` ranks, `{PEAK_BF16_TFLOPS_PER_RANK.get(chip_type)}` BF16 TFLOP/s/rank, `17.385` GFLOP/token)",

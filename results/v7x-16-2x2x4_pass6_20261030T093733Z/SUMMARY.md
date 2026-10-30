@@ -1,4 +1,4 @@
-# RSI Flint (`RecursiveSI/flint` 40B MoE) Pass 6 Real HF Checkpoint & n49@mb44 — `v7x-16-2x2x4`
+# Flint (`RecursiveSI/flint` 40B MoE) Pass 6 Real HF Checkpoint & n49@mb44 — `v7x-16-2x2x4`
 
 - **Updated (UTC):** `2026-10-30T09:49:15.420746+00:00`
 - **Chip / World Size:** `v7x` (`32` ranks, `1153.5` BF16 TFLOP/s/rank, `17.385` GFLOP/token)

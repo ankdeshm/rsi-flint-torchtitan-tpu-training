@@ -1,4 +1,4 @@
-# RSI Flint (`RecursiveSI/flint` 40B MoE) TorchTPU 0.2.0 GA Training Results — `v5p-16-2x2x4`
+# Flint (`RecursiveSI/flint` 40B MoE) TorchTPU 0.2.0 GA Training Results — `v5p-16-2x2x4`
 
 - **Updated (UTC):** `2026-10-30T18:15:07.434335+00:00`
 - **Chip / World Size:** `v5p` (`16` ranks, `459.0` BF16 TFLOP/s/rank, `17.385` GFLOP/token)

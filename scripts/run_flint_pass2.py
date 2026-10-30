@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 2 Aggressive MFU Hillclimb for RSI Flint (`RecursiveSI/flint` 40B MoE) on v7x-16 (32 ranks).
+"""Pass 2 Aggressive MFU Hillclimb for Flint (`RecursiveSI/flint` 40B MoE) on v7x-16 (32 ranks).
 
 Exploits the massive HBM headroom discovered in Pass 1 on FSDP32 (`14.3-15.7 GiB / 96 GiB = ~15% HBM`):
   1. Eliminates activation recomputation (`NoAC` on PR#123 HF Backend; `memory_policy="default"` on PR#122 Native GraphTrainer).
@@ -36,7 +36,7 @@ MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 HF_PATCH = '''
 
 # ==============================================================================
-# Pass 2 RSI Flint MFU Hillclimb Configs (NoAC + Compiled Optimizer)
+# Pass 2 Flint MFU Hillclimb Configs (NoAC + Compiled Optimizer)
 # ==============================================================================
 
 def hf_moe_auto_max_noac() -> TPUTransformersBackendConfig:
@@ -57,7 +57,7 @@ def hf_moe_auto_max_noac_comp_opt() -> TPUTransformersBackendConfig:
 NATIVE_PATCH = '''
 
 # ==============================================================================
-# Pass 2 RSI Flint MFU Hillclimb Configs (Zero Remat + Compiled Opt + 2-Layer Split)
+# Pass 2 Flint MFU Hillclimb Configs (Zero Remat + Compiled Opt + 2-Layer Split)
 # ==============================================================================
 
 def flint_40b_p2_opt_moe_route() -> TpuGraphTrainer.Config:
@@ -335,7 +335,7 @@ def write_summary(out_dir: Path, bench_dir: Path, slice_name: str, chip_type: st
     (out_dir / "summary.json").write_text(json.dumps(payload, indent=2))
 
     md_lines = [
-        f"# RSI Flint (`RecursiveSI/flint` 40B MoE) Pass 2 MFU Hillclimb — `{slice_name}`",
+        f"# Flint (`RecursiveSI/flint` 40B MoE) Pass 2 MFU Hillclimb — `{slice_name}`",
         "",
         f"- **Updated (UTC):** `{payload['updated_at_utc']}`",
         f"- **Chip / World Size:** `{chip_type}` (`{world_size}` ranks, `{PEAK_BF16_TFLOPS_PER_RANK.get(chip_type)}` BF16 TFLOP/s/rank, `17.385` GFLOP/token)",

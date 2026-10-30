@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 2 TPU v5p-16 (2x2x4, 16 ranks) 16MB-Scoped-VMEM-Calibrated MFU Sweep for RSI Flint.
+"""Pass 2 TPU v5p-16 (2x2x4, 16 ranks) 16MB-Scoped-VMEM-Calibrated MFU Sweep for Flint.
 
 Fixes the 16.58 MB > 16.00 MB v5p Scoped VMEM overflow in Paired W1/W3 Pallas GroupedMM:
   - v5p_p2_01: Native PR #122 (`TpuGraphTrainer`) + `tile_m=256`, `tgmm=(256, 1024, 0)` + `n49`
@@ -258,7 +258,7 @@ def write_summary(out_dir: Path, bench_dir: Path, slice_name: str, chip_type: st
     (out_dir / "summary.json").write_text(json.dumps(payload, indent=2))
 
     md_lines = [
-        f"# RSI Flint (`RecursiveSI/flint` 40B MoE) v5p-16 Pass 2 Results — `{slice_name}`",
+        f"# Flint (`RecursiveSI/flint` 40B MoE) v5p-16 Pass 2 Results — `{slice_name}`",
         "",
         f"- **Updated (UTC):** `{payload['updated_at_utc']}`",
         f"- **Chip / World Size:** `{chip_type}` (`{world_size}` ranks, `{PEAK_BF16_TFLOPS_PER_RANK.get(chip_type)}` BF16 TFLOP/s/rank, `17.385` GFLOP/token)",

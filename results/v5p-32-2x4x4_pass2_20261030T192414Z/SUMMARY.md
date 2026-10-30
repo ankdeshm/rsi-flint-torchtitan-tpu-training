@@ -1,4 +1,4 @@
-# RSI Flint (`RecursiveSI/flint` 40B MoE) v5p-16 Pass 2 Results — `v5p-32-2x4x4_pass2`
+# Flint (`RecursiveSI/flint` 40B MoE) v5p-16 Pass 2 Results — `v5p-32-2x4x4_pass2`
 
 - **Updated (UTC):** `2026-10-30T19:50:57.901233+00:00`
 - **Chip / World Size:** `v5p` (`32` ranks, `459.0` BF16 TFLOP/s/rank, `17.385` GFLOP/token)

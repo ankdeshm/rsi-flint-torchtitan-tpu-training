@@ -36,7 +36,7 @@ MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 BASE_PATCH = '''
 
 # ==============================================================================
-# Pass 7 RSI Flint Next-Wave v7x MFU Configs
+# Pass 7 Flint Next-Wave v7x MFU Configs
 # ==============================================================================
 
 def flint_40b_p7_n43_moe_route_comp_opt() -> TpuGraphTrainer.Config:

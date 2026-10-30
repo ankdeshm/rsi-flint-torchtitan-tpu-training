@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Appends RSI Flint MFU hillclimb & v5p/v6e portable recipes to PR #122 config_registry.py."""
+"""Appends Flint MFU hillclimb & v5p/v6e portable recipes to PR #122 config_registry.py."""
 
 from pathlib import Path
 
