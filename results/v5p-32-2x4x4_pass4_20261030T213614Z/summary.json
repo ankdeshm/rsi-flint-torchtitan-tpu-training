@@ -1,0 +1,162 @@
+{
+  "updated_at_utc": "2026-10-30T21:53:11.547516+00:00",
+  "slice_name": "v5p-32-2x4x4_pass4",
+  "chip_type": "v5p",
+  "world_size_ranks": 32,
+  "flops_per_token": 17385000000.0,
+  "peak_bf16_tflops_per_rank": 459.0,
+  "results": [
+    {
+      "name": "v5p_p4_01_hf_pr123_paired_tile256_b1024_mb64",
+      "lane": "v5p-32 Pass4 HF Backend PR#123 (Paired GMM tile_m=256 + b=1024, mb=64 = 4.19M tok/step)",
+      "status": "FAIL(rc=1)",
+      "return_code": 1,
+      "duration_s": 261.5,
+      "command": [
+        "torchrun",
+        "--nnodes=8",
+        "--nproc_per_node=4",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v5p-32-pass4-0.flint-v5p-32-pass4-svc.default.svc.cluster.local:29801",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=2048",
+        "--training.steps=12",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--loss.b_block_size=1024",
+        "--training.num_tokens_per_microbatch_per_dp_rank=131072",
+        "--training.num_tokens_per_train_step=4194304",
+        "--splash_attention_kernel.sa_block_q=512",
+        "--splash_attention_kernel.sa_block_kv=512",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=256,pallas_grouped_mm_tgmm_tiling=256:1024:0,pallas_grouped_mm_w2_tgmm_tiling=256:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=256:0:1024"
+      },
+      "metrics": {
+        "num_logged_steps": 0,
+        "steady_tps": 0.0,
+        "steady_mfu_pct": 0.0
+      }
+    },
+    {
+      "name": "v5p_p4_02_hf_pr123_paired_tile256_b1024_mb80",
+      "lane": "v5p-32 Pass4 HF Backend PR#123 (Paired GMM tile_m=256 + b=1024, mb=80 = 5.24M tok/step)",
+      "status": "FAIL(rc=1)",
+      "return_code": 1,
+      "duration_s": 320.8,
+      "command": [
+        "torchrun",
+        "--nnodes=8",
+        "--nproc_per_node=4",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v5p-32-pass4-0.flint-v5p-32-pass4-svc.default.svc.cluster.local:29802",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=2048",
+        "--training.steps=12",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--loss.b_block_size=1024",
+        "--training.num_tokens_per_microbatch_per_dp_rank=163840",
+        "--training.num_tokens_per_train_step=5242880",
+        "--splash_attention_kernel.sa_block_q=512",
+        "--splash_attention_kernel.sa_block_kv=512",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=256,pallas_grouped_mm_tgmm_tiling=256:1024:0,pallas_grouped_mm_w2_tgmm_tiling=256:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=256:0:1024"
+      },
+      "metrics": {
+        "num_logged_steps": 0,
+        "steady_tps": 0.0,
+        "steady_mfu_pct": 0.0
+      }
+    },
+    {
+      "name": "v5p_p4_03_native_paired_tile256_n30_mb64_ga2",
+      "lane": "v5p-32 Pass4 Native PR#122 (Paired GMM tile_m=256 + n30 + CompiledOpt, mb=64, 2x GradAccum = 8.39M tok/step)",
+      "status": "FAIL(rc=1)",
+      "return_code": 1,
+      "duration_s": 408.2,
+      "command": [
+        "torchrun",
+        "--nnodes=8",
+        "--nproc_per_node=4",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v5p-32-pass4-0.flint-v5p-32-pass4-svc.default.svc.cluster.local:29803",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.examples.flint",
+        "--config=flint_40b_v5p_p4_paired_tile256_n30",
+        "--training.steps=12",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--tpu_config.mfu_benchmark_start_step=3",
+        "--training.num_tokens_per_microbatch_per_dp_rank=131072",
+        "--training.num_tokens_per_train_step=8388608"
+      ],
+      "env_overrides": {},
+      "metrics": {
+        "num_logged_steps": 4,
+        "first_loss": 12.32786,
+        "final_loss": 12.32786,
+        "steady_tps": 709.0,
+        "peak_tps": 709.0,
+        "steady_mfu_pct": 2.69,
+        "peak_mfu_pct": 2.69,
+        "peak_mem_gib": 37.39,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.32786,
+            "tps_per_rank": 709.0,
+            "logged_mfu_pct": 2.69,
+            "calc_mfu_pct": 2.685,
+            "mem_gib": 37.39
+          },
+          {
+            "step": 1,
+            "loss": 12.32786,
+            "tps_per_rank": 709.0,
+            "logged_mfu_pct": 2.69,
+            "calc_mfu_pct": 2.685,
+            "mem_gib": 37.39
+          },
+          {
+            "step": 1,
+            "loss": 12.32786,
+            "tps_per_rank": 709.0,
+            "logged_mfu_pct": 2.69,
+            "calc_mfu_pct": 2.685,
+            "mem_gib": 37.39
+          },
+          {
+            "step": 1,
+            "loss": 12.32786,
+            "tps_per_rank": 709.0,
+            "logged_mfu_pct": 2.69,
+            "calc_mfu_pct": 2.685,
+            "mem_gib": 37.39
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,1101 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793349273.065422   43134 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793349273.713009   43134 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793349273.715482   43134 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+W1030 08:34:33.738000 43134 site-packages/torch/distributed/run.py:982] 
+W1030 08:34:33.738000 43134 site-packages/torch/distributed/run.py:982] *****************************************
+W1030 08:34:33.738000 43134 site-packages/torch/distributed/run.py:982] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W1030 08:34:33.738000 43134 site-packages/torch/distributed/run.py:982] *****************************************
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793349275.853890   43203 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793349275.853893   43204 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793349275.854336   43207 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793349275.854334   43206 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793349275.854333   43200 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793349275.854340   43201 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793349275.917342   43205 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793349275.923156   43202 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793349276.543403   43204 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793349276.545887   43204 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793349276.551266   43207 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+I0000 00:00:1793349276.551342   43203 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793349276.551661   43200 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793349276.552477   43201 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793349276.553546   43206 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793349276.553784   43203 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793349276.553831   43207 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793349276.554321   43200 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793349276.555206   43201 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793349276.556228   43206 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793349276.585938   43205 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793349276.588288   43205 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793349276.593410   43202 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793349276.595756   43202 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+W1030 08:34:38.049000 43204 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.058000 43205 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.068000 43204 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.074000 43203 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.077000 43205 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.081000 43202 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.086000 43207 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.088000 43201 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.088000 43200 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.089000 43206 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.095000 43203 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.103000 43202 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.108000 43207 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.111000 43201 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.111000 43200 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 08:34:38.112000 43206 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+I1030 08:34:39.991144 138540259891136 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+I1030 08:34:39.991261 138144190719936 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 08:34:39.991488 138540259891136 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+W1030 08:34:39.991584 138144190719936 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:39.996018 133304189900736 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 08:34:39.996352 133304189900736 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:39.996374 134608554108864 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 08:34:39.996708 134608554108864 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:40.039868 134766516594624 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 08:34:40.040214 134766516594624 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:40.040324 135303598135232 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+I1030 08:34:40.040451 139488361584576 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 08:34:40.040676 135303598135232 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+W1030 08:34:40.040793 139488361584576 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:40.043697 139814884992960 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 08:34:40.044051 139814884992960 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+W1030 08:34:40.077942 138144190719936 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+W1030 08:34:40.078500 138540259891136 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:40.080392 138144190719936 tpu_flags.py:270] Applied LIBTPU_INIT_ARGS=--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_tpu_dvfs_p_state=7 --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_use_enhanced_launch_barrier=true
+I1030 08:34:40.080455 138144190719936 tpu_flags.py:270] Applied XLA_FLAGS=--xla_enable_hlo_sharding_v3=false
+I1030 08:34:40.080497 138144190719936 distributed_utils.py:21] Platform: Cloud. Initializing via cloud_distributed_utils.
+I1030 08:34:40.080527 138144190719936 cloud_distributed_utils.py:293] Trying to initialize distributed TPU training on GKE.
+I1030 08:34:40.080937 138540259891136 tpu_flags.py:270] Applied LIBTPU_INIT_ARGS=--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_tpu_dvfs_p_state=7 --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_use_enhanced_launch_barrier=true
+I1030 08:34:40.081003 138540259891136 tpu_flags.py:270] Applied XLA_FLAGS=--xla_enable_hlo_sharding_v3=false
+I1030 08:34:40.081044 138540259891136 distributed_utils.py:21] Platform: Cloud. Initializing via cloud_distributed_utils.
+I1030 08:34:40.081074 138540259891136 cloud_distributed_utils.py:293] Trying to initialize distributed TPU training on GKE.
+[W1030 08:34:40.168876615 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_SLICEBUILDER_ADDRESSES environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1030 08:34:40.168896717 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_TOPOLOGY environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793349280.082992   43205 discovery.cc:125] DistributedWorkerConfiguration: 5 5 32 flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10007 10005 2,2,4,2
+W0000 00:00:1793349280.083028   43205 environment.cc:70] libtpu_init_args contains --xla_tpu_use_enhanced_launch_barrier=true, this can cause distributed hangs. Rewriting environment variable to false.
+I0000 00:00:1793349280.083038   43205 pjrt_api.cc:168] The PJRT plugin has PJRT API version 0.116. The framework PJRT API version is 0.116.
+[W1030 08:34:40.169447280 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_SLICEBUILDER_ADDRESSES environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1030 08:34:40.169464650 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_TOPOLOGY environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793349280.083558   43204 discovery.cc:125] DistributedWorkerConfiguration: 4 4 32 flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10007 10004 2,2,4,2
+W0000 00:00:1793349280.083593   43204 environment.cc:70] libtpu_init_args contains --xla_tpu_use_enhanced_launch_barrier=true, this can cause distributed hangs. Rewriting environment variable to false.
+I0000 00:00:1793349280.083601   43204 pjrt_api.cc:168] The PJRT plugin has PJRT API version 0.116. The framework PJRT API version is 0.116.
+W1030 08:34:40.083775 134608554108864 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+W1030 08:34:40.084049 133304189900736 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:40.086262 134608554108864 tpu_flags.py:270] Applied LIBTPU_INIT_ARGS=--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_tpu_dvfs_p_state=7 --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_use_enhanced_launch_barrier=true
+I1030 08:34:40.086326 134608554108864 tpu_flags.py:270] Applied XLA_FLAGS=--xla_enable_hlo_sharding_v3=false
+I1030 08:34:40.086369 134608554108864 distributed_utils.py:21] Platform: Cloud. Initializing via cloud_distributed_utils.
+I1030 08:34:40.086400 134608554108864 cloud_distributed_utils.py:293] Trying to initialize distributed TPU training on GKE.
+I1030 08:34:40.086514 133304189900736 tpu_flags.py:270] Applied LIBTPU_INIT_ARGS=--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_tpu_dvfs_p_state=7 --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_use_enhanced_launch_barrier=true
+I1030 08:34:40.086578 133304189900736 tpu_flags.py:270] Applied XLA_FLAGS=--xla_enable_hlo_sharding_v3=false
+I1030 08:34:40.086619 133304189900736 distributed_utils.py:21] Platform: Cloud. Initializing via cloud_distributed_utils.
+I1030 08:34:40.086649 133304189900736 cloud_distributed_utils.py:293] Trying to initialize distributed TPU training on GKE.
+[W1030 08:34:40.174791075 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_SLICEBUILDER_ADDRESSES environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1030 08:34:40.174807337 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_TOPOLOGY environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793349280.088900   43203 discovery.cc:125] DistributedWorkerConfiguration: 3 3 32 flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10007 10003 2,2,4,2
+W0000 00:00:1793349280.088928   43203 environment.cc:70] libtpu_init_args contains --xla_tpu_use_enhanced_launch_barrier=true, this can cause distributed hangs. Rewriting environment variable to false.
+I0000 00:00:1793349280.088936   43203 pjrt_api.cc:168] The PJRT plugin has PJRT API version 0.116. The framework PJRT API version is 0.116.
+[W1030 08:34:40.175050636 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_SLICEBUILDER_ADDRESSES environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1030 08:34:40.175065330 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_TOPOLOGY environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793349280.089158   43202 discovery.cc:125] DistributedWorkerConfiguration: 2 2 32 flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10007 10002 2,2,4,2
+W0000 00:00:1793349280.089185   43202 environment.cc:70] libtpu_init_args contains --xla_tpu_use_enhanced_launch_barrier=true, this can cause distributed hangs. Rewriting environment variable to false.
+I0000 00:00:1793349280.089192   43202 pjrt_api.cc:168] The PJRT plugin has PJRT API version 0.116. The framework PJRT API version is 0.116.
+W1030 08:34:40.132798 134766516594624 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+W1030 08:34:40.132961 135303598135232 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+W1030 08:34:40.133875 139488361584576 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:40.136158 134766516594624 tpu_flags.py:270] Applied LIBTPU_INIT_ARGS=--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_tpu_dvfs_p_state=7 --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_use_enhanced_launch_barrier=true
+I1030 08:34:40.136243 134766516594624 tpu_flags.py:270] Applied XLA_FLAGS=--xla_enable_hlo_sharding_v3=false
+I1030 08:34:40.136297 134766516594624 distributed_utils.py:21] Platform: Cloud. Initializing via cloud_distributed_utils.
+I1030 08:34:40.136302 135303598135232 tpu_flags.py:270] Applied LIBTPU_INIT_ARGS=--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_tpu_dvfs_p_state=7 --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_use_enhanced_launch_barrier=true
+I1030 08:34:40.136336 134766516594624 cloud_distributed_utils.py:293] Trying to initialize distributed TPU training on GKE.
+I1030 08:34:40.136389 135303598135232 tpu_flags.py:270] Applied XLA_FLAGS=--xla_enable_hlo_sharding_v3=false
+I1030 08:34:40.136443 135303598135232 distributed_utils.py:21] Platform: Cloud. Initializing via cloud_distributed_utils.
+I1030 08:34:40.136483 135303598135232 cloud_distributed_utils.py:293] Trying to initialize distributed TPU training on GKE.
+I1030 08:34:40.137222 139488361584576 tpu_flags.py:270] Applied LIBTPU_INIT_ARGS=--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_tpu_dvfs_p_state=7 --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_use_enhanced_launch_barrier=true
+I1030 08:34:40.137306 139488361584576 tpu_flags.py:270] Applied XLA_FLAGS=--xla_enable_hlo_sharding_v3=false
+I1030 08:34:40.137361 139488361584576 distributed_utils.py:21] Platform: Cloud. Initializing via cloud_distributed_utils.
+I1030 08:34:40.137400 139488361584576 cloud_distributed_utils.py:293] Trying to initialize distributed TPU training on GKE.
+W1030 08:34:40.138118 139814884992960 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+[W1030 08:34:40.225677841 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_SLICEBUILDER_ADDRESSES environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1030 08:34:40.225697395 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_TOPOLOGY environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793349280.139795   43207 discovery.cc:125] DistributedWorkerConfiguration: 7 7 32 flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10007 10007 2,2,4,2
+W0000 00:00:1793349280.139844   43207 environment.cc:70] libtpu_init_args contains --xla_tpu_use_enhanced_launch_barrier=true, this can cause distributed hangs. Rewriting environment variable to false.
+I0000 00:00:1793349280.139855   43207 pjrt_api.cc:168] The PJRT plugin has PJRT API version 0.116. The framework PJRT API version is 0.116.
+[W1030 08:34:40.225960783 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_SLICEBUILDER_ADDRESSES environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1030 08:34:40.225981589 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_TOPOLOGY environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793349280.140078   43200 discovery.cc:125] DistributedWorkerConfiguration: 0 0 32 flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10007 10000 2,2,4,2
+W0000 00:00:1793349280.140128   43200 environment.cc:70] libtpu_init_args contains --xla_tpu_use_enhanced_launch_barrier=true, this can cause distributed hangs. Rewriting environment variable to false.
+I0000 00:00:1793349280.140138   43200 pjrt_api.cc:168] The PJRT plugin has PJRT API version 0.116. The framework PJRT API version is 0.116.
+[W1030 08:34:40.226715228 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_SLICEBUILDER_ADDRESSES environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1030 08:34:40.226733380 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_TOPOLOGY environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793349280.140828   43206 discovery.cc:125] DistributedWorkerConfiguration: 6 6 32 flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10007 10006 2,2,4,2
+W0000 00:00:1793349280.140866   43206 environment.cc:70] libtpu_init_args contains --xla_tpu_use_enhanced_launch_barrier=true, this can cause distributed hangs. Rewriting environment variable to false.
+I0000 00:00:1793349280.140875   43206 pjrt_api.cc:168] The PJRT plugin has PJRT API version 0.116. The framework PJRT API version is 0.116.
+I1030 08:34:40.141455 139814884992960 tpu_flags.py:270] Applied LIBTPU_INIT_ARGS=--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_tpu_dvfs_p_state=7 --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_use_enhanced_launch_barrier=true
+I1030 08:34:40.141539 139814884992960 tpu_flags.py:270] Applied XLA_FLAGS=--xla_enable_hlo_sharding_v3=false
+I1030 08:34:40.141594 139814884992960 distributed_utils.py:21] Platform: Cloud. Initializing via cloud_distributed_utils.
+I1030 08:34:40.141634 139814884992960 cloud_distributed_utils.py:293] Trying to initialize distributed TPU training on GKE.
+[W1030 08:34:40.230911354 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_SLICEBUILDER_ADDRESSES environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1030 08:34:40.230930352 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_TOPOLOGY environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793349280.145026   43201 discovery.cc:125] DistributedWorkerConfiguration: 1 1 32 flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-1.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-2.flint-v7x-16-pass3-svc:10007,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10000,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10001,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10002,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10003,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10004,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10005,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10006,flint-v7x-16-pass3-3.flint-v7x-16-pass3-svc:10007 10001 2,2,4,2
+W0000 00:00:1793349280.145065   43201 environment.cc:70] libtpu_init_args contains --xla_tpu_use_enhanced_launch_barrier=true, this can cause distributed hangs. Rewriting environment variable to false.
+I0000 00:00:1793349280.145074   43201 pjrt_api.cc:168] The PJRT plugin has PJRT API version 0.116. The framework PJRT API version is 0.116.
+I0000 00:00:1793349284.230242   43203 pjrt_c_api_client.cc:187] PjRtCApiClient created.
+/torchtitan-native/torchtitan/trainer.py:357: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> Stream is experimental and subject to change: Stream() is experimental and may change or be removed without notice.
+  device_module.Stream(device=self.device)
+W1030 08:34:44.230723 134608554108864 utils.py:517] ENV[TORCH_NCCL_ASYNC_ERROR_HANDLING] = 1 will be overridden to 3 based on job config
+W0000 00:00:1793349284.231987   43203 process_group_tpu.cc:1299] Node-local store disabled: LOCAL_RANK or TORCH_TPU_DEVICES_PER_HOST is unset (local_rank=3 devices_per_host=unset world_size=32). Every rank will publish to the world store individually, which is slower at scale.
+I0000 00:00:1793349284.238204   43207 pjrt_c_api_client.cc:187] PjRtCApiClient created.
+/torchtitan-native/torchtitan/trainer.py:357: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> Stream is experimental and subject to change: Stream() is experimental and may change or be removed without notice.
+  device_module.Stream(device=self.device)
+W1030 08:34:44.238664 134766516594624 utils.py:517] ENV[TORCH_NCCL_ASYNC_ERROR_HANDLING] = 1 will be overridden to 3 based on job config
+W0000 00:00:1793349284.239568   43207 process_group_tpu.cc:1299] Node-local store disabled: LOCAL_RANK or TORCH_TPU_DEVICES_PER_HOST is unset (local_rank=7 devices_per_host=unset world_size=32). Every rank will publish to the world store individually, which is slower at scale.
+I0000 00:00:1793349284.241052   43204 pjrt_c_api_client.cc:187] PjRtCApiClient created.
+/torchtitan-native/torchtitan/trainer.py:357: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> Stream is experimental and subject to change: Stream() is experimental and may change or be removed without notice.
+  device_module.Stream(device=self.device)
+W1030 08:34:44.241521 138540259891136 utils.py:517] ENV[TORCH_NCCL_ASYNC_ERROR_HANDLING] = 1 will be overridden to 3 based on job config
+I0000 00:00:1793349284.241679   43201 pjrt_c_api_client.cc:187] PjRtCApiClient created.
+/torchtitan-native/torchtitan/trainer.py:357: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> Stream is experimental and subject to change: Stream() is experimental and may change or be removed without notice.
+  device_module.Stream(device=self.device)
+W1030 08:34:44.242174 139814884992960 utils.py:517] ENV[TORCH_NCCL_ASYNC_ERROR_HANDLING] = 1 will be overridden to 3 based on job config
+W0000 00:00:1793349284.242334   43204 process_group_tpu.cc:1299] Node-local store disabled: LOCAL_RANK or TORCH_TPU_DEVICES_PER_HOST is unset (local_rank=4 devices_per_host=unset world_size=32). Every rank will publish to the world store individually, which is slower at scale.
+I0000 00:00:1793349284.242442   43205 pjrt_c_api_client.cc:187] PjRtCApiClient created.
+/torchtitan-native/torchtitan/trainer.py:357: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> Stream is experimental and subject to change: Stream() is experimental and may change or be removed without notice.
+  device_module.Stream(device=self.device)
+W1030 08:34:44.242817 138144190719936 utils.py:517] ENV[TORCH_NCCL_ASYNC_ERROR_HANDLING] = 1 will be overridden to 3 based on job config
+W0000 00:00:1793349284.243378   43201 process_group_tpu.cc:1299] Node-local store disabled: LOCAL_RANK or TORCH_TPU_DEVICES_PER_HOST is unset (local_rank=1 devices_per_host=unset world_size=32). Every rank will publish to the world store individually, which is slower at scale.
+W0000 00:00:1793349284.243504   43205 process_group_tpu.cc:1299] Node-local store disabled: LOCAL_RANK or TORCH_TPU_DEVICES_PER_HOST is unset (local_rank=5 devices_per_host=unset world_size=32). Every rank will publish to the world store individually, which is slower at scale.
+I0000 00:00:1793349284.244128   43202 pjrt_c_api_client.cc:187] PjRtCApiClient created.
+/torchtitan-native/torchtitan/trainer.py:357: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> Stream is experimental and subject to change: Stream() is experimental and may change or be removed without notice.
+  device_module.Stream(device=self.device)
+I0000 00:00:1793349284.244616   43206 pjrt_c_api_client.cc:187] PjRtCApiClient created.
+W1030 08:34:44.244731 133304189900736 utils.py:517] ENV[TORCH_NCCL_ASYNC_ERROR_HANDLING] = 1 will be overridden to 3 based on job config
+/torchtitan-native/torchtitan/trainer.py:357: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> Stream is experimental and subject to change: Stream() is experimental and may change or be removed without notice.
+  device_module.Stream(device=self.device)
+W1030 08:34:44.245114 139488361584576 utils.py:517] ENV[TORCH_NCCL_ASYNC_ERROR_HANDLING] = 1 will be overridden to 3 based on job config
+W0000 00:00:1793349284.245677   43202 process_group_tpu.cc:1299] Node-local store disabled: LOCAL_RANK or TORCH_TPU_DEVICES_PER_HOST is unset (local_rank=2 devices_per_host=unset world_size=32). Every rank will publish to the world store individually, which is slower at scale.
+W0000 00:00:1793349284.245951   43206 process_group_tpu.cc:1299] Node-local store disabled: LOCAL_RANK or TORCH_TPU_DEVICES_PER_HOST is unset (local_rank=6 devices_per_host=unset world_size=32). Every rank will publish to the world store individually, which is slower at scale.
+I0000 00:00:1793349284.315029   43200 pjrt_c_api_client.cc:187] PjRtCApiClient created.
+/torchtitan-native/torchtitan/trainer.py:357: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> Stream is experimental and subject to change: Stream() is experimental and may change or be removed without notice.
+  device_module.Stream(device=self.device)
+[titan] 2026-10-30 08:34:44,315 - root - WARNING - ENV[TORCH_NCCL_ASYNC_ERROR_HANDLING] = 1 will be overridden to 3 based on job config
+W0000 00:00:1793349284.316253   43200 process_group_tpu.cc:1299] Node-local store disabled: LOCAL_RANK or TORCH_TPU_DEVICES_PER_HOST is unset (local_rank=0 devices_per_host=unset world_size=32). Every rank will publish to the world store individually, which is slower at scale.
+I0000 00:00:1793349284.316494   43200 process_group_tpu.cc:1269] AllGatherViaNodeLocalStore(world_topo:0:32): gathered 32 entries from 32 nodes in 0 ms
+[titan] 2026-10-30 08:34:44,316 - root - INFO - Building device mesh with parallelism: pp=1, dp_replicate=1, dp_shard=32, cp=1, tp=1, ep=1
+I1030 08:34:44.317119 134766516594624 parallel_dims.py:255] Building device mesh with parallelism: pp=1, dp_replicate=1, dp_shard=32, cp=1, tp=1, ep=1
+I1030 08:34:44.317207 139814884992960 parallel_dims.py:255] Building device mesh with parallelism: pp=1, dp_replicate=1, dp_shard=32, cp=1, tp=1, ep=1
+I1030 08:34:44.317261 138540259891136 parallel_dims.py:255] Building device mesh with parallelism: pp=1, dp_replicate=1, dp_shard=32, cp=1, tp=1, ep=1
+I1030 08:34:44.317273 134608554108864 parallel_dims.py:255] Building device mesh with parallelism: pp=1, dp_replicate=1, dp_shard=32, cp=1, tp=1, ep=1
+I1030 08:34:44.317283 139488361584576 parallel_dims.py:255] Building device mesh with parallelism: pp=1, dp_replicate=1, dp_shard=32, cp=1, tp=1, ep=1
+I1030 08:34:44.317319 138144190719936 parallel_dims.py:255] Building device mesh with parallelism: pp=1, dp_replicate=1, dp_shard=32, cp=1, tp=1, ep=1
+I1030 08:34:44.317330 133304189900736 parallel_dims.py:255] Building device mesh with parallelism: pp=1, dp_replicate=1, dp_shard=32, cp=1, tp=1, ep=1
+I0000 00:00:1793349284.322578   43200 process_group_tpu.cc:1269] AllGatherViaNodeLocalStore(pg_sub:0:0:32): gathered 32 entries from 32 nodes in 1 ms
+I0000 00:00:1793349284.324639   43200 process_group_tpu.cc:1269] AllGatherViaNodeLocalStore(pg_sub:1:0:32): gathered 32 entries from 32 nodes in 1 ms
+I0000 00:00:1793349284.327097   43200 process_group_tpu.cc:1269] AllGatherViaNodeLocalStore(pg_sub:2:0:32): gathered 32 entries from 32 nodes in 1 ms
+I0000 00:00:1793349284.329387   43200 process_group_tpu.cc:1269] AllGatherViaNodeLocalStore(pg_sub:3:0:32): gathered 32 entries from 32 nodes in 1 ms
+I1030 08:34:44.335267 139488361584576 utils.py:304] [GC] Initial GC collection took 0.00 seconds
+I1030 08:34:44.335286 134766516594624 utils.py:304] [GC] Initial GC collection took 0.00 seconds
+I1030 08:34:44.335297 139814884992960 utils.py:304] [GC] Initial GC collection took 0.00 seconds
+[titan] 2026-10-30 08:34:44,335 - root - INFO - [GC] Initial GC collection took 0.00 seconds
+I1030 08:34:44.335677 134608554108864 utils.py:304] [GC] Initial GC collection took 0.00 seconds
+I1030 08:34:44.335721 138144190719936 utils.py:304] [GC] Initial GC collection took 0.00 seconds
+I1030 08:34:44.335737 138540259891136 utils.py:304] [GC] Initial GC collection took 0.00 seconds
+I1030 08:34:44.336673 133304189900736 utils.py:304] [GC] Initial GC collection took 0.00 seconds
+I1030 08:34:44.359668 134766516594624 override.py:503] [Override] torchtitan.experiments.tpu.overrides.fused_loss.fused_loss_lm_head: model_spec.model.lm_head Linear.Config -> FusedLossLinearWrapper.Config
+I1030 08:34:44.359735 134766516594624 override.py:504] Applied 1 override(s)
+I1030 08:34:44.359771 139814884992960 override.py:503] [Override] torchtitan.experiments.tpu.overrides.fused_loss.fused_loss_lm_head: model_spec.model.lm_head Linear.Config -> FusedLossLinearWrapper.Config
+I1030 08:34:44.359844 139814884992960 override.py:504] Applied 1 override(s)
+I1030 08:34:44.359810 139488361584576 override.py:503] [Override] torchtitan.experiments.tpu.overrides.fused_loss.fused_loss_lm_head: model_spec.model.lm_head Linear.Config -> FusedLossLinearWrapper.Config
+I1030 08:34:44.359883 139488361584576 override.py:504] Applied 1 override(s)
+[titan] 2026-10-30 08:34:44,359 - root - INFO - [Override] torchtitan.experiments.tpu.overrides.fused_loss.fused_loss_lm_head: model_spec.model.lm_head Linear.Config -> FusedLossLinearWrapper.Config
+[titan] 2026-10-30 08:34:44,359 - root - INFO - Applied 1 override(s)
+I1030 08:34:44.360724 138144190719936 override.py:503] [Override] torchtitan.experiments.tpu.overrides.fused_loss.fused_loss_lm_head: model_spec.model.lm_head Linear.Config -> FusedLossLinearWrapper.Config
+I1030 08:34:44.360794 138144190719936 override.py:504] Applied 1 override(s)
+I1030 08:34:44.360969 138540259891136 override.py:503] [Override] torchtitan.experiments.tpu.overrides.fused_loss.fused_loss_lm_head: model_spec.model.lm_head Linear.Config -> FusedLossLinearWrapper.Config
+I1030 08:34:44.361041 138540259891136 override.py:504] Applied 1 override(s)
+I1030 08:34:44.361044 134608554108864 override.py:503] [Override] torchtitan.experiments.tpu.overrides.fused_loss.fused_loss_lm_head: model_spec.model.lm_head Linear.Config -> FusedLossLinearWrapper.Config
+I1030 08:34:44.361124 134608554108864 override.py:504] Applied 1 override(s)
+I1030 08:34:44.361827 134766516594624 trainer.py:443] Building flint 40B
+I1030 08:34:44.361937 139814884992960 trainer.py:443] Building flint 40B
+I1030 08:34:44.361952 139488361584576 trainer.py:443] Building flint 40B
+[titan] 2026-10-30 08:34:44,362 - root - INFO - Building flint 40B
+I1030 08:34:44.362871 138144190719936 trainer.py:443] Building flint 40B
+I1030 08:34:44.363102 138540259891136 trainer.py:443] Building flint 40B
+I1030 08:34:44.363248 134608554108864 trainer.py:443] Building flint 40B
+I1030 08:34:44.364012 133304189900736 override.py:503] [Override] torchtitan.experiments.tpu.overrides.fused_loss.fused_loss_lm_head: model_spec.model.lm_head Linear.Config -> FusedLossLinearWrapper.Config
+I1030 08:34:44.364090 133304189900736 override.py:504] Applied 1 override(s)
+I1030 08:34:44.365992 133304189900736 trainer.py:443] Building flint 40B
+/torchtitan-native/torchtitan/components/metrics.py:44: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_name is experimental and subject to change: get_device_name() is experimental and subject to change without notice.
+  self.device_name = device_module.get_device_name(self.device)
+/torchtitan-native/torchtitan/components/metrics.py:46: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_properties is experimental and subject to change: get_device_properties() is experimental and subject to change without notice.
+  self.device_capacity = device_module.get_device_properties(
+/torchtitan-native/torchtitan/components/metrics.py:44: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_name is experimental and subject to change: get_device_name() is experimental and subject to change without notice.
+  self.device_name = device_module.get_device_name(self.device)
+I1030 08:34:44.502714 134766516594624 metrics.py:99] TPU capacity: TPU v7 with 96.00GiB memory
+/torchtitan-native/torchtitan/components/metrics.py:46: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_properties is experimental and subject to change: get_device_properties() is experimental and subject to change without notice.
+  self.device_capacity = device_module.get_device_properties(
+/torchtitan-native/torchtitan/components/metrics.py:44: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_name is experimental and subject to change: get_device_name() is experimental and subject to change without notice.
+  self.device_name = device_module.get_device_name(self.device)
+/torchtitan-native/torchtitan/components/metrics.py:44: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_name is experimental and subject to change: get_device_name() is experimental and subject to change without notice.
+  self.device_name = device_module.get_device_name(self.device)
+/torchtitan-native/torchtitan/components/metrics.py:44: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_name is experimental and subject to change: get_device_name() is experimental and subject to change without notice.
+  self.device_name = device_module.get_device_name(self.device)
+I1030 08:34:44.503255 138144190719936 metrics.py:99] TPU capacity: TPU v7 with 96.00GiB memory
+W1030 08:34:44.503263 134766516594624 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+/torchtitan-native/torchtitan/components/metrics.py:46: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_properties is experimental and subject to change: get_device_properties() is experimental and subject to change without notice.
+  self.device_capacity = device_module.get_device_properties(
+/torchtitan-native/torchtitan/components/metrics.py:46: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_properties is experimental and subject to change: get_device_properties() is experimental and subject to change without notice.
+  self.device_capacity = device_module.get_device_properties(
+/torchtitan-native/torchtitan/components/metrics.py:46: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_properties is experimental and subject to change: get_device_properties() is experimental and subject to change without notice.
+  self.device_capacity = device_module.get_device_properties(
+W1030 08:34:44.503797 138144190719936 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:44.503829 139488361584576 metrics.py:99] TPU capacity: TPU v7 with 96.00GiB memory
+/torchtitan-native/torchtitan/components/metrics.py:44: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_name is experimental and subject to change: get_device_name() is experimental and subject to change without notice.
+  self.device_name = device_module.get_device_name(self.device)
+I1030 08:34:44.503959 134608554108864 metrics.py:99] TPU capacity: TPU v7 with 96.00GiB memory
+I1030 08:34:44.504063 139814884992960 metrics.py:99] TPU capacity: TPU v7 with 96.00GiB memory
+/torchtitan-native/torchtitan/components/metrics.py:46: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_properties is experimental and subject to change: get_device_properties() is experimental and subject to change without notice.
+  self.device_capacity = device_module.get_device_properties(
+W1030 08:34:44.504397 139488361584576 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+W1030 08:34:44.504477 134608554108864 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:44.504639 138540259891136 metrics.py:99] TPU capacity: TPU v7 with 96.00GiB memory
+W1030 08:34:44.504750 139814884992960 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+W1030 08:34:44.505162 138540259891136 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+/torchtitan-native/torchtitan/components/metrics.py:44: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_name is experimental and subject to change: get_device_name() is experimental and subject to change without notice.
+  self.device_name = device_module.get_device_name(self.device)
+/torchtitan-native/torchtitan/components/metrics.py:46: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_properties is experimental and subject to change: get_device_properties() is experimental and subject to change without notice.
+  self.device_capacity = device_module.get_device_properties(
+[titan] 2026-10-30 08:34:44,506 - root - INFO - TPU capacity: TPU v7 with 96.00GiB memory
+[titan] 2026-10-30 08:34:44,506 - root - WARNING - Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:44.509968 138144190719936 utils.py:537] Total parameter count: 39,785,287,456, active parameters: 2,515,488,544
+I1030 08:34:44.510053 134766516594624 utils.py:537] Total parameter count: 39,785,287,456, active parameters: 2,515,488,544
+I1030 08:34:44.510103 138144190719936 trainer.py:477] [34mModel flint 40B [31msize: 39,785,287,456 total parameters[39m
+I1030 08:34:44.510215 134766516594624 trainer.py:477] [34mModel flint 40B [31msize: 39,785,287,456 total parameters[39m
+I1030 08:34:44.510254 138144190719936 workarounds.py:634] Monkey-patched torch.histc to support int dtypes on CPU
+I1030 08:34:44.510378 134766516594624 workarounds.py:634] Monkey-patched torch.histc to support int dtypes on CPU
+I1030 08:34:44.510561 139488361584576 utils.py:537] Total parameter count: 39,785,287,456, active parameters: 2,515,488,544
+I1030 08:34:44.510681 139488361584576 trainer.py:477] [34mModel flint 40B [31msize: 39,785,287,456 total parameters[39m
+I1030 08:34:44.510699 134608554108864 utils.py:537] Total parameter count: 39,785,287,456, active parameters: 2,515,488,544
+I1030 08:34:44.510817 139488361584576 workarounds.py:634] Monkey-patched torch.histc to support int dtypes on CPU
+I1030 08:34:44.510820 134608554108864 trainer.py:477] [34mModel flint 40B [31msize: 39,785,287,456 total parameters[39m
+I1030 08:34:44.510883 139814884992960 utils.py:537] Total parameter count: 39,785,287,456, active parameters: 2,515,488,544
+I1030 08:34:44.510960 134608554108864 workarounds.py:634] Monkey-patched torch.histc to support int dtypes on CPU
+I1030 08:34:44.511004 139814884992960 trainer.py:477] [34mModel flint 40B [31msize: 39,785,287,456 total parameters[39m
+I1030 08:34:44.511146 139814884992960 workarounds.py:634] Monkey-patched torch.histc to support int dtypes on CPU
+I1030 08:34:44.511267 138540259891136 utils.py:537] Total parameter count: 39,785,287,456, active parameters: 2,515,488,544
+I1030 08:34:44.511382 138540259891136 trainer.py:477] [34mModel flint 40B [31msize: 39,785,287,456 total parameters[39m
+I1030 08:34:44.511436 138144190719936 bld_layout.py:318] TPU [B, L] block layout applied to 0 transformer blocks
+I1030 08:34:44.511521 138540259891136 workarounds.py:634] Monkey-patched torch.histc to support int dtypes on CPU
+I1030 08:34:44.511826 134766516594624 bld_layout.py:318] TPU [B, L] block layout applied to 0 transformer blocks
+I1030 08:34:44.511985 139488361584576 bld_layout.py:318] TPU [B, L] block layout applied to 0 transformer blocks
+I1030 08:34:44.512163 134608554108864 bld_layout.py:318] TPU [B, L] block layout applied to 0 transformer blocks
+I1030 08:34:44.512325 139814884992960 bld_layout.py:318] TPU [B, L] block layout applied to 0 transformer blocks
+I1030 08:34:44.512803 138540259891136 bld_layout.py:318] TPU [B, L] block layout applied to 0 transformer blocks
+[titan] 2026-10-30 08:34:44,512 - root - INFO - Total parameter count: 39,785,287,456, active parameters: 2,515,488,544
+[titan] 2026-10-30 08:34:44,513 - root - INFO - [34mModel flint 40B [31msize: 39,785,287,456 total parameters[39m
+[titan] 2026-10-30 08:34:44,513 - root - INFO - Monkey-patched torch.histc to support int dtypes on CPU
+[titan] 2026-10-30 08:34:44,514 - root - INFO - TPU [B, L] block layout applied to 0 transformer blocks
+/torchtitan-native/torchtitan/components/metrics.py:44: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_name is experimental and subject to change: get_device_name() is experimental and subject to change without notice.
+  self.device_name = device_module.get_device_name(self.device)
+/torchtitan-native/torchtitan/components/metrics.py:46: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> get_device_properties is experimental and subject to change: get_device_properties() is experimental and subject to change without notice.
+  self.device_capacity = device_module.get_device_properties(
+I1030 08:34:44.529387 133304189900736 metrics.py:99] TPU capacity: TPU v7 with 96.00GiB memory
+W1030 08:34:44.529906 133304189900736 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:44.536773 133304189900736 utils.py:537] Total parameter count: 39,785,287,456, active parameters: 2,515,488,544
+I1030 08:34:44.536919 133304189900736 trainer.py:477] [34mModel flint 40B [31msize: 39,785,287,456 total parameters[39m
+I1030 08:34:44.537074 133304189900736 workarounds.py:634] Monkey-patched torch.histc to support int dtypes on CPU
+I1030 08:34:44.538621 133304189900736 bld_layout.py:318] TPU [B, L] block layout applied to 0 transformer blocks
+I1030 08:34:44.678944 139488361584576 common_utils.py:600] Applied Data Parallel (simple_fsdp) (dp mode=fully_shard) to the model
+I1030 08:34:44.679281 139488361584576 compile.py:116] aot_fx_trace compile mode: graph capture will happen at training time
+I1030 08:34:44.679246 134766516594624 common_utils.py:600] Applied Data Parallel (simple_fsdp) (dp mode=fully_shard) to the model
+I1030 08:34:44.679580 134766516594624 compile.py:116] aot_fx_trace compile mode: graph capture will happen at training time
+I1030 08:34:44.680174 139814884992960 common_utils.py:600] Applied Data Parallel (simple_fsdp) (dp mode=fully_shard) to the model
+I1030 08:34:44.680499 139814884992960 compile.py:116] aot_fx_trace compile mode: graph capture will happen at training time
+I1030 08:34:44.680233 138144190719936 common_utils.py:600] Applied Data Parallel (simple_fsdp) (dp mode=fully_shard) to the model
+I1030 08:34:44.680643 138144190719936 compile.py:116] aot_fx_trace compile mode: graph capture will happen at training time
+I1030 08:34:44.680363 134608554108864 common_utils.py:600] Applied Data Parallel (simple_fsdp) (dp mode=fully_shard) to the model
+I1030 08:34:44.680394 138540259891136 common_utils.py:600] Applied Data Parallel (simple_fsdp) (dp mode=fully_shard) to the model
+I1030 08:34:44.680757 134608554108864 compile.py:116] aot_fx_trace compile mode: graph capture will happen at training time
+I1030 08:34:44.680795 138540259891136 compile.py:116] aot_fx_trace compile mode: graph capture will happen at training time
+[titan] 2026-10-30 08:34:44,683 - root - INFO - Applied Data Parallel (simple_fsdp) (dp mode=fully_shard) to the model
+[titan] 2026-10-30 08:34:44,683 - root - INFO - aot_fx_trace compile mode: graph capture will happen at training time
+I1030 08:34:44.684694 139488361584576 simple_fsdp.py:201] Installed TPU SimpleFSDP replication on 779 parameter(s)
+I1030 08:34:44.685728 134766516594624 simple_fsdp.py:201] Installed TPU SimpleFSDP replication on 779 parameter(s)
+I1030 08:34:44.686105 139814884992960 simple_fsdp.py:201] Installed TPU SimpleFSDP replication on 779 parameter(s)
+I1030 08:34:44.686185 138144190719936 simple_fsdp.py:201] Installed TPU SimpleFSDP replication on 779 parameter(s)
+I1030 08:34:44.686275 138540259891136 simple_fsdp.py:201] Installed TPU SimpleFSDP replication on 779 parameter(s)
+I1030 08:34:44.686319 134608554108864 simple_fsdp.py:201] Installed TPU SimpleFSDP replication on 779 parameter(s)
+[titan] 2026-10-30 08:34:44,689 - root - INFO - Installed TPU SimpleFSDP replication on 779 parameter(s)
+I1030 08:34:44.724973 133304189900736 common_utils.py:600] Applied Data Parallel (simple_fsdp) (dp mode=fully_shard) to the model
+I1030 08:34:44.725442 133304189900736 compile.py:116] aot_fx_trace compile mode: graph capture will happen at training time
+I1030 08:34:44.731678 133304189900736 simple_fsdp.py:201] Installed TPU SimpleFSDP replication on 779 parameter(s)
+/usr/local/lib/python3.14/site-packages/torch/_ops.py:916: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> the XLA_FLAGS environment variable is an experimental feature and may change or be removed without notice. (Triggered internally at ./csrc/common/env_vars.h:405.)
+  return self._op(*args, **kwargs)
+/usr/local/lib/python3.14/site-packages/torch/_ops.py:916: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> the XLA_FLAGS environment variable is an experimental feature and may change or be removed without notice. (Triggered internally at ./csrc/common/env_vars.h:405.)
+  return self._op(*args, **kwargs)
+/usr/local/lib/python3.14/site-packages/torch/_ops.py:916: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> the XLA_FLAGS environment variable is an experimental feature and may change or be removed without notice. (Triggered internally at ./csrc/common/env_vars.h:405.)
+  return self._op(*args, **kwargs)
+/usr/local/lib/python3.14/site-packages/torch/_ops.py:916: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> the XLA_FLAGS environment variable is an experimental feature and may change or be removed without notice. (Triggered internally at ./csrc/common/env_vars.h:405.)
+  return self._op(*args, **kwargs)
+/usr/local/lib/python3.14/site-packages/torch/_ops.py:916: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> the XLA_FLAGS environment variable is an experimental feature and may change or be removed without notice. (Triggered internally at ./csrc/common/env_vars.h:405.)
+  return self._op(*args, **kwargs)
+/usr/local/lib/python3.14/site-packages/torch/_ops.py:916: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> the XLA_FLAGS environment variable is an experimental feature and may change or be removed without notice. (Triggered internally at ./csrc/common/env_vars.h:405.)
+  return self._op(*args, **kwargs)
+/usr/local/lib/python3.14/site-packages/torch/_ops.py:916: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> the XLA_FLAGS environment variable is an experimental feature and may change or be removed without notice. (Triggered internally at ./csrc/common/env_vars.h:405.)
+  return self._op(*args, **kwargs)
+I0000 00:00:1793349284.785914   46221 compilation_cache_utils.cc:218] Tier-3 compilation cache root directory: 
+I0000 00:00:1793349284.785936   46221 tier2_compilation_cache.cc:84] Tier-2 compilation cache is enabled with name 'default' for world size 32.
+I0000 00:00:1793349284.785943   46221 tier3_compilation_cache.cc:50] Backup compilation for tier-3 cache read is disabled as tier-3 cache is disabled.
+I0000 00:00:1793349284.785988   48898 compilation_cache_utils.cc:99] Tier-2 cache uses TorchTPU binary fingerprint: 8ae752df13e66ac8
+  based on TorchTPU binary version 5 and PjRt version:
+TFRT TPU7x
+Built on Oct 7 2026 00:47:01 (1791359221) cl/994787025
+C API version: 0.116
+I0000 00:00:1793349284.787651   46224 compilation_cache_utils.cc:218] Tier-3 compilation cache root directory: 
+I0000 00:00:1793349284.787701   46224 tier2_compilation_cache.cc:84] Tier-2 compilation cache is enabled with name 'default' for world size 32.
+I0000 00:00:1793349284.787708   46224 tier3_compilation_cache.cc:50] Backup compilation for tier-3 cache read is disabled as tier-3 cache is disabled.
+I0000 00:00:1793349284.787730   49109 compilation_cache_utils.cc:99] Tier-2 cache uses TorchTPU binary fingerprint: 8ae752df13e66ac8
+  based on TorchTPU binary version 5 and PjRt version:
+TFRT TPU7x
+Built on Oct 7 2026 00:47:01 (1791359221) cl/994787025
+C API version: 0.116
+I0000 00:00:1793349284.788072   46227 compilation_cache_utils.cc:218] Tier-3 compilation cache root directory: 
+I0000 00:00:1793349284.788096   46227 tier2_compilation_cache.cc:84] Tier-2 compilation cache is enabled with name 'default' for world size 32.
+I0000 00:00:1793349284.788102   46227 tier3_compilation_cache.cc:50] Backup compilation for tier-3 cache read is disabled as tier-3 cache is disabled.
+I0000 00:00:1793349284.788131   46229 compilation_cache_utils.cc:218] Tier-3 compilation cache root directory: 
+I0000 00:00:1793349284.788138   49154 compilation_cache_utils.cc:99] Tier-2 cache uses TorchTPU binary fingerprint: 8ae752df13e66ac8
+  based on TorchTPU binary version 5 and PjRt version:
+TFRT TPU7x
+Built on Oct 7 2026 00:47:01 (1791359221) cl/994787025
+C API version: 0.116
+I0000 00:00:1793349284.788172   46229 tier2_compilation_cache.cc:84] Tier-2 compilation cache is enabled with name 'default' for world size 32.
+I0000 00:00:1793349284.788179   46229 tier3_compilation_cache.cc:50] Backup compilation for tier-3 cache read is disabled as tier-3 cache is disabled.
+I0000 00:00:1793349284.788221   49158 compilation_cache_utils.cc:99] Tier-2 cache uses TorchTPU binary fingerprint: 8ae752df13e66ac8
+  based on TorchTPU binary version 5 and PjRt version:
+TFRT TPU7x
+Built on Oct 7 2026 00:47:01 (1791359221) cl/994787025
+C API version: 0.116
+I0000 00:00:1793349284.788837   46231 compilation_cache_utils.cc:218] Tier-3 compilation cache root directory: 
+I0000 00:00:1793349284.788885   46231 tier2_compilation_cache.cc:84] Tier-2 compilation cache is enabled with name 'default' for world size 32.
+I0000 00:00:1793349284.788892   46231 tier3_compilation_cache.cc:50] Backup compilation for tier-3 cache read is disabled as tier-3 cache is disabled.
+I0000 00:00:1793349284.788936   49203 compilation_cache_utils.cc:99] Tier-2 cache uses TorchTPU binary fingerprint: 8ae752df13e66ac8
+  based on TorchTPU binary version 5 and PjRt version:
+TFRT TPU7x
+Built on Oct 7 2026 00:47:01 (1791359221) cl/994787025
+C API version: 0.116
+I0000 00:00:1793349284.788952   46223 compilation_cache_utils.cc:218] Tier-3 compilation cache root directory: 
+I0000 00:00:1793349284.788993   46223 tier2_compilation_cache.cc:84] Tier-2 compilation cache is enabled with name 'default' for world size 32.
+I0000 00:00:1793349284.789001   46223 tier3_compilation_cache.cc:50] Backup compilation for tier-3 cache read is disabled as tier-3 cache is disabled.
+I0000 00:00:1793349284.789037   49208 compilation_cache_utils.cc:99] Tier-2 cache uses TorchTPU binary fingerprint: 8ae752df13e66ac8
+  based on TorchTPU binary version 5 and PjRt version:
+TFRT TPU7x
+Built on Oct 7 2026 00:47:01 (1791359221) cl/994787025
+C API version: 0.116
+I0000 00:00:1793349284.795193   46233 compilation_cache_utils.cc:218] Tier-3 compilation cache root directory: 
+I0000 00:00:1793349284.795211   46233 tier2_compilation_cache.cc:84] Tier-2 compilation cache is enabled with name 'default' for world size 32.
+I0000 00:00:1793349284.795217   46233 tier3_compilation_cache.cc:50] Backup compilation for tier-3 cache read is disabled as tier-3 cache is disabled.
+I0000 00:00:1793349284.795247   49363 compilation_cache_utils.cc:99] Tier-2 cache uses TorchTPU binary fingerprint: 8ae752df13e66ac8
+  based on TorchTPU binary version 5 and PjRt version:
+TFRT TPU7x
+Built on Oct 7 2026 00:47:01 (1791359221) cl/994787025
+C API version: 0.116
+/usr/local/lib/python3.14/site-packages/torch/_ops.py:916: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> the XLA_FLAGS environment variable is an experimental feature and may change or be removed without notice. (Triggered internally at ./csrc/common/env_vars.h:405.)
+  return self._op(*args, **kwargs)
+I0000 00:00:1793349284.853952   49364 compilation_cache_utils.cc:218] Tier-3 compilation cache root directory: 
+I0000 00:00:1793349284.853978   49364 tier2_compilation_cache.cc:84] Tier-2 compilation cache is enabled with name 'default' for world size 32.
+I0000 00:00:1793349284.853985   49364 tier3_compilation_cache.cc:50] Backup compilation for tier-3 cache read is disabled as tier-3 cache is disabled.
+I0000 00:00:1793349284.854041   49811 compilation_cache_utils.cc:99] Tier-2 cache uses TorchTPU binary fingerprint: 8ae752df13e66ac8
+  based on TorchTPU binary version 5 and PjRt version:
+TFRT TPU7x
+Built on Oct 7 2026 00:47:01 (1791359221) cl/994787025
+C API version: 0.116
+[titan] 2026-10-30 08:34:45,389 - root - WARNING - Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+[titan] 2026-10-30 08:34:45,389 - root - INFO - Peak FLOPS used for computing MFU: 1.154e+15
+W1030 08:34:45.389654 139488361584576 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:45.389770 139488361584576 trainer.py:621] Peak FLOPS used for computing MFU: 1.154e+15
+[titan] 2026-10-30 08:34:45,389 - root - INFO - TPU memory usage for model: 0.04GiB(0.04%)
+I1030 08:34:45.389990 139488361584576 trainer.py:623] TPU memory usage for model: 0.04GiB(0.04%)
+W1030 08:34:45.389990 139814884992960 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:45.390103 139814884992960 trainer.py:621] Peak FLOPS used for computing MFU: 1.154e+15
+I1030 08:34:45.390335 139814884992960 trainer.py:623] TPU memory usage for model: 0.04GiB(0.04%)
+W1030 08:34:45.393996 134608554108864 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:45.394110 134608554108864 trainer.py:621] Peak FLOPS used for computing MFU: 1.154e+15
+I1030 08:34:45.394331 134608554108864 trainer.py:623] TPU memory usage for model: 0.04GiB(0.04%)
+[titan] 2026-10-30 08:34:45,394 - root - INFO - Optimizer AdamW (model_part=0): 779 params [.*] {'fused': False, 'foreach': True, 'lr': 0.0003, 'betas': (0.9, 0.95), 'eps': 1e-08, 'weight_decay': 0.1}
+I1030 08:34:45.394867 139488361584576 optimizer.py:268] Optimizer AdamW (model_part=0): 779 params [.*] {'fused': False, 'foreach': True, 'lr': 0.0003, 'betas': (0.9, 0.95), 'eps': 1e-08, 'weight_decay': 0.1}
+I1030 08:34:45.395190 139814884992960 optimizer.py:268] Optimizer AdamW (model_part=0): 779 params [.*] {'fused': False, 'foreach': True, 'lr': 0.0003, 'betas': (0.9, 0.95), 'eps': 1e-08, 'weight_decay': 0.1}
+W1030 08:34:45.398744 139488361584576 lr_scheduler.py:117] Warmup (5) + decay (12) steps exceed total steps (15). Adjusting decay steps to 10.
+[titan] 2026-10-30 08:34:45,398 - root - WARNING - Warmup (5) + decay (12) steps exceed total steps (15). Adjusting decay steps to 10.
+[titan] 2026-10-30 08:34:45,398 - root - INFO - Loading tokenizer from tokenizer.json
+I1030 08:34:45.398949 139488361584576 tokenizer.py:191] Loading tokenizer from tokenizer.json
+I1030 08:34:45.399229 134608554108864 optimizer.py:268] Optimizer AdamW (model_part=0): 779 params [.*] {'fused': False, 'foreach': True, 'lr': 0.0003, 'betas': (0.9, 0.95), 'eps': 1e-08, 'weight_decay': 0.1}
+W1030 08:34:45.399323 139814884992960 lr_scheduler.py:117] Warmup (5) + decay (12) steps exceed total steps (15). Adjusting decay steps to 10.
+I1030 08:34:45.399509 139814884992960 tokenizer.py:191] Loading tokenizer from tokenizer.json
+W1030 08:34:45.403202 134608554108864 lr_scheduler.py:117] Warmup (5) + decay (12) steps exceed total steps (15). Adjusting decay steps to 10.
+I1030 08:34:45.403403 134608554108864 tokenizer.py:191] Loading tokenizer from tokenizer.json
+W1030 08:34:45.414290 138540259891136 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:45.414416 138540259891136 trainer.py:621] Peak FLOPS used for computing MFU: 1.154e+15
+I1030 08:34:45.414658 138540259891136 trainer.py:623] TPU memory usage for model: 0.04GiB(0.04%)
+I1030 08:34:45.419800 138540259891136 optimizer.py:268] Optimizer AdamW (model_part=0): 779 params [.*] {'fused': False, 'foreach': True, 'lr': 0.0003, 'betas': (0.9, 0.95), 'eps': 1e-08, 'weight_decay': 0.1}
+W1030 08:34:45.423960 138540259891136 lr_scheduler.py:117] Warmup (5) + decay (12) steps exceed total steps (15). Adjusting decay steps to 10.
+I1030 08:34:45.424187 138540259891136 tokenizer.py:191] Loading tokenizer from tokenizer.json
+W1030 08:34:45.452144 138144190719936 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:45.452246 138144190719936 trainer.py:621] Peak FLOPS used for computing MFU: 1.154e+15
+I1030 08:34:45.452446 138144190719936 trainer.py:623] TPU memory usage for model: 0.04GiB(0.04%)
+I1030 08:34:45.456813 138144190719936 optimizer.py:268] Optimizer AdamW (model_part=0): 779 params [.*] {'fused': False, 'foreach': True, 'lr': 0.0003, 'betas': (0.9, 0.95), 'eps': 1e-08, 'weight_decay': 0.1}
+W1030 08:34:45.460327 138144190719936 lr_scheduler.py:117] Warmup (5) + decay (12) steps exceed total steps (15). Adjusting decay steps to 10.
+I1030 08:34:45.460493 138144190719936 tokenizer.py:191] Loading tokenizer from tokenizer.json
+W1030 08:34:45.514678 134766516594624 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:45.514772 134766516594624 trainer.py:621] Peak FLOPS used for computing MFU: 1.154e+15
+I1030 08:34:45.514961 134766516594624 trainer.py:623] TPU memory usage for model: 0.04GiB(0.04%)
+I1030 08:34:45.519183 134766516594624 optimizer.py:268] Optimizer AdamW (model_part=0): 779 params [.*] {'fused': False, 'foreach': True, 'lr': 0.0003, 'betas': (0.9, 0.95), 'eps': 1e-08, 'weight_decay': 0.1}
+W1030 08:34:45.522641 134766516594624 lr_scheduler.py:117] Warmup (5) + decay (12) steps exceed total steps (15). Adjusting decay steps to 10.
+I1030 08:34:45.522805 134766516594624 tokenizer.py:191] Loading tokenizer from tokenizer.json
+I1030 08:34:45.537997 134608554108864 _client.py:1025] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+[titan] 2026-10-30 08:34:45,547 - httpx - INFO - HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+I1030 08:34:45.553923 138540259891136 _client.py:1025] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+W1030 08:34:45.557919 134608554108864 state_dict_adapter.py:96] model.safetensors.index.json not found at hf_assets_path: ./tests/assets/tokenizer/model.safetensors.index.json.                     Defaulting to saving a single safetensors file if checkpoint is saved in HF format
+W1030 08:34:45.558031 134608554108864 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:45.558146 134608554108864 trainer.py:745] Trainer is initialized with 65536 tokens per DP rank, 2097152 tokens per train step, gradient accumulation steps 1, maximum context length 2048, total steps 15 (warmup 5)
+I1030 08:34:45.558351 139488361584576 _client.py:1025] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+[rank3]: Traceback (most recent call last):
+[rank3]:   File "<frozen runpy>", line 203, in _run_module_as_main
+[rank3]:   File "<frozen runpy>", line 88, in _run_code
+[rank3]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 361, in <module>
+[rank3]:     gmain.handle_main(start_trainer)
+[rank3]:     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+[rank3]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 131, in handle_main
+[rank3]:     app.run(main, flags_parser=_parse_flags)
+[rank3]:     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 410, in run
+[rank3]:     _run_main(main, args)
+[rank3]:     ~~~~~~~~~^^^^^^^^^^^^
+[rank3]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 355, in _run_main
+[rank3]:     sys.exit(main(argv))
+[rank3]:              ~~~~^^^^^^
+[rank3]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 120, in main
+[rank3]:     _start_trainer(config)
+[rank3]:     ~~~~~~~~~~~~~~^^^^^^^^
+[rank3]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 48, in _start_trainer
+[rank3]:     global_start_trainer_func(config)
+[rank3]:     ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+[rank3]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 311, in start_trainer
+[rank3]:     trainer = trainer_cls(train_config)
+[rank3]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/tpu_graph_trainer.py", line 192, in __init__
+[rank3]:     self._graph_splitter = GraphSplitter.from_trainer_config(
+[rank3]:                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+[rank3]:         config,
+[rank3]:         ^^^^^^^
+[rank3]:         optimizer_in_graph=self._optimizer_in_graph,
+[rank3]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank3]:     )
+[rank3]:     ^
+[rank3]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/graph_split.py", line 311, in from_trainer_config
+[rank3]:     raise ValueError(
+[rank3]:     ...<2 lines>...
+[rank3]:     )
+[rank3]: ValueError: TPU GraphTrainer graph split does not support optimizer_compile='in_graph'
+W1030 08:34:45.560292 133304189900736 utils.py:322] Error running lspci: [Errno 2] No such file or directory: 'lspci', fallback to use device_name
+I1030 08:34:45.560401 133304189900736 trainer.py:621] Peak FLOPS used for computing MFU: 1.154e+15
+I1030 08:34:45.560520 139814884992960 _client.py:1025] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+I1030 08:34:45.560608 133304189900736 trainer.py:623] TPU memory usage for model: 0.04GiB(0.04%)
+I1030 08:34:45.565033 133304189900736 optimizer.py:268] Optimizer AdamW (model_part=0): 779 params [.*] {'fused': False, 'foreach': True, 'lr': 0.0003, 'betas': (0.9, 0.95), 'eps': 1e-08, 'weight_decay': 0.1}
+[titan] 2026-10-30 08:34:45,566 - root - WARNING - model.safetensors.index.json not found at hf_assets_path: ./tests/assets/tokenizer/model.safetensors.index.json.                     Defaulting to saving a single safetensors file if checkpoint is saved in HF format
+[titan] 2026-10-30 08:34:45,566 - root - WARNING - initial_load_model_only=True has no effect without an initial_load_path.
+[titan] 2026-10-30 08:34:45,566 - root - INFO - Trainer is initialized with 65536 tokens per DP rank, 2097152 tokens per train step, gradient accumulation steps 1, maximum context length 2048, total steps 15 (warmup 5)
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "<frozen runpy>", line 203, in _run_module_as_main
+[rank0]:   File "<frozen runpy>", line 88, in _run_code
+[rank0]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 361, in <module>
+[rank0]:     gmain.handle_main(start_trainer)
+[rank0]:     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+[rank0]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 131, in handle_main
+[rank0]:     app.run(main, flags_parser=_parse_flags)
+[rank0]:     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 410, in run
+[rank0]:     _run_main(main, args)
+[rank0]:     ~~~~~~~~~^^^^^^^^^^^^
+[rank0]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 355, in _run_main
+[rank0]:     sys.exit(main(argv))
+[rank0]:              ~~~~^^^^^^
+[rank0]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 120, in main
+[rank0]:     _start_trainer(config)
+[rank0]:     ~~~~~~~~~~~~~~^^^^^^^^
+[rank0]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 48, in _start_trainer
+[rank0]:     global_start_trainer_func(config)
+[rank0]:     ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+[rank0]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 311, in start_trainer
+[rank0]:     trainer = trainer_cls(train_config)
+[rank0]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/tpu_graph_trainer.py", line 192, in __init__
+[rank0]:     self._graph_splitter = GraphSplitter.from_trainer_config(
+[rank0]:                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+[rank0]:         config,
+[rank0]:         ^^^^^^^
+[rank0]:         optimizer_in_graph=self._optimizer_in_graph,
+[rank0]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank0]:     )
+[rank0]:     ^
+[rank0]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/graph_split.py", line 311, in from_trainer_config
+[rank0]:     raise ValueError(
+[rank0]:     ...<2 lines>...
+[rank0]:     )
+[rank0]: ValueError: TPU GraphTrainer graph split does not support optimizer_compile='in_graph'
+W1030 08:34:45.568776 133304189900736 lr_scheduler.py:117] Warmup (5) + decay (12) steps exceed total steps (15). Adjusting decay steps to 10.
+I1030 08:34:45.568976 133304189900736 tokenizer.py:191] Loading tokenizer from tokenizer.json
+/usr/local/lib/python3.14/site-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+W1030 08:34:45.574289 138540259891136 state_dict_adapter.py:96] model.safetensors.index.json not found at hf_assets_path: ./tests/assets/tokenizer/model.safetensors.index.json.                     Defaulting to saving a single safetensors file if checkpoint is saved in HF format
+W1030 08:34:45.574405 138540259891136 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:45.574500 138540259891136 trainer.py:745] Trainer is initialized with 65536 tokens per DP rank, 2097152 tokens per train step, gradient accumulation steps 1, maximum context length 2048, total steps 15 (warmup 5)
+[rank4]: Traceback (most recent call last):
+[rank4]:   File "<frozen runpy>", line 203, in _run_module_as_main
+[rank4]:   File "<frozen runpy>", line 88, in _run_code
+[rank4]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 361, in <module>
+[rank4]:     gmain.handle_main(start_trainer)
+[rank4]:     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+[rank4]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 131, in handle_main
+[rank4]:     app.run(main, flags_parser=_parse_flags)
+[rank4]:     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank4]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 410, in run
+[rank4]:     _run_main(main, args)
+[rank4]:     ~~~~~~~~~^^^^^^^^^^^^
+[rank4]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 355, in _run_main
+[rank4]:     sys.exit(main(argv))
+[rank4]:              ~~~~^^^^^^
+[rank4]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 120, in main
+[rank4]:     _start_trainer(config)
+[rank4]:     ~~~~~~~~~~~~~~^^^^^^^^
+[rank4]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 48, in _start_trainer
+[rank4]:     global_start_trainer_func(config)
+[rank4]:     ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+[rank4]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 311, in start_trainer
+[rank4]:     trainer = trainer_cls(train_config)
+[rank4]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/tpu_graph_trainer.py", line 192, in __init__
+[rank4]:     self._graph_splitter = GraphSplitter.from_trainer_config(
+[rank4]:                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+[rank4]:         config,
+[rank4]:         ^^^^^^^
+[rank4]:         optimizer_in_graph=self._optimizer_in_graph,
+[rank4]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank4]:     )
+[rank4]:     ^
+[rank4]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/graph_split.py", line 311, in from_trainer_config
+[rank4]:     raise ValueError(
+[rank4]:     ...<2 lines>...
+[rank4]:     )
+[rank4]: ValueError: TPU GraphTrainer graph split does not support optimizer_compile='in_graph'
+W1030 08:34:45.578040 139488361584576 state_dict_adapter.py:96] model.safetensors.index.json not found at hf_assets_path: ./tests/assets/tokenizer/model.safetensors.index.json.                     Defaulting to saving a single safetensors file if checkpoint is saved in HF format
+W1030 08:34:45.578163 139488361584576 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:45.578255 139488361584576 trainer.py:745] Trainer is initialized with 65536 tokens per DP rank, 2097152 tokens per train step, gradient accumulation steps 1, maximum context length 2048, total steps 15 (warmup 5)
+W1030 08:34:45.579786 139814884992960 state_dict_adapter.py:96] model.safetensors.index.json not found at hf_assets_path: ./tests/assets/tokenizer/model.safetensors.index.json.                     Defaulting to saving a single safetensors file if checkpoint is saved in HF format
+W1030 08:34:45.579890 139814884992960 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:45.579975 139814884992960 trainer.py:745] Trainer is initialized with 65536 tokens per DP rank, 2097152 tokens per train step, gradient accumulation steps 1, maximum context length 2048, total steps 15 (warmup 5)
+[rank6]: Traceback (most recent call last):
+[rank6]:   File "<frozen runpy>", line 203, in _run_module_as_main
+[rank6]:   File "<frozen runpy>", line 88, in _run_code
+[rank6]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 361, in <module>
+[rank6]:     gmain.handle_main(start_trainer)
+[rank6]:     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+[rank6]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 131, in handle_main
+[rank6]:     app.run(main, flags_parser=_parse_flags)
+[rank6]:     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank6]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 410, in run
+[rank6]:     _run_main(main, args)
+[rank6]:     ~~~~~~~~~^^^^^^^^^^^^
+[rank6]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 355, in _run_main
+[rank6]:     sys.exit(main(argv))
+[rank6]:              ~~~~^^^^^^
+[rank6]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 120, in main
+[rank6]:     _start_trainer(config)
+[rank6]:     ~~~~~~~~~~~~~~^^^^^^^^
+[rank6]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 48, in _start_trainer
+[rank6]:     global_start_trainer_func(config)
+[rank6]:     ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+[rank6]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 311, in start_trainer
+[rank6]:     trainer = trainer_cls(train_config)
+[rank6]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/tpu_graph_trainer.py", line 192, in __init__
+[rank6]:     self._graph_splitter = GraphSplitter.from_trainer_config(
+[rank6]:                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+[rank6]:         config,
+[rank6]:         ^^^^^^^
+[rank6]:         optimizer_in_graph=self._optimizer_in_graph,
+[rank6]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank6]:     )
+[rank6]:     ^
+[rank6]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/graph_split.py", line 311, in from_trainer_config
+[rank6]:     raise ValueError(
+[rank6]:     ...<2 lines>...
+[rank6]:     )
+[rank6]: ValueError: TPU GraphTrainer graph split does not support optimizer_compile='in_graph'
+[rank1]: Traceback (most recent call last):
+[rank1]:   File "<frozen runpy>", line 203, in _run_module_as_main
+[rank1]:   File "<frozen runpy>", line 88, in _run_code
+[rank1]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 361, in <module>
+[rank1]:     gmain.handle_main(start_trainer)
+[rank1]:     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+[rank1]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 131, in handle_main
+[rank1]:     app.run(main, flags_parser=_parse_flags)
+[rank1]:     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank1]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 410, in run
+[rank1]:     _run_main(main, args)
+[rank1]:     ~~~~~~~~~^^^^^^^^^^^^
+[rank1]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 355, in _run_main
+[rank1]:     sys.exit(main(argv))
+[rank1]:              ~~~~^^^^^^
+[rank1]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 120, in main
+[rank1]:     _start_trainer(config)
+[rank1]:     ~~~~~~~~~~~~~~^^^^^^^^
+[rank1]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 48, in _start_trainer
+[rank1]:     global_start_trainer_func(config)
+[rank1]:     ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+[rank1]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 311, in start_trainer
+[rank1]:     trainer = trainer_cls(train_config)
+[rank1]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/tpu_graph_trainer.py", line 192, in __init__
+[rank1]:     self._graph_splitter = GraphSplitter.from_trainer_config(
+[rank1]:                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+[rank1]:         config,
+[rank1]:         ^^^^^^^
+[rank1]:         optimizer_in_graph=self._optimizer_in_graph,
+[rank1]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank1]:     )
+[rank1]:     ^
+[rank1]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/graph_split.py", line 311, in from_trainer_config
+[rank1]:     raise ValueError(
+[rank1]:     ...<2 lines>...
+[rank1]:     )
+[rank1]: ValueError: TPU GraphTrainer graph split does not support optimizer_compile='in_graph'
+I1030 08:34:45.585510 138144190719936 _client.py:1025] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+W1030 08:34:45.607568 138144190719936 state_dict_adapter.py:96] model.safetensors.index.json not found at hf_assets_path: ./tests/assets/tokenizer/model.safetensors.index.json.                     Defaulting to saving a single safetensors file if checkpoint is saved in HF format
+W1030 08:34:45.607687 138144190719936 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:45.607779 138144190719936 trainer.py:745] Trainer is initialized with 65536 tokens per DP rank, 2097152 tokens per train step, gradient accumulation steps 1, maximum context length 2048, total steps 15 (warmup 5)
+[rank5]: Traceback (most recent call last):
+[rank5]:   File "<frozen runpy>", line 203, in _run_module_as_main
+[rank5]:   File "<frozen runpy>", line 88, in _run_code
+[rank5]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 361, in <module>
+[rank5]:     gmain.handle_main(start_trainer)
+[rank5]:     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+[rank5]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 131, in handle_main
+[rank5]:     app.run(main, flags_parser=_parse_flags)
+[rank5]:     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank5]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 410, in run
+[rank5]:     _run_main(main, args)
+[rank5]:     ~~~~~~~~~^^^^^^^^^^^^
+[rank5]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 355, in _run_main
+[rank5]:     sys.exit(main(argv))
+[rank5]:              ~~~~^^^^^^
+[rank5]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 120, in main
+[rank5]:     _start_trainer(config)
+[rank5]:     ~~~~~~~~~~~~~~^^^^^^^^
+[rank5]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 48, in _start_trainer
+[rank5]:     global_start_trainer_func(config)
+[rank5]:     ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+[rank5]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 311, in start_trainer
+[rank5]:     trainer = trainer_cls(train_config)
+[rank5]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/tpu_graph_trainer.py", line 192, in __init__
+[rank5]:     self._graph_splitter = GraphSplitter.from_trainer_config(
+[rank5]:                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+[rank5]:         config,
+[rank5]:         ^^^^^^^
+[rank5]:         optimizer_in_graph=self._optimizer_in_graph,
+[rank5]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank5]:     )
+[rank5]:     ^
+[rank5]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/graph_split.py", line 311, in from_trainer_config
+[rank5]:     raise ValueError(
+[rank5]:     ...<2 lines>...
+[rank5]:     )
+[rank5]: ValueError: TPU GraphTrainer graph split does not support optimizer_compile='in_graph'
+I1030 08:34:45.658379 134766516594624 _client.py:1025] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+W1030 08:34:45.675584 134766516594624 state_dict_adapter.py:96] model.safetensors.index.json not found at hf_assets_path: ./tests/assets/tokenizer/model.safetensors.index.json.                     Defaulting to saving a single safetensors file if checkpoint is saved in HF format
+W1030 08:34:45.675674 134766516594624 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:45.675749 134766516594624 trainer.py:745] Trainer is initialized with 65536 tokens per DP rank, 2097152 tokens per train step, gradient accumulation steps 1, maximum context length 2048, total steps 15 (warmup 5)
+[rank7]: Traceback (most recent call last):
+[rank7]:   File "<frozen runpy>", line 203, in _run_module_as_main
+[rank7]:   File "<frozen runpy>", line 88, in _run_code
+[rank7]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 361, in <module>
+[rank7]:     gmain.handle_main(start_trainer)
+[rank7]:     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+[rank7]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 131, in handle_main
+[rank7]:     app.run(main, flags_parser=_parse_flags)
+[rank7]:     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank7]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 410, in run
+[rank7]:     _run_main(main, args)
+[rank7]:     ~~~~~~~~~^^^^^^^^^^^^
+[rank7]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 355, in _run_main
+[rank7]:     sys.exit(main(argv))
+[rank7]:              ~~~~^^^^^^
+[rank7]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 120, in main
+[rank7]:     _start_trainer(config)
+[rank7]:     ~~~~~~~~~~~~~~^^^^^^^^
+[rank7]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 48, in _start_trainer
+[rank7]:     global_start_trainer_func(config)
+[rank7]:     ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+[rank7]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 311, in start_trainer
+[rank7]:     trainer = trainer_cls(train_config)
+[rank7]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/tpu_graph_trainer.py", line 192, in __init__
+[rank7]:     self._graph_splitter = GraphSplitter.from_trainer_config(
+[rank7]:                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+[rank7]:         config,
+[rank7]:         ^^^^^^^
+[rank7]:         optimizer_in_graph=self._optimizer_in_graph,
+[rank7]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank7]:     )
+[rank7]:     ^
+[rank7]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/graph_split.py", line 311, in from_trainer_config
+[rank7]:     raise ValueError(
+[rank7]:     ...<2 lines>...
+[rank7]:     )
+[rank7]: ValueError: TPU GraphTrainer graph split does not support optimizer_compile='in_graph'
+I1030 08:34:45.701612 133304189900736 _client.py:1025] HTTP Request: HEAD https://s3.amazonaws.com/datasets.huggingface.co/datasets/datasets/json/json.py "HTTP/1.1 200 OK"
+W1030 08:34:45.720867 133304189900736 state_dict_adapter.py:96] model.safetensors.index.json not found at hf_assets_path: ./tests/assets/tokenizer/model.safetensors.index.json.                     Defaulting to saving a single safetensors file if checkpoint is saved in HF format
+W1030 08:34:45.720985 133304189900736 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 08:34:45.721093 133304189900736 trainer.py:745] Trainer is initialized with 65536 tokens per DP rank, 2097152 tokens per train step, gradient accumulation steps 1, maximum context length 2048, total steps 15 (warmup 5)
+[rank2]: Traceback (most recent call last):
+[rank2]:   File "<frozen runpy>", line 203, in _run_module_as_main
+[rank2]:   File "<frozen runpy>", line 88, in _run_code
+[rank2]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 361, in <module>
+[rank2]:     gmain.handle_main(start_trainer)
+[rank2]:     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+[rank2]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 131, in handle_main
+[rank2]:     app.run(main, flags_parser=_parse_flags)
+[rank2]:     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 410, in run
+[rank2]:     _run_main(main, args)
+[rank2]:     ~~~~~~~~~^^^^^^^^^^^^
+[rank2]:   File "/usr/local/lib/python3.14/site-packages/absl/app.py", line 355, in _run_main
+[rank2]:     sys.exit(main(argv))
+[rank2]:              ~~~~^^^^^^
+[rank2]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 120, in main
+[rank2]:     _start_trainer(config)
+[rank2]:     ~~~~~~~~~~~~~~^^^^^^^^
+[rank2]:   File "/torchtitan-native/torchtitan/experiments/tpu/gmain.py", line 48, in _start_trainer
+[rank2]:     global_start_trainer_func(config)
+[rank2]:     ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+[rank2]:   File "/torchtitan-native/torchtitan/experiments/tpu/train.py", line 311, in start_trainer
+[rank2]:     trainer = trainer_cls(train_config)
+[rank2]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/tpu_graph_trainer.py", line 192, in __init__
+[rank2]:     self._graph_splitter = GraphSplitter.from_trainer_config(
+[rank2]:                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+[rank2]:         config,
+[rank2]:         ^^^^^^^
+[rank2]:         optimizer_in_graph=self._optimizer_in_graph,
+[rank2]:         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[rank2]:     )
+[rank2]:     ^
+[rank2]:   File "/torchtitan-native/torchtitan/experiments/tpu/graph_trainer/graph_split.py", line 311, in from_trainer_config
+[rank2]:     raise ValueError(
+[rank2]:     ...<2 lines>...
+[rank2]:     )
+[rank2]: ValueError: TPU GraphTrainer graph split does not support optimizer_compile='in_graph'
+I0000 00:00:1793349286.767917   43202 compilation_cache.cc:356] Compilation cache evicted.
+I0000 00:00:1793349286.767937   43202 compilation_cache.cc:203] CompilationCache final stats: num_cache_reqs=1877
+num_cache_hits=1838 {97.9%}
+num_compilations=0
+peak_compilation_memory_bytes=unknown
+
+I0000 00:00:1793349286.768250   43200 compilation_cache.cc:356] Compilation cache evicted.
+I0000 00:00:1793349286.768270   43200 compilation_cache.cc:203] CompilationCache final stats: num_cache_reqs=1877
+num_cache_hits=1838 {97.9%}
+num_compilations=0
+peak_compilation_memory_bytes=unknown
+
+I0000 00:00:1793349286.769306   43201 compilation_cache.cc:356] Compilation cache evicted.
+I0000 00:00:1793349286.769807   43201 compilation_cache.cc:203] CompilationCache final stats: num_cache_reqs=1877
+num_cache_hits=1838 {97.9%}
+num_compilations=0
+peak_compilation_memory_bytes=unknown
+
+I0000 00:00:1793349286.770006   43203 compilation_cache.cc:356] Compilation cache evicted.
+I0000 00:00:1793349286.770023   43203 compilation_cache.cc:203] CompilationCache final stats: num_cache_reqs=1877
+num_cache_hits=1838 {97.9%}
+num_compilations=0
+peak_compilation_memory_bytes=unknown
+
+I0000 00:00:1793349286.771736   43206 compilation_cache.cc:356] Compilation cache evicted.
+I0000 00:00:1793349286.772490   43206 compilation_cache.cc:203] CompilationCache final stats: num_cache_reqs=1877
+num_cache_hits=1838 {97.9%}
+num_compilations=0
+peak_compilation_memory_bytes=unknown
+
+I0000 00:00:1793349286.773424   43205 compilation_cache.cc:356] Compilation cache evicted.
+I0000 00:00:1793349286.773442   43205 compilation_cache.cc:203] CompilationCache final stats: num_cache_reqs=1877
+num_cache_hits=1838 {97.9%}
+num_compilations=0
+peak_compilation_memory_bytes=unknown
+
+I0000 00:00:1793349286.773655   43207 compilation_cache.cc:356] Compilation cache evicted.
+I0000 00:00:1793349286.774008   43204 compilation_cache.cc:356] Compilation cache evicted.
+I0000 00:00:1793349286.774031   43204 compilation_cache.cc:203] CompilationCache final stats: num_cache_reqs=1877
+num_cache_hits=1838 {97.9%}
+num_compilations=0
+peak_compilation_memory_bytes=unknown
+
+I0000 00:00:1793349286.774323   43207 compilation_cache.cc:203] CompilationCache final stats: num_cache_reqs=1877
+num_cache_hits=1838 {97.9%}
+num_compilations=0
+peak_compilation_memory_bytes=unknown
+
++-----------+
+| Anomalies |
++-----------+
+---------
+Anomalies
+---------
++-----------+
+| Anomalies |
++-----------+
+---------
+Anomalies
+---------
++-----------+
+| Anomalies |
++-----------+
+---------
+Anomalies
+---------
+W1030 08:34:48.518000 43134 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 43200 closing signal SIGTERM
+W1030 08:34:48.528000 43134 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 43201 closing signal SIGTERM
+W1030 08:34:48.528000 43134 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 43202 closing signal SIGTERM
+W1030 08:34:48.528000 43134 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 43203 closing signal SIGTERM
+W1030 08:34:48.529000 43134 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 43205 closing signal SIGTERM
+W1030 08:34:48.529000 43134 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 43206 closing signal SIGTERM
++-----------+
+| Anomalies |
++-----------+
+---------
+Anomalies
+---------
+W1030 08:34:48.529000 43134 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 43207 closing signal SIGTERM
+https://symbolize.stripped_domain/r/?trace=7f293106f48b,7f2930cf5d6f,7f293111f878,7f29310f228f,7f29310ec05b,7f2930cdfca7&map= 
+*** SIGTERM received by PID 43201 (TID 43201) on cpu 64, si_code=0, from PID 43134; stack trace: ***
+https://symbolize.stripped_domain/r/?trace=7a91c6d27505,7a91c69add6f,7a91c6dd7878,7a91c6daa28f,7a91c6da405b,7a91c6997ca7&map= 
+*** SIGTERM received by PID 43207 (TID 43207) on cpu 108, si_code=0, from PID 43134; stack trace: ***
+https://symbolize.stripped_domain/r/?trace=793d4d5c8883,793d4d244d6f,793d4d5be467,793d4d66e878,793d4d64128f,793d4d63b05b,793d4d22eca7&map= 
+*** SIGTERM received by PID 43202 (TID 43202) on cpu 1, si_code=0, from PID 43134; stack trace: ***
+https://symbolize.stripped_domain/r/?trace=7da433e41883,7da433abdd6f,7da433e37467,7da433ee7878,7da433eba28f,7da433eb405b,7da433aa7ca7&map= 
+*** SIGTERM received by PID 43205 (TID 43205) on cpu 0, si_code=0, from PID 43134; stack trace: ***
++-----------+
+| Anomalies |
++-----------+
+---------
+Anomalies
+---------
++-----------+
+| Anomalies |
++-----------+
+---------
+Anomalies
+---------
+PC: @     0x7da433e41883  (unknown)  handle_weakrefs.lto_priv.0
+PC: @     0x793d4d5c8883  (unknown)  handle_weakrefs.lto_priv.0
+    @     0x793d10300137       1888  FailureSignalHandler()
+    @     0x7da3f6b00137       1888  FailureSignalHandler()
+    @     0x7da433abdd70  (unknown)  (unknown)
+    @     0x793d4d244d70  1338880240  (unknown)
+    @     0x793d4d5be468        336  gc_collect_main.lto_priv.0
+    @     0x7da433e37468        336  gc_collect_main.lto_priv.0
+    @     0x7da433ee7879         96  _Py_Finalize.constprop.0
+    @     0x793d4d66e879         96  _Py_Finalize.constprop.0
+    @     0x7da433eba290        336  Py_RunMain
+    @     0x793d4d641290        336  Py_RunMain
+    @     0x7da433eb405c         64  Py_BytesMain
+    @     0x793d4d63b05c         64  Py_BytesMain
+    @     0x7da433aa7ca8  (unknown)  (unknown)
+https://symbolize.stripped_domain/r/?trace=7da433e41883,7da3f6b00136,7da433abdd6f,7da433e37467,7da433ee7878,7da433eba28f,7da433eb405b,7da433aa7ca7&map= 
+    @     0x793d4d22eca8  (unknown)  (unknown)
+https://symbolize.stripped_domain/r/?trace=793d4d5c8883,793d10300136,793d4d244d6f,793d4d5be467,793d4d66e878,793d4d64128f,793d4d63b05b,793d4d22eca7&map= 
+E1030 08:34:48.576435   43205 coredump_hook.cc:250] RAW: Remote crash gathering disabled for SIGTERM.
+E1030 08:34:48.576439   43202 coredump_hook.cc:250] RAW: Remote crash gathering disabled for SIGTERM.
+PC: @     0x7a91c6d27505  (unknown)  gc_collect_main.lto_priv.0
+PC: @     0x7f293106f48b  (unknown)  gc_collect_main.lto_priv.0
+    @     0x7a9189900137       1888  FailureSignalHandler()
+    @     0x7a91c69add70  626880784  (unknown)
+    @     0x7a91c6dd7879         96  _Py_Finalize.constprop.0
+    @     0x7f28f3d00137       1888  FailureSignalHandler()
+    @     0x7f2930cf5d70  (unknown)  (unknown)
+    @     0x7a91c6daa290        336  Py_RunMain
+    @     0x7f293111f879         96  _Py_Finalize.constprop.0
+    @     0x7a91c6da405c         64  Py_BytesMain
+    @     0x7a91c6997ca8  (unknown)  (unknown)
+https://symbolize.stripped_domain/r/?trace=7a91c6d27505,7a9189900136,7a91c69add6f,7a91c6dd7878,7a91c6daa28f,7a91c6da405b,7a91c6997ca7&map= 
+E1030 08:34:48.583298   43207 coredump_hook.cc:250] RAW: Remote crash gathering disabled for SIGTERM.
+    @     0x7f29310f2290        336  Py_RunMain
+    @     0x7f29310ec05c         64  Py_BytesMain
+    @     0x7f2930cdfca8  (unknown)  (unknown)
+https://symbolize.stripped_domain/r/?trace=7f293106f48b,7f28f3d00136,7f2930cf5d6f,7f293111f878,7f29310f228f,7f29310ec05b,7f2930cdfca7&map= 
+E1030 08:34:48.583531   43201 coredump_hook.cc:250] RAW: Remote crash gathering disabled for SIGTERM.
+E1030 08:34:48.857435   43207 process_state.cc:794] RAW: Raising signal 15 with default behavior
+E1030 08:34:48.858724   43205 process_state.cc:794] RAW: Raising signal 15 with default behavior
+E1030 08:34:48.877874   43201 process_state.cc:794] RAW: Raising signal 15 with default behavior
+E1030 08:34:48.894681   43202 process_state.cc:794] RAW: Raising signal 15 with default behavior
+E1030 08:34:49.733000 43134 site-packages/torch/distributed/elastic/multiprocessing/api.py:1002] failed (exitcode: 1) local_rank: 4 (pid: 43204) of binary: /usr/local/bin/python3.14
+Traceback (most recent call last):
+  File "/usr/local/bin/torchrun", line 6, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 384, in wrapper
+    result = f(*args, **kwargs)
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/run.py", line 1138, in main
+    run(args)
+    ~~~^^^^^^
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/run.py", line 1129, in run
+    elastic_launch(
+    ~~~~~~~~~~~~~~~
+        config=config,
+        ~~~~~~~~~~~~~~
+        entrypoint=cmd,
+        ~~~~~~~~~~~~~~~
+    )(*cmd_args)
+    ~^^^^^^^^^^^
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/launcher/api.py", line 197, in __call__
+    return launch_agent(
+        self._config,
+    ...<2 lines>...
+        health_check_server=self._health_check_server,
+    )
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/launcher/api.py", line 386, in launch_agent
+    raise ChildFailedError(
+    ...<2 lines>...
+    )
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+torchtitan.experiments.tpu.train FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2026-10-30_08:34:49
+  host      : flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc.default.svc.cluster.local
+  rank      : 0 (local_rank: 0)
+  exitcode  : 1 (pid: 43200) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[2]:
+  time      : 2026-10-30_08:34:49
+  host      : flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc.default.svc.cluster.local
+  rank      : 1 (local_rank: 1)
+  exitcode  : -15 (pid: 43201)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 43201
+[3]:
+  time      : 2026-10-30_08:34:49
+  host      : flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc.default.svc.cluster.local
+  rank      : 2 (local_rank: 2)
+  exitcode  : -15 (pid: 43202)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 43202
+[4]:
+  time      : 2026-10-30_08:34:49
+  host      : flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc.default.svc.cluster.local
+  rank      : 3 (local_rank: 3)
+  exitcode  : 1 (pid: 43203) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[5]:
+  time      : 2026-10-30_08:34:49
+  host      : flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc.default.svc.cluster.local
+  rank      : 5 (local_rank: 5)
+  exitcode  : -15 (pid: 43205)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 43205
+[6]:
+  time      : 2026-10-30_08:34:49
+  host      : flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc.default.svc.cluster.local
+  rank      : 6 (local_rank: 6)
+  exitcode  : 1 (pid: 43206) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[7]:
+  time      : 2026-10-30_08:34:49
+  host      : flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc.default.svc.cluster.local
+  rank      : 7 (local_rank: 7)
+  exitcode  : -15 (pid: 43207)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 43207
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-10-30_08:34:48
+  host      : flint-v7x-16-pass3-0.flint-v7x-16-pass3-svc.default.svc.cluster.local
+  rank      : 4 (local_rank: 4)
+  exitcode  : 1 (pid: 43204) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================

@@ -1,0 +1,318 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793352127.141113   63301 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793352127.789887   63301 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793352127.792205   63301 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+W1030 09:22:07.816000 63301 site-packages/torch/distributed/run.py:982] 
+W1030 09:22:07.816000 63301 site-packages/torch/distributed/run.py:982] *****************************************
+W1030 09:22:07.816000 63301 site-packages/torch/distributed/run.py:982] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W1030 09:22:07.816000 63301 site-packages/torch/distributed/run.py:982] *****************************************
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793352130.349483   63374 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793352130.349479   63369 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793352130.349485   63367 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793352130.352778   63368 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793352130.352777   63371 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793352130.352783   63373 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793352130.352777   63372 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793352130.358096   63370 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793352131.025226   63369 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793352131.025785   63367 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793352131.027659   63369 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793352131.028156   63367 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793352131.032547   63374 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793352131.034950   63374 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793352131.042654   63373 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+I0000 00:00:1793352131.042688   63368 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793352131.043704   63372 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793352131.045051   63371 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+I0000 00:00:1793352131.045075   63368 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793352131.045103   63373 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793352131.046204   63372 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793352131.047448   63370 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+I0000 00:00:1793352131.047455   63371 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793352131.049960   63370 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+W1030 09:22:12.518000 63367 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.521000 63369 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.522000 63374 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.536000 63367 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.539000 63369 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.540000 63374 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.554000 63368 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.555000 63373 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.555000 63372 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.557000 63371 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.561000 63370 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.572000 63368 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.572000 63373 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.572000 63372 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.574000 63371 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1030 09:22:12.578000 63370 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+/torchtitan-native/torchtitan/experiments/tpu/kernels/expert_segment_matmul.py:41: UserWarning: <TorchTpu/ApiStage/ExperimentalApi/> jax_op is experimental and subject to change: torch.tpu.pallas.jax_op is experimental and subject to change.
+  @pallas.jax_op("tt_experts::grouped_mm")
+I1030 09:22:14.398655 134576254351296 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 09:22:14.398984 134576254351296 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 09:22:14.399041 135995585955776 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 09:22:14.399383 135995585955776 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 09:22:14.402414 136180355717056 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 09:22:14.402749 136180355717056 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 09:22:14.439347 140326971697088 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 09:22:14.439682 140326971697088 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 09:22:14.439960 140196610123712 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 09:22:14.440310 140196610123712 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 09:22:14.440397 136141408548800 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 09:22:14.440743 136141408548800 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 09:22:14.440606 133881465399232 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 09:22:14.440979 133881465399232 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+I1030 09:22:14.441657 132021596727232 grouped_experts.py:418] Replaced 47 GroupedExperts configuration(s) for TPU
+W1030 09:22:14.441996 132021596727232 base.py:654] initial_load_model_only=True has no effect without an initial_load_path.
+╭─ Unrecognized options ───────────────────────────────────────────────────────╮
+│ Unrecognized options: True, True, True                                       │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ Available subcommands: activation-checkpoint:selective,                      │
+│ activation-checkpoint:region, activation-checkpoint:full,                    │
+│ activation-checkpoint:memory-budget, activation-checkpoint:none              │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ For full helptext, run                                                       │
+│ /torchtitan-native/torchtitan/experiments/tpu/train.py --help                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Unrecognized options ───────────────────────────────────────────────────────╮
+│ Unrecognized options: True, True, True                                       │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ Available subcommands: activation-checkpoint:selective,                      │
+│ activation-checkpoint:region, activation-checkpoint:full,                    │
+│ activation-checkpoint:memory-budget, activation-checkpoint:none              │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ For full helptext, run                                                       │
+│ /torchtitan-native/torchtitan/experiments/tpu/train.py --help                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Unrecognized options ───────────────────────────────────────────────────────╮
+│ Unrecognized options: True, True, True                                       │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ Available subcommands: activation-checkpoint:selective,                      │
+│ activation-checkpoint:region, activation-checkpoint:full,                    │
+│ activation-checkpoint:memory-budget, activation-checkpoint:none              │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ For full helptext, run                                                       │
+│ /torchtitan-native/torchtitan/experiments/tpu/train.py --help                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Unrecognized options ───────────────────────────────────────────────────────╮
+│ Unrecognized options: True, True, True                                       │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ Available subcommands: activation-checkpoint:selective,                      │
+│ activation-checkpoint:region, activation-checkpoint:full,                    │
+│ activation-checkpoint:memory-budget, activation-checkpoint:none              │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ For full helptext, run                                                       │
+│ /torchtitan-native/torchtitan/experiments/tpu/train.py --help                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Unrecognized options ───────────────────────────────────────────────────────╮
+│ Unrecognized options: True, True, True                                       │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ Available subcommands: activation-checkpoint:selective,                      │
+│ activation-checkpoint:region, activation-checkpoint:full,                    │
+│ activation-checkpoint:memory-budget, activation-checkpoint:none              │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ For full helptext, run                                                       │
+│ /torchtitan-native/torchtitan/experiments/tpu/train.py --help                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Unrecognized options ───────────────────────────────────────────────────────╮
+│ Unrecognized options: True, True, True                                       │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ Available subcommands: activation-checkpoint:selective,                      │
+│ activation-checkpoint:region, activation-checkpoint:full,                    │
+│ activation-checkpoint:memory-budget, activation-checkpoint:none              │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ For full helptext, run                                                       │
+│ /torchtitan-native/torchtitan/experiments/tpu/train.py --help                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Unrecognized options ───────────────────────────────────────────────────────╮
+│ Unrecognized options: True, True, True                                       │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ Available subcommands: activation-checkpoint:selective,                      │
+│ activation-checkpoint:region, activation-checkpoint:full,                    │
+│ activation-checkpoint:memory-budget, activation-checkpoint:none              │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ For full helptext, run                                                       │
+│ /torchtitan-native/torchtitan/experiments/tpu/train.py --help                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Unrecognized options ───────────────────────────────────────────────────────╮
+│ Unrecognized options: True, True, True                                       │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ Available subcommands: activation-checkpoint:selective,                      │
+│ activation-checkpoint:region, activation-checkpoint:full,                    │
+│ activation-checkpoint:memory-budget, activation-checkpoint:none              │
+│ ──────────────────────────────────────────────────────────────────────────── │
+│ For full helptext, run                                                       │
+│ /torchtitan-native/torchtitan/experiments/tpu/train.py --help                │
+╰──────────────────────────────────────────────────────────────────────────────╯
+W1030 09:22:15.816000 63301 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 63368 closing signal SIGTERM
+W1030 09:22:15.816000 63301 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 63370 closing signal SIGTERM
+W1030 09:22:15.816000 63301 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 63371 closing signal SIGTERM
+W1030 09:22:15.817000 63301 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 63372 closing signal SIGTERM
+W1030 09:22:15.817000 63301 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 63373 closing signal SIGTERM
+E1030 09:22:15.880000 63301 site-packages/torch/distributed/elastic/multiprocessing/api.py:1002] failed (exitcode: 2) local_rank: 0 (pid: 63367) of binary: /usr/local/bin/python3.14
+Traceback (most recent call last):
+  File "/usr/local/bin/torchrun", line 6, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 384, in wrapper
+    result = f(*args, **kwargs)
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/run.py", line 1138, in main
+    run(args)
+    ~~~^^^^^^
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/run.py", line 1129, in run
+    elastic_launch(
+    ~~~~~~~~~~~~~~~
+        config=config,
+        ~~~~~~~~~~~~~~
+        entrypoint=cmd,
+        ~~~~~~~~~~~~~~~
+    )(*cmd_args)
+    ~^^^^^^^^^^^
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/launcher/api.py", line 197, in __call__
+    return launch_agent(
+        self._config,
+    ...<2 lines>...
+        health_check_server=self._health_check_server,
+    )
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/launcher/api.py", line 386, in launch_agent
+    raise ChildFailedError(
+    ...<2 lines>...
+    )
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+torchtitan.experiments.tpu.train FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2026-10-30_09:22:15
+  host      : flint-v7x-16-pass4-0.flint-v7x-16-pass4-svc.default.svc.cluster.local
+  rank      : 2 (local_rank: 2)
+  exitcode  : 2 (pid: 63369) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[2]:
+  time      : 2026-10-30_09:22:15
+  host      : flint-v7x-16-pass4-0.flint-v7x-16-pass4-svc.default.svc.cluster.local
+  rank      : 7 (local_rank: 7)
+  exitcode  : 2 (pid: 63374) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[3]:
+  time      : 2026-10-30_09:22:15
+  host      : flint-v7x-16-pass4-0.flint-v7x-16-pass4-svc.default.svc.cluster.local
+  rank      : 1 (local_rank: 1)
+  exitcode  : -15 (pid: 63368)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 63368
+[4]:
+  time      : 2026-10-30_09:22:15
+  host      : flint-v7x-16-pass4-0.flint-v7x-16-pass4-svc.default.svc.cluster.local
+  rank      : 3 (local_rank: 3)
+  exitcode  : -15 (pid: 63370)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 63370
+[5]:
+  time      : 2026-10-30_09:22:15
+  host      : flint-v7x-16-pass4-0.flint-v7x-16-pass4-svc.default.svc.cluster.local
+  rank      : 4 (local_rank: 4)
+  exitcode  : -15 (pid: 63371)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 63371
+[6]:
+  time      : 2026-10-30_09:22:15
+  host      : flint-v7x-16-pass4-0.flint-v7x-16-pass4-svc.default.svc.cluster.local
+  rank      : 5 (local_rank: 5)
+  exitcode  : -15 (pid: 63372)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 63372
+[7]:
+  time      : 2026-10-30_09:22:15
+  host      : flint-v7x-16-pass4-0.flint-v7x-16-pass4-svc.default.svc.cluster.local
+  rank      : 6 (local_rank: 6)
+  exitcode  : -15 (pid: 63373)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 63373
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-10-30_09:22:15
+  host      : flint-v7x-16-pass4-0.flint-v7x-16-pass4-svc.default.svc.cluster.local
+  rank      : 0 (local_rank: 0)
+  exitcode  : 2 (pid: 63367) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
