@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flint-v5p-32-pass3-svc
+  namespace: default
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    job-name: flint-v5p-32-pass3
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flint-v5p-32-pass3
+  namespace: default
+spec:
+  completions: 8
+  parallelism: 8
+  completionMode: Indexed
+  backoffLimit: 30
+  template:
+    metadata:
+      labels:
+        app: flint-v5p-32-pass3
+      annotations:
+        gke-gcsfuse/volumes: "true"
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+    spec:
+      serviceAccountName: default
+      subdomain: flint-v5p-32-pass3-svc
+      restartPolicy: OnFailure
+      nodeSelector:
+        cloud.google.com/gke-nodepool: tpu-v5p-32-pool
+        cloud.google.com/gke-tpu-accelerator: tpu-v5p-slice
+        cloud.google.com/gke-tpu-topology: 2x4x4
+      tolerations:
+      - key: "google.com/tpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "cloud.google.com/gke-spot"
+        operator: "Exists"
+        effect: "NoSchedule"
+      containers:
+      - name: trainer
+        image: us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/torchtpu/torchtitan-flint:v0.2.0
+        imagePullPolicy: IfNotPresent
+        command: ["python3", "/scripts/run_flint_v5p_pass3.py"]
+        args:
+        - --chip-type=v5p
+        - --nnodes=8
+        - --nproc-per-node=4
+        - --master-addr=flint-v5p-32-pass3-0.flint-v5p-32-pass3-svc.default.svc.cluster.local
+        - --slice-name=v5p-32-2x4x4_pass3
+        - --hf-model=/models/models/RecursiveSI/flint
+        - --steps=12
+        - --output-dir=/models/flint-results
+        env:
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token
+              key: HF_TOKEN
+        - name: PJRT_DEVICE
+          value: "TPU"
+        resources:
+          requests:
+            google.com/tpu: "4"
+          limits:
+            google.com/tpu: "4"
+        volumeMounts:
+        - name: models-gcs
+          mountPath: /models
+        - name: pass3-script
+          mountPath: /scripts
+        - name: dshm
+          mountPath: /dev/shm
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+      - name: models-gcs
+        persistentVolumeClaim:
+          claimName: tpu-models-gcs-pvc
+      - name: pass3-script
+        configMap:
+          name: flint-v5p-pass3-script
