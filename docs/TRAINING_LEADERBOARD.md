@@ -79,24 +79,30 @@
 
 ---
 
-## 2B. Cross-Generation TPU `v5p-16` (`2x2x4`, 16 Chips) Live Benchmark
+## 2B. Cross-Generation TPU `v5p-16` (`2x2x4`, 16 Chips) & `v5p-32` (`2x4x4`, 32 Chips) Multi-Slice Scaling
 
-- **Hardware / Peak Spec:** `tpu-v5p-16-pool` (`v5p-16`, `2x2x4` ICI torus, 16 dual-MXU chips, `95 GiB` HBM/chip, `16.00 MB` Scoped VMEM, `459.0` BF16 TFLOP/s/chip peak).
+- **Hardware / Peak Spec:** TPU `v5p` dual-MXU chips (`95 GiB` HBM/chip, `16.00 MB` Scoped VMEM, `459.0` BF16 TFLOP/s/chip peak) across **`v5p-16` (`2x2x4`, 16 chips)** and **`v5p-32` (`2x4x4`, 32 chips / 8 hosts)**.
 - **GCS Run Directories:**
-  - Completed 15-Step Pass 1 (HF Backend `19.76%` MFU): `gs://YOUR_GCS_BUCKET/flint-results/v5p-16-2x2x4_20261030T180426Z/`
-  - Completed 15-Step Pass 2 (Native `TpuGraphTrainer` `17.01%` MFU): `gs://YOUR_GCS_BUCKET/flint-results/v5p-16-2x2x4_pass2_20261030T183651Z/`
-  - Earlier Partial Run (Steps 2–9 before Spot preemption): `gs://YOUR_GCS_BUCKET/flint-results/v5p-16-2x2x4_20261030T173221Z/`
-- **Architectural & VMEM Comparison (`v5p-16` vs `v7x-16`):**
-  - On `v5p-16` (`459` BF16 TFLOP/s/chip), **PR #123 HF Backend** (`01_hf_backend_pr123_flint_v5p`, `mb=32`, `seq=2048`, `1,048,576` tok/step, full 15 steps) achieves **`19.76%` Steady MFU (`19.79%` Peak MFU)** (`loss: 12.49684 -> 3.43675`, `383.2s` wall time) — **`+3.89` pp higher MFU** than the identical config on `v7x-16` (`15.87%` MFU) because `v5p`'s lower compute-to-HBM-bandwidth and compute-to-ICI ratio (`459` vs `1,153.5` TFLOP/s/rank) makes 256-expert top-6 MoE routing + All-to-All communication significantly less memory/ICI bound.
-  - Meanwhile, in **absolute throughput**, `v7x-16` (`32` TensorCores) delivers **`2.29×` higher per-rank throughput** (`11,956.9` vs `5,215.8` tok/s/rank) and **`4.67×` higher slice throughput** (`389,827` vs `83,453` steady / `391,136` vs `83,584` peak tok/s/slice).
-  - **`v5p` `16.00 MB` vs `v7x` `32.00 MB` Scoped VMEM Hardware Boundary & Resolution:** Native PR #122 Paired W1/W3 Pallas GroupedMM (`moe_gmm_w13_fwd`) requires `20.00 MB` Scoped VMEM at `tile_m=1024` (`03_native_pr122_v5p_n49_tile1024`) and `16.58 MB` (`592 KB` over `v5p`'s `16.00 MB` limit!) at `tile_m=512` (`02_native_pr122_v5p_n40`). Calibrating Paired GMM to `tile_m=256` + `tgmm_tiling=(256, 1024, 0)` + `n49` + Compiled Optimizer (`v5p_p2_01_native_paired_tile256_n49_mb24`, `mb=24`) fits cleanly inside `16.00 MB` Scoped VMEM and `14.32 GiB` (`15.1%`) HBM, achieving **`17.01%` Steady / `17.09%` Peak MFU (`4,491.8` tok/s/rank = `71,869` cluster tok/s, `loss: 12.3177 -> 3.3964`)**!
+  - **Completed 4/4 `v5p-32` (`2x4x4`, 32 Chips) Scaling Pass (`19.95%` / `19.98%` HF MFU & `19.00%` / `19.07%` Native MFU):** `gs://YOUR_GCS_BUCKET/flint-results/v5p-32-2x4x4_pass2_20261030T192414Z/`
+  - Completed 15-Step `v5p-16` Pass 1 (HF Backend `19.76%` MFU): `gs://YOUR_GCS_BUCKET/flint-results/v5p-16-2x2x4_20261030T180426Z/`
+  - Completed 15-Step `v5p-16` Pass 2 (Native `TpuGraphTrainer` `17.01%` MFU): `gs://YOUR_GCS_BUCKET/flint-results/v5p-16-2x2x4_pass2_20261030T183651Z/`
+- **Architectural, Scaling & VMEM Findings (`v5p-16` -> `v5p-32` vs `v7x-16`):**
+  - **Superlinear `>100%` Scaling from `v5p-16` (`16` chips) -> `v5p-32` (`32` chips, `2x4x4`):**
+    - **PR #123 HF Backend + Paired W1/W3 GMM (`tile_m=256`, `v5p_p2_04`) on `v5p-32`** reaches **`19.95%` Steady MFU (`19.98%` Peak MFU — `5,266.9` steady / `5,276.0` peak tok/s/chip = `168,541` steady / `168,832` peak cluster tok/s)** on real 15-shard `RecursiveSI/flint` weights (`loss: 12.2942 -> 3.6038`, `11.78 GiB` HBM, `98.4%` XLA compile cache hit rate, `355.4s` wall time) — achieving **`101.0%` weak-scaling efficiency** over `v5p-16` (`5,215.8` tok/s/chip, `19.76%` MFU)!
+    - **Native `TpuGraphTrainer` (`v5p_p2_02`, Paired GMM `tile_m=256` + `n49` + CompiledOpt) on `v5p-32`** unlocks `mb=32` (`2,097,152` tok/step across `SimpleFSDP32`), surging from `17.05%` (`mb=24`) -> **`19.00%` Steady MFU (`19.07%` Peak MFU — `5,016.0` tok/s/chip = `160,512` steady cluster tok/s, `15.86 GiB` HBM)**!
+  - **`v5p` `16.00 MB` vs `v7x` `32.00 MB` Scoped VMEM Hardware Boundary & Resolution:** Native PR #122 Paired W1/W3 Pallas GroupedMM (`moe_gmm_w13_fwd`) requires `20.00 MB` Scoped VMEM at `tile_m=1024` and `16.58 MB` (`592 KB` over `v5p`'s `16.00 MB` limit!) at `tile_m=512`. Calibrating Paired GMM to `tile_m=256` + `tgmm_tiling=(256, 1024, 0)` compiles cleanly inside `16.00 MB` Scoped VMEM on both `v5p-16` and `v5p-32` (`+2.03` pp faster at `mb=32` on `v5p-32`, and `+0.08` pp faster than unpaired `tile_m=512` at equal `mb=24`: `17.05%` vs `16.97%`).
+  - **Throughput Comparison (`v7x-16` vs `v5p-32`):** A single 16-chip **`v7x-16` slice (`389,827` steady / `391,136` peak tok/s)** delivers **`2.31×` higher total training throughput than a 32-chip `v5p-32` slice (`168,541` tok/s)** (`4.63×` higher throughput per TPU chip!).
 
-| Slice | Experiment | Lane / Key Configuration | Global Batch (tok/step) | Status / Steps | Steady tok/s/rank | Peak tok/s/rank | Cluster tok/s (16 ranks) | Steady TFLOP/s/chip | Steady MFU (%) | Peak MFU (%) | Loss (`start -> end`) | HBM / Wall Time |
-|---|---|---|---:|---|---:|---:|---:|---:|---:|---:|---|---|
-| **`v5p-16` (`2x2x4`)** | **`01_hf_backend_pr123_flint_v5p`** | **HF Backend PR#123 (`RecursiveSI/flint` 15-shard weights, Pallas GMM, `b=1024`, `mb=32`, `seq=2048`)** | **1,048,576** | **`PASS` (15 steps)** | **5,215.8** | **5,224.0** | **83,453** *(83,584 peak)* | **90.68** *(90.82 peak)* | **19.76%** | **19.79%** | **`12.4968 -> 3.4368`** | **`11.78 GiB` (`12.4%`) / `383.2s`** |
-| **`v5p-16` (`2x2x4`)** | **`v5p_p2_01_native_paired_tile256_n49_mb24`** | **Native PR#122 (`TpuGraphTrainer`, Paired GMM `tile_m=256`, `n49`, CompiledOpt, `mb=24`)** | **786,432** | **`PASS` (15 steps)** | **4,491.8** | **4,513.0** | **71,869** *(72,208 peak)* | **78.09** *(78.46 peak)* | **17.01%** | **17.09%** | **`12.3177 -> 3.3964`** | **`14.32 GiB` (`15.1%`) / `400.1s`** |
-| `v5p-16` (`2x2x4`) | `02_native_pr122_v5p_n40` | Native PR#122 Paired W1/W3 GMM `tile_m=512` (`16.58 MB > 16.00 MB` `v5p` Scoped VMEM) | 1,048,576 | `VMEM OOM (16.58M)` | - | - | - | - | - | - | - | `192.0s` |
-| `v5p-16` (`2x2x4`) | `03_native_pr122_v5p_n49_tile1024` | Native PR#122 Paired W1/W3 GMM `tile_m=1024` (`20.00 MB > 16.00 MB` `v5p` Scoped VMEM) | 1,048,576 | `VMEM OOM (20.00M)` | - | - | - | - | - | - | - | `135.4s` |
+| Slice | Experiment | Lane / Key Configuration | Global Batch (tok/step) | Status / Steps | Steady tok/s/rank |Cluster tok/s | Steady MFU (%) | Peak MFU (%) | Loss (`start -> end`) | HBM / Wall Time |
+|---|---|---|---:|---|---:|---:|---:|---:|---|---|
+| **`v5p-32` (`2x4x4`)** | **`v5p_p2_04_hf_pr123_paired_tile256_b1024_mb32`** | **HF Backend PR#123 (`RecursiveSI/flint` weights, Paired GMM `tile_m=256`, `b=1024`, `mb=32`)** | **2,097,152** | **`PASS` (15 steps)** | **5,266.9** *(5,276 peak)* | **168,541** *(168,832 peak)* | **19.95%** | **19.98%** | **`12.2942 -> 3.6038`** | **`11.78 GiB` / `355.4s`** |
+| **`v5p-32` (`2x4x4`)** | **`v5p_p2_02_native_paired_tile256_n49_mb32`** | **Native PR#122 (`TpuGraphTrainer`, Paired GMM `tile_m=256`, `n49`, CompiledOpt, `mb=32`)** | **2,097,152** | **`PASS` (15 steps)** | **5,016.0** | **160,512** | **19.00%** | **19.07%** | **`12.3285 -> 3.6998`** | **`15.86 GiB` / `412.7s`** |
+| `v5p-32` (`2x4x4`) | `v5p_p2_01_native_paired_tile256_n49_mb24` | Native PR#122 (`TpuGraphTrainer`, Paired GMM `tile_m=256`, `n49`, CompiledOpt, `mb=24`) | 1,572,864 | `PASS` (15 steps) | **4,501.8** | 144,058 | **17.05%** | 17.11% | `12.3292 -> 3.6720` | `12.31 GiB` / `431.5s` |
+| `v5p-32` (`2x4x4`) | `v5p_p2_03_native_unpaired_tile512_n49_mb24` | Native PR#122 (`TpuGraphTrainer`, Unpaired GMM `tile_m=512`, `n49`, CompiledOpt, `mb=24`) | 1,572,864 | `PASS` (15 steps) | **4,480.2** | 143,366 | **16.97%** | 17.07% | `12.3292 -> 3.6718` | `11.18 GiB` / `364.8s` |
+| **`v5p-16` (`2x2x4`)** | **`01_hf_backend_pr123_flint_v5p`** | **HF Backend PR#123 (`RecursiveSI/flint` 15-shard weights, Pallas GMM, `b=1024`, `mb=32`, `seq=2048`)** | **1,048,576** | **`PASS` (15 steps)** | **5,215.8** *(5,224 peak)* | **83,453** *(83,584 peak)* | **19.76%** | **19.79%** | **`12.4968 -> 3.4368`** | **`11.78 GiB` / `383.2s`** |
+| **`v5p-16` (`2x2x4`)** | **`v5p_p2_01_native_paired_tile256_n49_mb24`** | **Native PR#122 (`TpuGraphTrainer`, Paired GMM `tile_m=256`, `n49`, CompiledOpt, `mb=24`)** | **786,432** | **`PASS` (15 steps)** | **4,491.8** *(4,513 peak)* | **71,869** *(72,208 peak)* | **17.01%** | **17.09%** | **`12.3177 -> 3.3964`** | **`14.32 GiB` / `400.1s`** |
+| `v5p-16` (`2x2x4`) | `02_native_pr122_v5p_n40` | Native PR#122 Paired W1/W3 GMM `tile_m=512` (`16.58 MB > 16.00 MB` `v5p` Scoped VMEM) | 1,048,576 | `VMEM OOM (16.58M)` | - | - | - | - | - | `192.0s` |
+| `v5p-16` (`2x2x4`) | `03_native_pr122_v5p_n49_tile1024` | Native PR#122 Paired W1/W3 GMM `tile_m=1024` (`20.00 MB > 16.00 MB` `v5p` Scoped VMEM) | 1,048,576 | `VMEM OOM (20.00M)` | - | - | - | - | - | `135.4s` |
 
 ---
 
