@@ -823,7 +823,7 @@ def build_v5p_pass9bc_experiments(suite: str, world_size: int, hf_model_path: st
         "pallas_grouped_mm_w2_tgmm_tiling=256:512:0,"
         "pallas_grouped_mm_w2_transposed_tgmm_tiling=256:0:1024"
     )
-    hf_base = [
+    hf_base_pure_fused = [
         "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
         "--config=hf_moe_auto_max_attnac",
         f"--hf-model={hf_model_path}",
@@ -837,8 +837,215 @@ def build_v5p_pass9bc_experiments(suite: str, world_size: int, hf_model_path: st
         "--debug.seed=42",
         "--loss.b_block_size=1024",
         *hf_splash_1024,
+    ]
+    hf_base = [
+        *hf_base_pure_fused,
         *hf_comp_opt,
     ]
+    mb72 = 72 * 2048    # 147,456 tok/rank  (3,456 tok/expert @ EP=1)
+
+    if suite == "pass9f":
+        if world_size == 16:
+            return [
+                {
+                    "name": "v5p_p9f_01_hf_sbdp_sa1024_attnac0_mb64_1x",
+                    "lane": "v5p-16 HF PR#123 + SBDP + PureFusedOpt + sa=1024 + AttnAC(N=0, 0% MoE/Attn recomp, 1 exec) + NativeTile1024 (mb=64 = 3,072 tok/exp)",
+                    "workdir": "/torchtitan-hf",
+                    "env": {
+                        "TT_HF_SBDP": "1",
+                        "TT_FULL_AC_FIRST_N": "0",
+                        "TORCH_TPU_DEFER_AND_FUSE": "1",
+                        "LIBTPU_INIT_ARGS": v5p_flags,
+                    },
+                    "args": [
+                        *hf_base_pure_fused,
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                        f"--training.num_tokens_per_train_step={world_size * mb64}",
+                    ],
+                },
+                {
+                    "name": "v5p_p9f_02_hf_sbdp_sa1024_attnac0_mb72_1x",
+                    "lane": "v5p-16 HF PR#123 + SBDP + PureFusedOpt + sa=1024 + AttnAC(N=0, 0% MoE/Attn recomp, 1 exec) + NativeTile1024 (mb=72 = 3,456 tok/exp)",
+                    "workdir": "/torchtitan-hf",
+                    "env": {
+                        "TT_HF_SBDP": "1",
+                        "TT_FULL_AC_FIRST_N": "0",
+                        "TORCH_TPU_DEFER_AND_FUSE": "1",
+                        "LIBTPU_INIT_ARGS": v5p_flags,
+                    },
+                    "args": [
+                        *hf_base_pure_fused,
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb72}",
+                        f"--training.num_tokens_per_train_step={world_size * mb72}",
+                    ],
+                },
+                {
+                    "name": "v5p_p9f_03_hf_sbdp_sa1024_attnac0_mb80_1x",
+                    "lane": "v5p-16 HF PR#123 + SBDP + PureFusedOpt + sa=1024 + AttnAC(N=0, 0% MoE/Attn recomp, 1 exec) + NativeTile1024 (mb=80 = 3,840 tok/exp)",
+                    "workdir": "/torchtitan-hf",
+                    "env": {
+                        "TT_HF_SBDP": "1",
+                        "TT_FULL_AC_FIRST_N": "0",
+                        "TORCH_TPU_DEFER_AND_FUSE": "1",
+                        "LIBTPU_INIT_ARGS": v5p_flags,
+                    },
+                    "args": [
+                        *hf_base_pure_fused,
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                        f"--training.num_tokens_per_train_step={world_size * mb80}",
+                    ],
+                },
+                {
+                    "name": "v5p_p9f_04_hf_sbdp_sa1024_fullac48_mb96_1x",
+                    "lane": "v5p-16 HF PR#123 + SBDP + PureFusedOpt + sa=1024 + FullAC48(1 exec, 33.9G headroom) + NativeTile1024 (mb=96 = 4,608 tok/exp)",
+                    "workdir": "/torchtitan-hf",
+                    "env": {
+                        "TT_HF_SBDP": "1",
+                        "TT_FULL_AC_FIRST_N": "48",
+                        "TORCH_TPU_DEFER_AND_FUSE": "1",
+                        "LIBTPU_INIT_ARGS": v5p_flags,
+                    },
+                    "args": [
+                        *hf_base_pure_fused,
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
+                        f"--training.num_tokens_per_train_step={world_size * mb96}",
+                    ],
+                },
+                {
+                    "name": "v5p_p9f_05_native_fp8dense_sbdp_mb64_1x",
+                    "lane": "v5p-16 Native TpuGraphTrainer + Rowwise FP8 Dense + SBDP + PureFusedOpt + NativeTile1024 (mb=64, 1x)",
+                    "workdir": "/torchtitan-native",
+                    "env": {"LIBTPU_INIT_ARGS": v5p_flags},
+                    "args": [
+                        "--module=torchtitan.experiments.tpu.examples.flint",
+                        "--config=flint_40b_v5p_p9f_fp8dense_sbdp_n40",
+                        f"--training.steps={steps}",
+                        "--training.mixed_precision_reduce=bfloat16",
+                        "--metrics.log_freq=1",
+                        "--debug.seed=42",
+                        "--tpu_config.mfu_benchmark_start_step=4",
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                        f"--training.num_tokens_per_train_step={world_size * mb64}",
+                    ],
+                },
+                {
+                    "name": "v5p_p9f_06_hf_fp8dense_sbdp_sa1024_attnac0_mb64_1x",
+                    "lane": "v5p-16 HF PR#123 + Rowwise FP8 Dense + SBDP + PureFusedOpt + sa=1024 + AttnAC(N=0) (mb=64, 1x)",
+                    "workdir": "/torchtitan-hf",
+                    "env": {
+                        "TT_HF_SBDP": "1",
+                        "TT_HF_FP8_DENSE": "1",
+                        "TT_FULL_AC_FIRST_N": "0",
+                        "TORCH_TPU_DEFER_AND_FUSE": "1",
+                        "LIBTPU_INIT_ARGS": v5p_flags,
+                    },
+                    "args": [
+                        *hf_base_pure_fused,
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                        f"--training.num_tokens_per_train_step={world_size * mb64}",
+                    ],
+                },
+            ]
+        return [
+            {
+                "name": "v5p_p9f_01_hf_sbdp_sa1024_attnac0_mb64_1x",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + PureFusedOpt + sa=1024 + AttnAC(N=0, 0% recomp) + NativeTile1024 (mb=64 = 3,072 tok/exp)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "0",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": v5p_flags,
+                },
+                "args": [
+                    *hf_base_pure_fused,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                    f"--training.num_tokens_per_train_step={world_size * mb64}",
+                ],
+            },
+            {
+                "name": "v5p_p9f_02_hf_sbdp_sa1024_attnac0_mb80_1x",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + PureFusedOpt + sa=1024 + AttnAC(N=0, 0% recomp) + NativeTile1024 (mb=80 = 3,840 tok/exp)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "0",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": v5p_flags,
+                },
+                "args": [
+                    *hf_base_pure_fused,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                    f"--training.num_tokens_per_train_step={world_size * mb80}",
+                ],
+            },
+            {
+                "name": "v5p_p9f_03_hf_sbdp_sa1024_attnac0_mb96_1x",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + PureFusedOpt + sa=1024 + AttnAC(N=0, 0% recomp) + NativeTile1024 (mb=96 = 4,608 tok/exp)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "0",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": v5p_flags,
+                },
+                "args": [
+                    *hf_base_pure_fused,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
+                    f"--training.num_tokens_per_train_step={world_size * mb96}",
+                ],
+            },
+            {
+                "name": "v5p_p9f_04_hf_sbdp_sa1024_fullac48_mb112_1x",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + PureFusedOpt + sa=1024 + FullAC48(1 exec) + NativeTile1024 (mb=112 = 5,376 tok/exp)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "48",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": v5p_flags,
+                },
+                "args": [
+                    *hf_base_pure_fused,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb112}",
+                    f"--training.num_tokens_per_train_step={world_size * mb112}",
+                ],
+            },
+            {
+                "name": "v5p_p9f_05_native_fp8dense_sbdp_mb64_1x",
+                "lane": f"v5p-{world_size} Native TpuGraphTrainer + Rowwise FP8 Dense + SBDP + PureFusedOpt + NativeTile1024 (mb=64, 1x)",
+                "workdir": "/torchtitan-native",
+                "env": {"LIBTPU_INIT_ARGS": v5p_flags},
+                "args": [
+                    "--module=torchtitan.experiments.tpu.examples.flint",
+                    "--config=flint_40b_v5p_p9f_fp8dense_sbdp_n40",
+                    f"--training.steps={steps}",
+                    "--training.mixed_precision_reduce=bfloat16",
+                    "--metrics.log_freq=1",
+                    "--debug.seed=42",
+                    "--tpu_config.mfu_benchmark_start_step=4",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                    f"--training.num_tokens_per_train_step={world_size * mb64}",
+                ],
+            },
+            {
+                "name": "v5p_p9f_06_hf_fp8dense_sbdp_sa1024_attnac0_mb80_1x",
+                "lane": f"v5p-{world_size} HF PR#123 + Rowwise FP8 Dense + SBDP + PureFusedOpt + sa=1024 + AttnAC(N=0) (mb=80, 1x)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_SBDP": "1",
+                    "TT_HF_FP8_DENSE": "1",
+                    "TT_FULL_AC_FIRST_N": "0",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": v5p_flags,
+                },
+                "args": [
+                    *hf_base_pure_fused,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                    f"--training.num_tokens_per_train_step={world_size * mb80}",
+                ],
+            },
+        ]
 
     if suite == "pass9e":
         if world_size == 16:
@@ -1515,7 +1722,7 @@ def write_summary(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", choices=["pass9b", "pass9c", "pass9d", "pass9e"], default="pass9b")
+    parser.add_argument("--suite", choices=["pass9b", "pass9c", "pass9d", "pass9e", "pass9f"], default="pass9b")
     parser.add_argument("--chip-type", choices=["v7x", "v5p", "v6e"], default="v5p")
     parser.add_argument("--nnodes", type=int, required=True)
     parser.add_argument("--nproc-per-node", type=int, default=4)
