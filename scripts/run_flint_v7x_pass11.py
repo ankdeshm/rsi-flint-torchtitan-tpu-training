@@ -876,7 +876,7 @@ def write_summary(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", choices=["pass11a", "pass11b"], default="pass11a")
+    parser.add_argument("--suite", choices=["pass11a", "pass11b", "pass11c"], default="pass11a")
     parser.add_argument("--chip-type", choices=["v7x", "v5p", "v6e"], default="v7x")
     parser.add_argument("--nnodes", type=int, required=True)
     parser.add_argument("--nproc-per-node", type=int, default=8)

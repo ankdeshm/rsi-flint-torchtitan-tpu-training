@@ -176,7 +176,7 @@ def _static_tpu_ep_dispatch(
     valid_N = j_N < cap_C
     slot_N = p_N * cap_C + torch.clamp(j_N, min=0, max=cap_C - 1)
 
-    padded_lexp = _sep_F.pad((sorted_eids_N % e).to(torch.int32), (0, 1), value=e)
+    padded_lexp = _sep_F.pad((sorted_eids_N % e).to(torch.int32), (0, 1), value=e - 1)
     send_lexp = torch.index_select(padded_lexp, 0, src_idx_S)
 
   send_x = _StaticEPPack.apply(routed_ND, src_idx_S, slot_N, valid_N)
@@ -408,6 +408,14 @@ substitute_tpu_experts = _p9_substitute_tpu_experts
 '''
 
 
+GROUPED_EXPERTS_EP_PATCH = '''
+
+TpuGroupedExperts.parallelize = lambda self, parallel_dims: GroupedExperts.parallelize(
+    self, parallel_dims
+)
+'''
+
+
 def apply_runtime_patches() -> None:
     td_path = Path("/torchtitan-native/torchtitan/experiments/tpu/token_dispatcher.py")
     if td_path.exists():
@@ -415,6 +423,13 @@ def apply_runtime_patches() -> None:
         if "_static_tpu_ep_dispatch" not in txt:
             td_path.write_text(txt + STATIC_EP_DISPATCHER_PATCH)
             print("[flint-v5p-p9bc] Patched Native token_dispatcher.py with StaticTpuAllToAllTokenDispatcher", flush=True)
+
+    ge_path = Path("/torchtitan-native/torchtitan/experiments/tpu/grouped_experts.py")
+    if ge_path.exists():
+        txt = ge_path.read_text()
+        if "GroupedExperts.parallelize(" not in txt:
+            ge_path.write_text(txt + GROUPED_EXPERTS_EP_PATCH)
+            print("[flint-v5p-p9bc] Patched Native grouped_experts.py for StaticEP + PairedGMM", flush=True)
 
     nat_reg = Path("/torchtitan-native/torchtitan/experiments/tpu/examples/flint/config_registry.py")
     if nat_reg.exists():
