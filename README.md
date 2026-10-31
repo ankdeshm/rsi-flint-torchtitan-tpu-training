@@ -37,18 +37,18 @@ See [`docs/TRAINING_LEADERBOARD.md`](./docs/TRAINING_LEADERBOARD.md) for the com
 
 | Platform & Topology | Execution Lane | Baseline Reference | Optimized Steady MFU | Optimized Peak MFU | Per-Rank Throughput | Slice Throughput | Real C4 Loss Convergence |
 |---|---|---:|---:|---:|---:|---:|---|
-| **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **HF Backend + Scout XLA + BF16 Reduce (`v5p_p8_02`, `mb=48`)** | `19.76%` *(v5p-16)* / `19.95%` *(mb=32)* | **`24.87%`** *(+5.11 pp)* | **`24.95%`** | **`6,565.3` tok/s** | **`210,090` tok/s** | `12.2947 -> 4.4061` *(`16.92 GiB` HBM — **All-Time MFU Record!**)* |
+| **TPU `v5p-16` (`2x2x4`, 16 Chips)** | **HF Backend + `SBDP` + `FusedOpt` + `sa=1024` + `HybridAC16` (`v5p_p9_02`, `mb=64`)** | `19.76%` *(v5p-16 base)* | **`25.76%`** *(+6.00 pp)* | **`25.81%`** | **`6,802.0` tok/s** | **`108,832` tok/s** | `12.4957 -> 3.9676` *(`22.84 GiB` HBM — **All-Time MFU Record!**)* |
+| **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **HF Backend + `SBDP` + `FusedOpt` + `sa=1024` + `HybridAC16` (`v5p_p9_02`, `mb=64`)** | `19.76%` *(v5p-16)* / `19.95%` *(mb=32)* | **`24.88%`** *(+5.12 pp)* | **`24.91%`** *(24.95% `mb=48`)* | **`6,568.4` tok/s** | **`210,189` tok/s** | `12.2946 -> 6.2985` *(`22.84 GiB` HBM — **32-Chip Record!**)* |
+| **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **Native `TpuGraphTrainer` + `SBDP` + `BF16-RoPE` + `FusedOpt` (`v5p_p9_06`, `mb=48`)** | `VMEM OOM` *(at tile_m=512)* | **`23.89%`** | **`24.00%`** | **`6,308.1` tok/s** | **`201,859` tok/s** | `12.3288 -> 4.5064` *(`28.49 GiB` HBM)* |
 | **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **HF Backend + `HSDP 2×16` (`v5p_p8_06`, `2x` GA, `6.29M` tok/step)** | `19.76%` *(v5p-16)* | **`23.81%`** *(+4.05 pp)* | **`23.83%`** | **`6,285.7` tok/s** | **`201,142` tok/s** | `12.4958 -> 3.7789` *(`21.08 GiB` HBM)* |
-| **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **Native `TpuGraphTrainer` + Scout XLA + BF16 Reduce (`v5p_p8_05`)** | `VMEM OOM` *(at tile_m=512)* | **`22.12%`** | **`22.26%`** | **`5,840.4` tok/s** | **`186,893` tok/s** | `12.3177 -> 4.4201` *(`28.11 GiB` HBM)* |
 | **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native `TpuGraphTrainer` (`v7x_p9_02`, BF16 Reduce + Scout XLA + `2x` GA)** | `16.23%` *(v7x-8)* / `16.56%` *(v7x-16 base)* | **`18.68%`** *(+2.45 pp)* | **`18.76%`** | **`12,392.8` tok/s** *(12,447 peak)* | **`396,570` tok/s** *(398.3K peak)* | `12.3201 -> 4.1606` *(`27.12 GiB` HBM — **All-Time Throughput Record!**)* |
 | **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native `TpuGraphTrainer` (`v7x_p9_01`, `1x` step `n45` + BF16 Reduce)** | `16.23%` *(v7x-8)* / `16.56%` *(v7x-16 base)* | **`18.53%`** *(+2.30 pp)* | **`18.62%`** | **`12,297.1` tok/s** | **`393,507` tok/s** | `12.3215 -> 4.5422` *(`27.64 GiB` HBM)* |
 | **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **HF Backend + Paired GMM (`v7x_p9_03`, BF16 Reduce + Scout XLA)** | `16.29%` *(v7x-8)* / `15.87%` *(v7x-16 base)* | **`18.29%`** *(+2.00 pp)* | **`18.34%`** *(18.56% step-2)* | **`12,132.8` tok/s** *(12,316 peak)* | **`388,250` tok/s** *(394.1K peak)* | `12.3104 -> 4.5041` *(`16.92 GiB` HBM)* |
-| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **HF Backend + `HSDP 2×16` + HybridAC (`v7x_p9_05`)** | `16.29%` *(v7x-8)* | **`17.61%`** | **`17.64%`** | **`11,682.8` tok/s** | **`373,850` tok/s** | `12.4341 -> 3.9882` *(`21.40 GiB` HBM)* |
-| **TPU `v5p-16` (`2x2x4`, 16 Chips)** | **HF Backend + Pallas GMM (`01_hf_v5p`)** | — | **`19.76%`** | **`19.79%`** | **`5,215.8` tok/s** | **`83,453` tok/s** *(83.6K peak)* | `12.4968 -> 3.4368` *(15-shard HF weights)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native `StaticEP=16` + `ZeRO-2` + `PairedGMM-256` (`v7x_p11c_02` / `p11d`)** | `Blocked upstream` *(SymNode / EP>1 asserts)* | **Verified `StaticEP=16`** | **`36,864` tok/exp** | *(`Pass 11D` live)* | *(`Pass 11D` live)* | **`12.3210 -> 3.6920`** *(`24.71 GiB` HBM — **First Static-Shape EP>1 Convergence!**)* |
 
 ---
 
-## 4. From Baseline to `24.87%` (`v5p-32`) & `18.68%` (`v7x-16`) MFU — Step-by-Step Engineering Breakdown
+## 4. From Baseline to `25.76%` (`v5p-16`), `24.88%` (`v5p-32`) & `StaticEP=16` (`v7x-16`) — Engineering Breakdown
 
 ### Track A: Native `TpuGraphTrainer` (PR #122 `flint_40b_v011_n40` -> `p7_01` & `p7_02`)
 
