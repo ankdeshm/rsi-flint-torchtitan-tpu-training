@@ -722,28 +722,96 @@ def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> lis
         "--xla_enable_transpose_trace=false",
     ])
 
-    def _nat_exp(name: str, lane: str, cfg: str, mb: int, ga: int, align: int = 512) -> dict:
+    def _nat_exp(
+        name: str,
+        lane: str,
+        cfg: str,
+        mb: int,
+        ga: int,
+        align: int = 512,
+        log_freq: int = 1,
+        cap_factor: str = "1.12",
+    ) -> dict:
         return {
             "name": name,
             "lane": lane,
             "workdir": "/torchtitan-native",
             "env": {
                 "LIBTPU_INIT_ARGS": calibrated_v7x_flags,
-                "TT_STATIC_EP_CAP_FACTOR": "1.15",
+                "TT_STATIC_EP_CAP_FACTOR": cap_factor,
                 "TT_STATIC_EP_ALIGN": str(align),
+                "TT_OPT_EXPERT_CHUNK": "48",
             },
             "args": [
                 "--module=torchtitan.experiments.tpu.examples.flint",
                 f"--config={cfg}",
                 f"--training.steps={steps}",
                 "--training.mixed_precision_reduce=bfloat16",
-                "--metrics.log_freq=5",
+                f"--metrics.log_freq={log_freq}",
                 "--debug.seed=42",
-                "--tpu_config.mfu_benchmark_start_step=5",
+                "--tpu_config.mfu_benchmark_start_step=4",
                 f"--training.num_tokens_per_microbatch_per_dp_rank={mb}",
                 f"--training.num_tokens_per_train_step={ga * world_size * mb}",
             ],
         }
+
+    if suite == "pass11d":
+        return [
+            _nat_exp(
+                "v7x_p11d_01_split_staticep32_zero2_compgn_paired512_mb48_ga2_log2",
+                "v7x-16 GraphSplit + StaticEP=32 + ZeRO-2 + EPCompiledGradNorm + SplitMeshOpt + PairedGMM-512 (0 expert AG/RS, 73,728 tok/exp, n45, mb=48 2xGA, log2)",
+                "flint_40b_p11a_split_ep32_zero2_n45",
+                mb48,
+                2,
+                align=512,
+                log_freq=2,
+            ),
+            _nat_exp(
+                "v7x_p11d_02_split_staticep32_zero2_compgn_paired512_mb64_1x_log1",
+                "v7x-16 GraphSplit + StaticEP=32 + ZeRO-2 + EPCompiledGradNorm + SplitMeshOpt + PairedGMM-512 (98,304 tok/exp, n36, mb=64 1x, log1)",
+                "flint_40b_p11a_split_ep32_zero2_n36",
+                mb64,
+                1,
+                align=512,
+                log_freq=1,
+            ),
+            _nat_exp(
+                "v7x_p11d_03_split_staticep16_zero2_compgn_paired256_mb48_ga2_log1",
+                "v7x-16 GraphSplit + StaticEP=16 + ZeRO-2 + EPCompiledGradNorm + SplitMeshOpt + PairedGMM-256 (36,864 tok/exp, n40, mb=48 2xGA, log1)",
+                "flint_40b_p11a_split_ep16_zero2_n40",
+                mb48,
+                2,
+                align=256,
+                log_freq=1,
+            ),
+            _nat_exp(
+                "v7x_p11d_04_split_staticep8_zero3_compgn_paired256_mb48_ga2_log1",
+                "v7x-16 GraphSplit + Intra-Host StaticEP=8 + ZeRO-3 + EPCompiledGradNorm + SplitMeshOpt + PairedGMM-256 (100% intra-host A2A, n36, mb=48 2xGA, log1)",
+                "flint_40b_p11d_split_ep8_zero3_n36",
+                mb48,
+                2,
+                align=256,
+                log_freq=1,
+            ),
+            _nat_exp(
+                "v7x_p11d_05_wholestep_staticep32_zero2_compgn_paired512_mb32_ga2_log2",
+                "v7x-16 WholeStep Single-Graph + StaticEP=32 + ZeRO-2 + EPCompiledGradNorm + SplitMeshOpt + PairedGMM-512 (n45, 49,152 tok/exp, mb=32 2xGA, log2)",
+                "flint_40b_p11b_wholestep_ep32_zero2_n49",
+                mb32,
+                2,
+                align=512,
+                log_freq=2,
+            ),
+            _nat_exp(
+                "v7x_p11d_06_wholestep_staticep32_zero2_ingraph_paired512_mb48_1x_log1",
+                "v7x-16 WholeStep + in_graph Fused AdamW + StaticEP=32 + ZeRO-2 + PairedGMM-512 (n36, 73,728 tok/exp, mb=48 1x, log1)",
+                "flint_40b_p11b_wholestep_ep32_zero2_ingraph_n36",
+                mb48,
+                1,
+                align=512,
+                log_freq=1,
+            ),
+        ]
 
     if suite == "pass11a":
         return [
@@ -770,6 +838,7 @@ def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> lis
                 mb48,
                 2,
                 align=512,
+                log_freq=2,
             ),
             _nat_exp(
                 "v7x_p11a_04_split_staticep32_zero2_paired512_mb64_1x",
@@ -786,6 +855,7 @@ def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> lis
                 mb48,
                 2,
                 align=256,
+                log_freq=5,
             ),
         ]
 
@@ -814,6 +884,7 @@ def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> lis
                 mb48,
                 2,
                 align=512,
+                log_freq=2,
             ),
             _nat_exp(
                 "v7x_p11c_04_split_staticep32_zero2_unpaired512_mb48_ga2",
@@ -822,6 +893,7 @@ def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> lis
                 mb48,
                 2,
                 align=512,
+                log_freq=2,
             ),
             _nat_exp(
                 "v7x_p11c_05_wholestep_staticep32_zero2_paired512_mb32_ga2",
@@ -830,6 +902,7 @@ def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> lis
                 mb32,
                 2,
                 align=512,
+                log_freq=2,
             ),
             _nat_exp(
                 "v7x_p11c_06_wholestep_staticep8_zero2_paired256_mb32_ga2",
@@ -849,6 +922,7 @@ def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> lis
             mb32,
             1,
             align=512,
+            log_freq=2,
         ),
         _nat_exp(
             "v7x_p11b_02_wholestep_staticep8_zero2_paired256_mb32_ga2",
@@ -1045,7 +1119,7 @@ def write_summary(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", choices=["pass11a", "pass11b", "pass11c"], default="pass11a")
+    parser.add_argument("--suite", choices=["pass11a", "pass11b", "pass11c", "pass11d"], default="pass11a")
     parser.add_argument("--chip-type", choices=["v7x", "v5p", "v6e"], default="v7x")
     parser.add_argument("--nnodes", type=int, required=True)
     parser.add_argument("--nproc-per-node", type=int, default=8)
