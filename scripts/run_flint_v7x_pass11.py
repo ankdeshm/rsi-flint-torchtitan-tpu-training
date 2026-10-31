@@ -447,6 +447,39 @@ def flint_40b_p11b_staticep16_fulloffload() -> TpuGraphTrainer.Config:
   return config
 
 
+def flint_40b_p11e_wholestep_ep32_zero3_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_wholestep_staticep_zero2_p11(ep_degree=32, tile_m=512, save_attn_layers=36)
+  cfg.parallelism.fsdp_reshard_after_forward = "always"
+  return cfg
+
+
+def flint_40b_p11e_split7_fsdppipe_ep32_zero3_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_split_staticep_zero2_p11(ep_degree=32, tile_m=512, save_attn_layers=36)
+  cfg.parallelism.fsdp_reshard_after_forward = "always"
+  cfg.compile.graph_split.forward_layers_per_executable = 7
+  cfg.compile.graph_split.backward_partition_mode = "fsdp_pipeline"
+  cfg.compile.graph_split.backward_layers_per_executable = 7
+  return cfg
+
+
+def flint_40b_p11e_split1_fsdppipe_ep32_zero3_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_split_staticep_zero2_p11(ep_degree=32, tile_m=512, save_attn_layers=36)
+  cfg.parallelism.fsdp_reshard_after_forward = "always"
+  cfg.compile.graph_split.backward_partition_mode = "fsdp_pipeline"
+  return cfg
+
+
+def flint_40b_p11e_ep1_sbdp_paired1024_n24() -> TpuGraphTrainer.Config:
+  cfg = flint_40b_p11a_ep1_sbdp_paired256_n36()
+  for _, ex, _, _ in cfg.model_spec.model.traverse(TpuGroupedExperts.Config):
+    ex.pallas_grouped_mm_tile_m = 1024
+    ex.pallas_grouped_mm_tgmm_tiling = (512, 2048, 0)
+    ex.pallas_grouped_mm_w2_tgmm_tiling = (512, 2048, 0)
+    ex.pallas_grouped_mm_w2_transposed_tgmm_tiling = (512, 0, 2048)
+  cfg.compile.save_last_n_layers = {"attention.inner_attention": 24}
+  return cfg
+
+
 __all__.extend([
     "flint_40b_p11a_split_ep8_zero2_n36",
     "flint_40b_p11d_split_ep8_zero3_n36",
@@ -460,6 +493,10 @@ __all__.extend([
     "flint_40b_p11b_wholestep_ep32_zero2_ingraph_n36",
     "flint_40b_p11b_ep1_sbdp_fulloffload",
     "flint_40b_p11b_staticep16_fulloffload",
+    "flint_40b_p11e_wholestep_ep32_zero3_n36",
+    "flint_40b_p11e_split7_fsdppipe_ep32_zero3_n36",
+    "flint_40b_p11e_split1_fsdppipe_ep32_zero3_n36",
+    "flint_40b_p11e_ep1_sbdp_paired1024_n24",
 ])
 '''
 
@@ -758,6 +795,46 @@ def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> lis
                 f"--training.num_tokens_per_train_step={ga * world_size * mb}",
             ],
         }
+
+    if suite == "pass11e":
+        return [
+            _nat_exp(
+                "v7x_p11e_01_wholestep_staticep32_zero3_paired512_mb48_ga2_log1",
+                "v7x-16 WholeStep Single-Graph + StaticEP=32 (0 device mismatch, 0 expert AG/RS, 73,728 tok/exp) + ZeRO-3 + PairedGMM-512 (n36, mb=48 2xGA)",
+                "flint_40b_p11e_wholestep_ep32_zero3_n36",
+                mb48,
+                2,
+                align=512,
+                log_freq=1,
+            ),
+            _nat_exp(
+                "v7x_p11e_02_split7_fsdppipe_staticep32_zero3_paired512_mb48_ga2_log1",
+                "v7x-16 Split-7 fsdp_pipeline + StaticEP=32 (0 device mismatch, 0 expert AG/RS, 73,728 tok/exp) + ZeRO-3 + PairedGMM-512 (n36, mb=48 2xGA)",
+                "flint_40b_p11e_split7_fsdppipe_ep32_zero3_n36",
+                mb48,
+                2,
+                align=512,
+                log_freq=1,
+            ),
+            _nat_exp(
+                "v7x_p11e_03_split1_fsdppipe_staticep32_zero3_paired512_mb48_ga2_log1",
+                "v7x-16 Split-1 fsdp_pipeline + StaticEP=32 (0 device mismatch, 0 expert AG/RS) + ZeRO-3 + PairedGMM-512 (n36, mb=48 2xGA)",
+                "flint_40b_p11e_split1_fsdppipe_ep32_zero3_n36",
+                mb48,
+                2,
+                align=512,
+                log_freq=1,
+            ),
+            _nat_exp(
+                "v7x_p11e_04_ep1_sbdp_paired1024_n24_mb64_ga2_log1",
+                "v7x-16 EP=1 SBDP + BF16-RoPE + PairedGMM-1024/512 + n24 + mb=64 (8.39M tok/step 2xGA)",
+                "flint_40b_p11e_ep1_sbdp_paired1024_n24",
+                mb64,
+                2,
+                align=256,
+                log_freq=1,
+            ),
+        ]
 
     if suite == "pass11d":
         return [
@@ -1123,7 +1200,7 @@ def write_summary(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", choices=["pass11a", "pass11b", "pass11c", "pass11d"], default="pass11a")
+    parser.add_argument("--suite", choices=["pass11a", "pass11b", "pass11c", "pass11d", "pass11e"], default="pass11a")
     parser.add_argument("--chip-type", choices=["v7x", "v5p", "v6e"], default="v7x")
     parser.add_argument("--nnodes", type=int, required=True)
     parser.add_argument("--nproc-per-node", type=int, default=8)
