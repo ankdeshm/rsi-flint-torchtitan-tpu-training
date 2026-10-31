@@ -79,12 +79,10 @@ __all__.extend([
 HF_HYBRID_AC_PATCH_V3 = '''
 
 # ==============================================================================
-# Per-Layer Closure-Safe Compiler-Native HybridAC (Pass 9 v3)
+# Per-Layer Compiler-Native HybridAC (Pass 9B — SelectiveAC._wrap_block)
 # ==============================================================================
 import os as _tt_os
 import torch._dynamo
-from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import ptd_checkpoint_wrapper
-from torch.utils.checkpoint import CheckpointPolicy, create_selective_checkpoint_contexts
 
 torch._dynamo.config.cache_size_limit = 256
 torch._dynamo.config.accumulated_cache_size_limit = 1024
@@ -104,24 +102,20 @@ class _LayerSplashSaveOps(set):
 def _hybrid_attn_only_wrap_v3(self, module, *, base_fqn=None):
   self.config.preserve_rng_state = False
   n_full = int(_tt_os.environ.get("TT_FULL_AC_FIRST_N", "0"))
-  save_attn = True
+  self._cur_layer_save_attn = True
   if n_full > 0 and base_fqn:
     parts = [p for p in base_fqn.split(".") if p.isdigit()]
     if parts and int(parts[0]) < n_full:
-      save_attn = False
-  layer_save_ops = _LayerSplashSaveOps(save_attn)
+      self._cur_layer_save_attn = False
+  return SelectiveAC._wrap_block(self, module, base_fqn=base_fqn)
 
-  def _policy_fn(ctx, func, *args, **kwargs):
-    return CheckpointPolicy.MUST_SAVE if func in layer_save_ops else CheckpointPolicy.PREFER_RECOMPUTE
 
-  return ptd_checkpoint_wrapper(
-      module,
-      context_fn=lambda: create_selective_checkpoint_contexts(_policy_fn),
-      preserve_rng_state=False,
-  )
+def _hybrid_get_save_ops_v3(self) -> set:
+  return _LayerSplashSaveOps(getattr(self, "_cur_layer_save_attn", True))
 
 
 AttentionOnlyAC._wrap_block = _hybrid_attn_only_wrap_v3
+AttentionOnlyAC.get_save_ops = _hybrid_get_save_ops_v3
 '''
 
 
@@ -176,6 +170,7 @@ def probe_compile_opt_args(workdir: str) -> list[str]:
     try:
         env = os.environ.copy()
         env["PYTHONPATH"] = workdir
+        env["TORCH_DEVICE_BACKEND_AUTOLOAD"] = "0"
         res = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, timeout=20)
         if res.returncode == 0 and res.stdout.strip():
             flags = res.stdout.strip().split()
@@ -424,8 +419,9 @@ def write_summary(
     md_text = "\n".join(md_lines) + "\n"
     (out_dir / "SUMMARY.md").write_text(md_text)
     if bench_dir.exists():
-        (bench_dir / f"flint_{slice_name}_pass9_summary.json").write_text(json.dumps(payload, indent=2))
-        (bench_dir / f"flint_{slice_name}_pass9_SUMMARY.md").write_text(md_text)
+        tag = "pass9b" if "--only-hf" in sys.argv else "pass9"
+        (bench_dir / f"flint_{slice_name}_{tag}_summary.json").write_text(json.dumps(payload, indent=2))
+        (bench_dir / f"flint_{slice_name}_{tag}_SUMMARY.md").write_text(md_text)
 
 
 def main() -> int:
@@ -440,6 +436,7 @@ def main() -> int:
     parser.add_argument("--base-port", type=int, default=29991)
     parser.add_argument("--per-run-timeout", type=int, default=1800)
     parser.add_argument("--output-dir", type=str, default="/models/flint-results")
+    parser.add_argument("--only-hf", action="store_true", help="Run only the HF PR#123 experiments (p9_03, p9_05)")
     args = parser.parse_args()
 
     apply_runtime_patches()
@@ -448,13 +445,16 @@ def main() -> int:
     wait_for_master_dns(args.master_addr)
 
     ts = dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    out_dir = Path(args.output_dir) / f"{args.slice_name}_pass9_{ts}"
+    tag = "pass9b" if args.only_hf else "pass9"
+    out_dir = Path(args.output_dir) / f"{args.slice_name}_{tag}_{ts}"
     bench_dir = Path("/models/benchmark-results")
     if node_rank == 0:
         out_dir.mkdir(parents=True, exist_ok=True)
         bench_dir.mkdir(parents=True, exist_ok=True)
 
     exps = build_v7x_pass9_experiments(world_size, args.hf_model, args.steps)
+    if args.only_hf:
+        exps = [e for e in exps if e["workdir"] == "/torchtitan-hf"]
     results = []
     for idx, exp in enumerate(exps):
         port = args.base_port + idx * 5

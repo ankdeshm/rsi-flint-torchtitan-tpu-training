@@ -58,6 +58,7 @@ spec:
         - --hf-model=/models/models/RecursiveSI/flint
         - --steps=12
         - --output-dir=/models/flint-results
+        - --only-hf
         env:
         - name: HF_TOKEN
           valueFrom:
