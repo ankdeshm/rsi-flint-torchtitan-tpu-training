@@ -389,6 +389,33 @@ def flint_40b_v5p_p9e_split7_staticep32_zero3_n36() -> TpuGraphTrainer.Config:
   return cfg
 
 
+def flint_40b_v5p_p9f_fp8dense_sbdp_n40() -> TpuGraphTrainer.Config:
+  from torchtitan.experiments.tpu.float8_converter import TpuFloat8LinearConverter
+  config = flint_40b_v5p_n40()
+  rc = TpuRoutedExpertsConverter(TpuRoutedExpertsConverter.Config())
+  config.model_spec.model = rc.convert(config.model_spec.model)
+  for _, r, _, _ in config.model_spec.model.traverse(TpuRoutedExperts.Config):
+    r.scale_before_down_proj = True
+  fp8_cfg = TpuFloat8LinearConverter.Config(
+      model_compile_enabled=True,
+      recipe_name="rowwise",
+      filter_fqns=["output", "router", "gate"],
+  )
+  config.model_spec.model = TpuFloat8LinearConverter(fp8_cfg).convert(config.model_spec.model)
+  if _P9BC_BF16_ROPE not in config.override.imports:
+    config.override.imports.append(_P9BC_BF16_ROPE)
+  config.compile.save_last_n_layers = {"attention.inner_attention": 40}
+  config.compile.optimizer_compile = "none"
+  config.compile.compile_grad_norm = False
+  config.optimizer.implementation = "fused"
+  config.libtpu_init_flags = tpu_flags.merge_flags(
+      config.libtpu_init_flags,
+      tpu_flags.ICI_AG_PIPELINING,
+      _P9BC_V5P_FLAGS,
+  )
+  return config
+
+
 __all__.extend([
     "flint_40b_v5p_p9bc_staticep4_zero2_n40",
     "flint_40b_v5p_p9bc_staticep8_zero2_n45",
@@ -401,6 +428,7 @@ __all__.extend([
     "flint_40b_v5p_p9e_split1_staticep32_zero3_n36",
     "flint_40b_v5p_p9e_wholestep_staticep32_zero3_n36",
     "flint_40b_v5p_p9e_split7_staticep32_zero3_n36",
+    "flint_40b_v5p_p9f_fp8dense_sbdp_n40",
 ])
 '''
 
@@ -450,25 +478,48 @@ _orig_substitute_tpu_experts = substitute_tpu_experts
 
 def _p9_substitute_tpu_experts(model):
   import os
+  import torch.nn as nn
   _orig_substitute_tpu_experts(model)
-  if os.environ.get("TT_HF_SBDP", "0") != "1":
-    return
-  from torchtitan.experiments.tpu.token_dispatcher import (
-      TpuRoutedExperts,
-      TpuRoutedExpertsConverter,
-  )
-  rc = TpuRoutedExpertsConverter(TpuRoutedExpertsConverter.Config())
-  n_sbdp = 0
-  for layer in model.layers.values():
-    cfg = getattr(layer, "_native_moe_config", None)
-    if cfg is not None:
-      cfg = rc.convert(cfg)
-      for _, r, _, _ in cfg.traverse(TpuRoutedExperts.Config):
-        r.scale_before_down_proj = True
-        n_sbdp += 1
-      layer._native_moe_config = cfg
-  if n_sbdp:
-    logger.info("Enabled scale_before_down_proj on %d HF MoE layer(s).", n_sbdp)
+  if os.environ.get("TT_HF_SBDP", "0") == "1":
+    from torchtitan.experiments.tpu.token_dispatcher import (
+        TpuRoutedExperts,
+        TpuRoutedExpertsConverter,
+    )
+    rc = TpuRoutedExpertsConverter(TpuRoutedExpertsConverter.Config())
+    n_sbdp = 0
+    for layer in model.layers.values():
+      cfg = getattr(layer, "_native_moe_config", None)
+      if cfg is not None:
+        cfg = rc.convert(cfg)
+        for _, r, _, _ in cfg.traverse(TpuRoutedExperts.Config):
+          r.scale_before_down_proj = True
+          n_sbdp += 1
+        layer._native_moe_config = cfg
+    if n_sbdp:
+      logger.info("Enabled scale_before_down_proj on %d HF MoE layer(s).", n_sbdp)
+
+  if os.environ.get("TT_HF_FP8_DENSE", "0") == "1":
+    from torchtitan.components.linear import Linear
+    from torchtitan.experiments.tpu.float8_converter import TpuFloat8LinearConverter
+    fp8_conv = TpuFloat8LinearConverter(
+        TpuFloat8LinearConverter.Config(model_compile_enabled=True, recipe_name="rowwise", filter_fqns=[])
+    )
+    n_fp8 = 0
+    for fqn, parent in list(model.named_modules()):
+      for cname, child in list(parent.named_children()):
+        full_name = f"{fqn}.{cname}" if fqn else cname
+        if any(skip in full_name for skip in ("lm_head", "output", "gate", "router", "experts")):
+          continue
+        if type(child) is nn.Linear and child.in_features % 128 == 0 and child.out_features % 128 == 0:
+          lcfg = fp8_conv.convert(Linear.Config(bias=(child.bias is not None)))
+          fp8_mod = lcfg.build(in_features=child.in_features, out_features=child.out_features)
+          fp8_mod.to(device=child.weight.device, dtype=child.weight.dtype)
+          fp8_mod.weight = child.weight
+          if child.bias is not None:
+            fp8_mod.bias = child.bias
+          setattr(parent, cname, fp8_mod)
+          n_fp8 += 1
+    logger.info("Converted %d HF dense nn.Linear modules to TpuFloat8Linear (rowwise FP8).", n_fp8)
 
 
 substitute_tpu_experts = _p9_substitute_tpu_experts
