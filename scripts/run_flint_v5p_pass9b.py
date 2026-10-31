@@ -383,6 +383,7 @@ _orig_substitute_tpu_experts = substitute_tpu_experts
 
 
 def _p9_substitute_tpu_experts(model):
+  import os
   _orig_substitute_tpu_experts(model)
   if os.environ.get("TT_HF_SBDP", "0") != "1":
     return
@@ -418,6 +419,7 @@ TpuGroupedExperts.parallelize = lambda self, parallel_dims: GroupedExperts.paral
 EP_GRAD_NORM_PATCH = '''
 
 def _ep_aware_global_grad_norm(grads: list[torch.Tensor]) -> torch.Tensor:
+  from torch.distributed.tensor import DTensor
   ep_grads: list[torch.Tensor] = []
   non_ep_grads: list[torch.Tensor] = []
   for g in grads:
@@ -447,6 +449,8 @@ global_grad_norm = _ep_aware_global_grad_norm
 
 @torch.no_grad()
 def _ep_aware_clip_grad_norm_(self, parameters: list[torch.Tensor], max_norm: float) -> torch.Tensor:
+  from typing import cast
+  from torch.distributed.tensor import DTensor
   grads = cast(list[torch.Tensor], [p.grad for p in parameters if p.grad is not None])
   signature = _grad_signature(grads)
   if self._runner is None:
@@ -459,13 +463,19 @@ def _ep_aware_clip_grad_norm_(self, parameters: list[torch.Tensor], max_norm: fl
   elif signature != self._signature:
     raise ValueError("gradient metadata changed after compiling the gradient norm")
   total_norm = self._runner(grads)
-  ep_params = [
-      p for p in parameters
-      if p.grad is not None and isinstance(p.grad, DTensor)
-      and p.grad.device_mesh.mesh_dim_names is not None
-      and "ep" in p.grad.device_mesh.mesh_dim_names
-  ]
-  non_ep_params = [p for p in parameters if p.grad is not None and p not in set(ep_params)]
+  ep_params: list[torch.Tensor] = []
+  non_ep_params: list[torch.Tensor] = []
+  for p in parameters:
+    if p.grad is None:
+      continue
+    if (
+        isinstance(p.grad, DTensor)
+        and p.grad.device_mesh.mesh_dim_names is not None
+        and "ep" in p.grad.device_mesh.mesh_dim_names
+    ):
+      ep_params.append(p)
+    else:
+      non_ep_params.append(p)
   if ep_params:
     torch.nn.utils.clip_grads_with_norm_(ep_params, max_norm, total_norm, foreach=True)
   if non_ep_params:
@@ -482,6 +492,7 @@ _orig_build_compiled_optimizer_groups = _build_compiled_optimizer_groups
 
 
 def _mesh_chunked_build_compiled_optimizer_groups(opt: torch.optim.Optimizer) -> list:
+  import os
   from torch.distributed.tensor import DTensor
   max_expert_chunk = int(os.environ.get("TT_OPT_EXPERT_CHUNK", "48"))
   orig_groups = list(opt.param_groups)
@@ -1180,7 +1191,7 @@ def write_summary(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", choices=["pass9b", "pass9c"], default="pass9b")
+    parser.add_argument("--suite", choices=["pass9b", "pass9c", "pass9d"], default="pass9b")
     parser.add_argument("--chip-type", choices=["v7x", "v5p", "v6e"], default="v5p")
     parser.add_argument("--nnodes", type=int, required=True)
     parser.add_argument("--nproc-per-node", type=int, default=4)

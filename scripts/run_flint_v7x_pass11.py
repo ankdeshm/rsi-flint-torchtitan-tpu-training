@@ -572,6 +572,7 @@ _orig_build_compiled_optimizer_groups = _build_compiled_optimizer_groups
 
 
 def _mesh_chunked_build_compiled_optimizer_groups(opt: torch.optim.Optimizer) -> list:
+  import os
   from torch.distributed.tensor import DTensor
   max_expert_chunk = int(os.environ.get("TT_OPT_EXPERT_CHUNK", "48"))
   orig_groups = list(opt.param_groups)
