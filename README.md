@@ -2,7 +2,7 @@
 
 End-to-end distributed pre-training, HuggingFace safetensors fine-tuning, numerical checkpoint parity verification, and Model FLOPs Utilization (MFU) optimization for **[`RecursiveSI/flint`](https://huggingface.co/RecursiveSI/flint)** (`39.8B` total / `~2.52B` active parameters per token) on **TPU v7x (Ironwood)** and **TPU v5p** using **TorchTitan** and **TorchTPU `0.2.0` GA**.
 
-See [`docs/TRAINING_LEADERBOARD.md`](./docs/TRAINING_LEADERBOARD.md) for the complete experiment-by-experiment leaderboard across all `v7x-16` and `v5p` passes.
+See [`docs/TRAINING_LEADERBOARD.md`](./docs/TRAINING_LEADERBOARD.md) for the complete experiment-by-experiment leaderboard across all `v7x-16` (`Pass 1..9B`) and `v5p` (`Pass 1..8`) sweeps.
 
 ---
 
@@ -37,17 +37,18 @@ See [`docs/TRAINING_LEADERBOARD.md`](./docs/TRAINING_LEADERBOARD.md) for the com
 
 | Platform & Topology | Execution Lane | Baseline Reference | Optimized Steady MFU | Optimized Peak MFU | Per-Rank Throughput | Slice Throughput | Real C4 Loss Convergence |
 |---|---|---:|---:|---:|---:|---:|---|
-| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native `TpuGraphTrainer` (`p7_01`, `2x` GradAccum)** | `16.23%` *(v7x-8)* / `16.56%` *(v7x-16 base)* | **`18.36%`** *(+2.13 pp)* | **`18.42%`** | **`12,182.1` tok/s** *(12,223 peak)* | **`389,827` tok/s** *(391.1K peak)* | `12.3201 -> 3.6763` *(init)* · `3.43601` *(HF parity)* |
-| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native `TpuGraphTrainer` (`p7_02`, `1x` step `n45`)** | `16.23%` *(v7x-8)* / `16.56%` *(v7x-16 base)* | **`18.29%`** *(+2.06 pp)* | **`18.36%`** | **`12,136.2` tok/s** *(12,185 peak)* | **`388,358` tok/s** *(389.9K peak)* | `12.3215 -> 3.6797` *(209.7s wall time)* |
-| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **HF Backend + Paired GMM (`p7_03`, `mb=48`)** | `16.29%` *(v7x-8)* / `15.87%` *(v7x-16 base)* | **`18.02%`** *(+1.73 pp)* | **`18.05%`** | **`11,956.9` tok/s** *(11,973 peak)* | **`382,621` tok/s** *(383.1K peak)* | `12.3104 -> 3.3361` *(15-shard HF weights)* |
-| **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **HF Backend + Paired GMM (`v5p_p3_01`, `mb=48`)** | `19.76%` *(v5p-16)* / `19.95%` *(mb=32)* | **`22.46%`** *(+2.70 pp)* | **`22.50%`** | **`5,930.0` tok/s** | **`189,760` tok/s** | `12.2947 -> 4.4109` *(`16.91 GiB` HBM)* |
-| **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **Native `TpuGraphTrainer` (`v5p_p3_03`, `mb=48` `2x` GA)** | `VMEM OOM` *(at tile_m=512)* / `19.00%` *(mb=32)* | **`21.13%`** | **`21.18%`** | **`5,578.6` tok/s** | **`178,515` tok/s** | `12.3273 -> 4.1698` *(`tile_m=256` VMEM-safe)* |
+| **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **HF Backend + Scout XLA + BF16 Reduce (`v5p_p8_02`, `mb=48`)** | `19.76%` *(v5p-16)* / `19.95%` *(mb=32)* | **`24.87%`** *(+5.11 pp)* | **`24.95%`** | **`6,565.3` tok/s** | **`210,090` tok/s** | `12.2947 -> 4.4061` *(`16.92 GiB` HBM — **All-Time MFU Record!**)* |
+| **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **HF Backend + `HSDP 2×16` (`v5p_p8_06`, `2x` GA, `6.29M` tok/step)** | `19.76%` *(v5p-16)* | **`23.81%`** *(+4.05 pp)* | **`23.83%`** | **`6,285.7` tok/s** | **`201,142` tok/s** | `12.4958 -> 3.7789` *(`21.08 GiB` HBM)* |
+| **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **Native `TpuGraphTrainer` + Scout XLA + BF16 Reduce (`v5p_p8_05`)** | `VMEM OOM` *(at tile_m=512)* | **`22.12%`** | **`22.26%`** | **`5,840.4` tok/s** | **`186,893` tok/s** | `12.3177 -> 4.4201` *(`28.11 GiB` HBM)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native `TpuGraphTrainer` (`v7x_p9_02`, BF16 Reduce + Scout XLA + `2x` GA)** | `16.23%` *(v7x-8)* / `16.56%` *(v7x-16 base)* | **`18.68%`** *(+2.45 pp)* | **`18.76%`** | **`12,392.8` tok/s** *(12,447 peak)* | **`396,570` tok/s** *(398.3K peak)* | `12.3201 -> 4.1606` *(`27.12 GiB` HBM — **All-Time Throughput Record!**)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native `TpuGraphTrainer` (`v7x_p9_01`, `1x` step `n45` + BF16 Reduce)** | `16.23%` *(v7x-8)* / `16.56%` *(v7x-16 base)* | **`18.53%`** *(+2.30 pp)* | **`18.62%`** | **`12,297.1` tok/s** | **`393,507` tok/s** | `12.3215 -> 4.5422` *(`27.64 GiB` HBM)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **HF Backend + Paired GMM (`v7x_p9_03`, BF16 Reduce + Scout XLA)** | `16.29%` *(v7x-8)* / `15.87%` *(v7x-16 base)* | **`18.29%`** *(+2.00 pp)* | **`18.34%`** *(18.56% step-2)* | **`12,132.8` tok/s** *(12,316 peak)* | **`388,250` tok/s** *(394.1K peak)* | `12.3104 -> 4.5041` *(`16.92 GiB` HBM)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **HF Backend + `HSDP 2×16` + HybridAC (`v7x_p9_05`)** | `16.29%` *(v7x-8)* | **`17.61%`** | **`17.64%`** | **`11,682.8` tok/s** | **`373,850` tok/s** | `12.4341 -> 3.9882` *(`21.40 GiB` HBM)* |
 | **TPU `v5p-16` (`2x2x4`, 16 Chips)** | **HF Backend + Pallas GMM (`01_hf_v5p`)** | — | **`19.76%`** | **`19.79%`** | **`5,215.8` tok/s** | **`83,453` tok/s** *(83.6K peak)* | `12.4968 -> 3.4368` *(15-shard HF weights)* |
-| **TPU `v5p-16` (`2x2x4`, 16 Chips)** | **Native `TpuGraphTrainer` (`v5p_p2_01`)** | `VMEM OOM` *(at tile_m=512)* | **`17.01%`** | **`17.09%`** | **`4,491.8` tok/s** | **`71,869` tok/s** *(72.2K peak)* | `12.3177 -> 3.3964` *(`tile_m=256` VMEM-safe)* |
 
 ---
 
-## 4. From Baseline to `18.36%` Steady / `18.42%` Peak MFU — Step-by-Step Engineering Breakdown
+## 4. From Baseline to `24.87%` (`v5p-32`) & `18.68%` (`v7x-16`) MFU — Step-by-Step Engineering Breakdown
 
 ### Track A: Native `TpuGraphTrainer` (PR #122 `flint_40b_v011_n40` -> `p7_01` & `p7_02`)
 
