@@ -330,11 +330,28 @@ def flint_40b_v5p_p9bc_wholestep_staticep16_zero2_n49() -> TpuGraphTrainer.Confi
   return _build_v5p_staticep_zero2(ep_degree=16, tile_m=512, save_attn_layers=45, wholestep=True)
 
 
+def flint_40b_v5p_p9e_wholestep_staticep32_zero3_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_v5p_staticep_zero2(ep_degree=32, tile_m=512, save_attn_layers=36, wholestep=True)
+  cfg.parallelism.fsdp_reshard_after_forward = "always"
+  return cfg
+
+
+def flint_40b_v5p_p9e_split7_staticep32_zero3_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_v5p_staticep_zero2(ep_degree=32, tile_m=512, save_attn_layers=36, wholestep=False)
+  cfg.parallelism.fsdp_reshard_after_forward = "always"
+  cfg.compile.graph_split.forward_layers_per_executable = 7
+  cfg.compile.graph_split.backward_partition_mode = "fsdp_pipeline"
+  cfg.compile.graph_split.backward_layers_per_executable = 7
+  return cfg
+
+
 __all__.extend([
     "flint_40b_v5p_p9bc_staticep4_zero2_n40",
     "flint_40b_v5p_p9bc_staticep8_zero2_n45",
     "flint_40b_v5p_p9bc_staticep16_zero2_n45",
     "flint_40b_v5p_p9bc_wholestep_staticep16_zero2_n49",
+    "flint_40b_v5p_p9e_wholestep_staticep32_zero3_n36",
+    "flint_40b_v5p_p9e_split7_staticep32_zero3_n36",
 ])
 '''
 
@@ -659,6 +676,7 @@ def build_v5p_pass9bc_experiments(suite: str, world_size: int, hf_model_path: st
     mb32 = 32 * 2048    # 65,536 tok/rank
     mb48 = 48 * 2048    # 98,304 tok/rank
     mb64 = 64 * 2048    # 131,072 tok/rank
+    mb80 = 80 * 2048    # 163,840 tok/rank  (3,840 tok/expert @ EP=1)
     mb96 = 96 * 2048    # 196,608 tok/rank  (4,608 tok/expert @ EP=1)
     mb128 = 128 * 2048  # 262,144 tok/rank  (6,144 tok/expert @ EP=1)
     mb160 = 160 * 2048  # 327,680 tok/rank  (7,680 tok/expert @ EP=1)
@@ -719,6 +737,105 @@ def build_v5p_pass9bc_experiments(suite: str, world_size: int, hf_model_path: st
         *hf_splash_1024,
         *hf_comp_opt,
     ]
+
+    if suite == "pass9e":
+        return [
+            {
+                "name": "v5p_p9e_01_hf_sbdp_sa1024_hybridac22_mb80_1x_log1",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + FusedOpt + sa=1024 + HybridAC22 + log1 (mb=80 = 3,840 tok/exp, 1x)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_GMM": gmm_env_256,
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "22",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": v5p_flags,
+                },
+                "args": [
+                    *hf_base,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                    f"--training.num_tokens_per_train_step={world_size * mb80}",
+                ],
+            },
+            {
+                "name": "v5p_p9e_02_hf_sbdp_sa1024_hybridac30_mb96_1x_log1",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + FusedOpt + sa=1024 + HybridAC30 + tile256 + log1 (mb=96 = 4,608 tok/exp, 1x)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_GMM": gmm_env_256,
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "30",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": v5p_flags,
+                },
+                "args": [
+                    *hf_base,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
+                    f"--training.num_tokens_per_train_step={world_size * mb96}",
+                ],
+            },
+            {
+                "name": "v5p_p9e_03_hf_sbdp_sa1024_hybridac30_tile512_mb96_1x_log1",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + FusedOpt + sa=1024 + HybridAC30 + tile512 + log1 (mb=96 = 4,608 tok/exp, 1x)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_GMM": gmm_env_512,
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "30",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": v5p_flags,
+                },
+                "args": [
+                    *hf_base,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
+                    f"--training.num_tokens_per_train_step={world_size * mb96}",
+                ],
+            },
+            {
+                "name": "v5p_p9e_04_wholestep_staticep32_zero3_paired512_mb48_ga2_log1",
+                "lane": f"v5p-{world_size} WholeStep Single-Graph + StaticEP=32 (0 device mismatch, 0 expert AG/RS) + ZeRO-3 + PairedGMM-512 (n36, mb=48 2xGA)",
+                "workdir": "/torchtitan-native",
+                "env": {
+                    "LIBTPU_INIT_ARGS": v5p_flags,
+                    "TT_STATIC_EP_CAP_FACTOR": "1.12",
+                    "TT_STATIC_EP_ALIGN": "512",
+                    "TT_OPT_EXPERT_CHUNK": "48",
+                },
+                "args": [
+                    "--module=torchtitan.experiments.tpu.examples.flint",
+                    "--config=flint_40b_v5p_p9e_wholestep_staticep32_zero3_n36",
+                    f"--training.steps={steps}",
+                    "--training.mixed_precision_reduce=bfloat16",
+                    "--metrics.log_freq=1",
+                    "--debug.seed=42",
+                    "--tpu_config.mfu_benchmark_start_step=4",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}",
+                    f"--training.num_tokens_per_train_step={2 * world_size * mb48}",
+                ],
+            },
+            {
+                "name": "v5p_p9e_05_split7_fsdppipe_staticep32_zero3_paired512_mb48_ga2_log1",
+                "lane": f"v5p-{world_size} Split-7 fsdp_pipeline + StaticEP=32 (0 device mismatch) + ZeRO-3 + PairedGMM-512 (n36, mb=48 2xGA)",
+                "workdir": "/torchtitan-native",
+                "env": {
+                    "LIBTPU_INIT_ARGS": v5p_flags,
+                    "TT_STATIC_EP_CAP_FACTOR": "1.12",
+                    "TT_STATIC_EP_ALIGN": "512",
+                    "TT_OPT_EXPERT_CHUNK": "48",
+                },
+                "args": [
+                    "--module=torchtitan.experiments.tpu.examples.flint",
+                    "--config=flint_40b_v5p_p9e_split7_staticep32_zero3_n36",
+                    f"--training.steps={steps}",
+                    "--training.mixed_precision_reduce=bfloat16",
+                    "--metrics.log_freq=1",
+                    "--debug.seed=42",
+                    "--tpu_config.mfu_benchmark_start_step=4",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}",
+                    f"--training.num_tokens_per_train_step={2 * world_size * mb48}",
+                ],
+            },
+        ]
 
     if suite == "pass9d":
         return [
@@ -1191,7 +1308,7 @@ def write_summary(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", choices=["pass9b", "pass9c", "pass9d"], default="pass9b")
+    parser.add_argument("--suite", choices=["pass9b", "pass9c", "pass9d", "pass9e"], default="pass9b")
     parser.add_argument("--chip-type", choices=["v7x", "v5p", "v6e"], default="v5p")
     parser.add_argument("--nnodes", type=int, required=True)
     parser.add_argument("--nproc-per-node", type=int, default=4)
