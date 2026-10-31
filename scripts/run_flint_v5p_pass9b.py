@@ -396,18 +396,24 @@ def flint_40b_v5p_p9f_fp8dense_sbdp_n40() -> TpuGraphTrainer.Config:
   config.model_spec.model = rc.convert(config.model_spec.model)
   for _, r, _, _ in config.model_spec.model.traverse(TpuRoutedExperts.Config):
     r.scale_before_down_proj = True
-  fp8_cfg = TpuFloat8LinearConverter.Config(
-      model_compile_enabled=True,
-      recipe_name="rowwise",
-      filter_fqns=["output", "router", "gate"],
+  fp8_conv = TpuFloat8LinearConverter(
+      TpuFloat8LinearConverter.Config(
+          model_compile_enabled=True,
+          recipe_name="rowwise",
+          filter_fqns=["router", "gate", "experts"],
+      )
   )
-  config.model_spec.model = TpuFloat8LinearConverter(fp8_cfg).convert(config.model_spec.model)
+  layers_obj = getattr(config.model_spec.model, "layers", None)
+  if isinstance(layers_obj, list):
+    config.model_spec.model.layers = [fp8_conv.convert(l) for l in layers_obj]
+  elif layers_obj is not None:
+    config.model_spec.model.layers = fp8_conv.convert(layers_obj)
   if _P9BC_BF16_ROPE not in config.override.imports:
     config.override.imports.append(_P9BC_BF16_ROPE)
   config.compile.save_last_n_layers = {"attention.inner_attention": 40}
   config.compile.optimizer_compile = "none"
   config.compile.compile_grad_norm = False
-  config.optimizer.implementation = "fused"
+  config.optimizer.implementation = "foreach"
   config.libtpu_init_flags = tpu_flags.merge_flags(
       config.libtpu_init_flags,
       tpu_flags.ICI_AG_PIPELINING,
@@ -499,27 +505,14 @@ def _p9_substitute_tpu_experts(model):
       logger.info("Enabled scale_before_down_proj on %d HF MoE layer(s).", n_sbdp)
 
   if os.environ.get("TT_HF_FP8_DENSE", "0") == "1":
-    from torchtitan.components.linear import Linear
-    from torchtitan.experiments.tpu.float8_converter import TpuFloat8LinearConverter
-    fp8_conv = TpuFloat8LinearConverter(
-        TpuFloat8LinearConverter.Config(model_compile_enabled=True, recipe_name="rowwise", filter_fqns=[])
-    )
-    n_fp8 = 0
-    for fqn, parent in list(model.named_modules()):
-      for cname, child in list(parent.named_children()):
-        full_name = f"{fqn}.{cname}" if fqn else cname
-        if any(skip in full_name for skip in ("lm_head", "output", "gate", "router", "experts")):
-          continue
-        if type(child) is nn.Linear and child.in_features % 128 == 0 and child.out_features % 128 == 0:
-          lcfg = fp8_conv.convert(Linear.Config(bias=(child.bias is not None)))
-          fp8_mod = lcfg.build(in_features=child.in_features, out_features=child.out_features)
-          fp8_mod.to(device=child.weight.device, dtype=child.weight.dtype)
-          fp8_mod.weight = child.weight
-          if child.bias is not None:
-            fp8_mod.bias = child.bias
-          setattr(parent, cname, fp8_mod)
-          n_fp8 += 1
-    logger.info("Converted %d HF dense nn.Linear modules to TpuFloat8Linear (rowwise FP8).", n_fp8)
+    from torchao.float8 import Float8LinearConfig, convert_to_float8_training
+    fp8_cfg = Float8LinearConfig.from_recipe_name("rowwise")
+    def _filter_fn(mod: nn.Module, fqn: str) -> bool:
+      if any(skip in fqn for skip in ("lm_head", "output", "gate", "router", "experts")):
+        return False
+      return type(mod) is nn.Linear and mod.in_features % 128 == 0 and mod.out_features % 128 == 0
+    convert_to_float8_training(model, config=fp8_cfg, module_filter_fn=_filter_fn)
+    logger.info("Converted HF dense nn.Linear modules to Float8Linear (rowwise FP8) via torchao.")
 
 
 substitute_tpu_experts = _p9_substitute_tpu_experts
@@ -830,7 +823,7 @@ def build_v5p_pass9bc_experiments(suite: str, world_size: int, hf_model_path: st
         "--training.max_context_length=2048",
         f"--training.steps={steps}",
         "--training.mixed_precision_reduce=bfloat16",
-        "--optimizer.implementation=fused",
+        "--optimizer.implementation=foreach",
         "--lr_scheduler.warmup_steps=0",
         "--lr_scheduler.decay_ratio=0.0",
         "--metrics.log_freq=1",
