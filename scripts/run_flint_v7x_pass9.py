@@ -1,28 +1,27 @@
 #!/usr/bin/env python3
-"""Pass 9 TPU v7x (16 chips / 32 TensorCores & 8-chip / 16-TensorCore FSDP-16 Shards) 35–42%+ MFU Frontier for Flint.
+"""Pass 9 TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Frontier for Flint (Priority #1).
 
-Root-Cause Fix vs Pass 8:
-  1. Pass 8 swapped layers 0..N-1 to `ptd_checkpoint_wrapper_with_early_stop(..., preserve_rng_state=True)` without
-     `SelectiveAC`'s `context_fn` AND left `torch._dynamo.config.cache_size_limit = 8` at default. On TorchTPU:
-       - `preserve_rng_state=True` fork/restore cannot trace under `torch.compile(fullgraph=True)`.
-       - `_disable_dynamo_lru_cache()` + `cache_size_limit = 8` dropped layers 8..48 (84% of the model!) to eager!
-  2. Pass 9 keeps 100% of layers inside `SelectiveAC._wrap_block` (`tag_activation_checkpoint` HOP) using a uniform
-     `_ConfigurableSplashSaveOps(save_attn: bool)` set (`save_attn=False` for `layer_idx < N` -> full block recompute
-     saving `8,320 * T` bytes/layer; `save_attn=True` for `layer_idx >= N` -> Splash Attention saved), sets
-     `preserve_rng_state=False`, raises `torch._dynamo.config.cache_size_limit = 256` & `accumulated_cache_size_limit = 1024`,
-     and enables `TORCH_TPU_DEFER_AND_FUSE=1` + `--tpu_config.compile_optimizer` + `--tpu_config.compile_grad_norm`!
+Combines all Pass 7 v7x-16 breakthroughs (`18.36%` Native PR#122 & `18.02%` HF PR#123) with
+the Pass 8 v5p-32 record-setting breakthroughs (`24.87%` Steady / `24.95%` Peak MFU):
+  1. `--training.mixed_precision_reduce=bfloat16` (halves 32-rank FSDP ReduceScatter payload 159 GB -> 79.6 GB)
+  2. `Llama-4-Scout` Async AllGather + AG Backward Pipelining + ICI AG Pipelining + `v7x` Hierarchical SparseCore RS
+  3. Native `TpuGraphTrainer` (`n45` 1x step & `n43` 2x GradAccum + all-49 `moe.routing` + `tile_m=1024` + CompiledOpt)
+  4. HF Modeling Backend PR #123 (`RecursiveSI/flint` weights, Paired GMM `tile_m=1024`, `b=1024`, `DEFER_AND_FUSE=1`, Probed CompiledOpt)
+  5. Per-layer closure-safe `HybridAC` (`HSDP 2x16` 8-chip / 16-TensorCore FSDP-16 shards)
 """
+
+from __future__ import annotations
 
 import argparse
 import datetime as dt
 import json
 import os
+from pathlib import Path
 import re
 import socket
 import subprocess
 import sys
 import time
-from pathlib import Path
 
 FLINT_FLOPS_PER_TOKEN = 17.385e9
 PEAK_BF16_TFLOPS_PER_RANK = {"v7x": 1153.5, "v5p": 459.0, "v6e": 918.0}
@@ -34,19 +33,64 @@ STEP_RE = re.compile(
 MFU_RE = re.compile(r"mfu:\s*(?P<mfu>[0-9.]+)%", re.IGNORECASE)
 MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 
-HF_HYBRID_AC_PATCH_V2 = '''
+NATIVE_P9_PATCH = '''
 
 # ==============================================================================
-# Compiler-Native Hybrid Partial FullAC + AttentionOnlyAC Hook (Pass 9 / Pass 7)
+# Pass 9 Flint v7x-16 MFU Configs
+# ==============================================================================
+
+def flint_40b_p9_n45_moe_route_comp_opt() -> TpuGraphTrainer.Config:
+  config = flint_40b_v014_tile1024()
+  config.compile.memory_policy = "tpu_selective"
+  config.compile.save_regions = ("moe.routing",)
+  config.compile.save_last_n_layers = {"attention.inner_attention": 45}
+  config.compile.optimizer_compile = "separate_graph"
+  config.compile.compile_grad_norm = True
+  return config
+
+
+def flint_40b_p9_n43_moe_route_comp_opt() -> TpuGraphTrainer.Config:
+  config = flint_40b_v014_tile1024()
+  config.compile.memory_policy = "tpu_selective"
+  config.compile.save_regions = ("moe.routing",)
+  config.compile.save_last_n_layers = {"attention.inner_attention": 43}
+  config.compile.optimizer_compile = "separate_graph"
+  config.compile.compile_grad_norm = True
+  return config
+
+
+def flint_40b_p9_n22_moe_route_comp_opt() -> TpuGraphTrainer.Config:
+  config = flint_40b_v014_tile1024()
+  config.compile.memory_policy = "tpu_selective"
+  config.compile.save_regions = ("moe.routing",)
+  config.compile.save_last_n_layers = {"attention.inner_attention": 22}
+  config.compile.optimizer_compile = "separate_graph"
+  config.compile.compile_grad_norm = True
+  return config
+
+
+__all__.extend([
+    "flint_40b_p9_n45_moe_route_comp_opt",
+    "flint_40b_p9_n43_moe_route_comp_opt",
+    "flint_40b_p9_n22_moe_route_comp_opt",
+])
+'''
+
+HF_HYBRID_AC_PATCH_V3 = '''
+
+# ==============================================================================
+# Per-Layer Closure-Safe Compiler-Native HybridAC (Pass 9 v3)
 # ==============================================================================
 import os as _tt_os
 import torch._dynamo
+from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import ptd_checkpoint_wrapper
+from torch.utils.checkpoint import CheckpointPolicy, create_selective_checkpoint_contexts
 
 torch._dynamo.config.cache_size_limit = 256
 torch._dynamo.config.accumulated_cache_size_limit = 1024
 
 
-class _ConfigurableSplashSaveOps(set):
+class _LayerSplashSaveOps(set):
   def __init__(self, save_attn: bool):
     super().__init__()
     self._save_attn = save_attn
@@ -57,35 +101,89 @@ class _ConfigurableSplashSaveOps(set):
     return _PALLAS_ATTENTION_FWD_MARKER in _op_name(op)
 
 
-def _hybrid_attn_only_wrap_v2(self, module, *, base_fqn=None):
+def _hybrid_attn_only_wrap_v3(self, module, *, base_fqn=None):
   self.config.preserve_rng_state = False
   n_full = int(_tt_os.environ.get("TT_FULL_AC_FIRST_N", "0"))
-  self._cur_layer_save_attn = True
-  if n_full > 0 and base_fqn and base_fqn.startswith("layers."):
-    try:
-      if int(base_fqn.split(".")[1]) < n_full:
-        self._cur_layer_save_attn = False
-    except ValueError:
-      pass
-  return SelectiveAC._wrap_block(self, module, base_fqn=base_fqn)
+  save_attn = True
+  if n_full > 0 and base_fqn:
+    parts = [p for p in base_fqn.split(".") if p.isdigit()]
+    if parts and int(parts[0]) < n_full:
+      save_attn = False
+  layer_save_ops = _LayerSplashSaveOps(save_attn)
+
+  def _policy_fn(ctx, func, *args, **kwargs):
+    return CheckpointPolicy.MUST_SAVE if func in layer_save_ops else CheckpointPolicy.PREFER_RECOMPUTE
+
+  return ptd_checkpoint_wrapper(
+      module,
+      context_fn=lambda: create_selective_checkpoint_contexts(_policy_fn),
+      preserve_rng_state=False,
+  )
 
 
-def _hybrid_get_save_ops_v2(self) -> set:
-  return _ConfigurableSplashSaveOps(getattr(self, "_cur_layer_save_attn", True))
-
-
-AttentionOnlyAC._wrap_block = _hybrid_attn_only_wrap_v2
-AttentionOnlyAC.get_save_ops = _hybrid_get_save_ops_v2
+AttentionOnlyAC._wrap_block = _hybrid_attn_only_wrap_v3
 '''
 
 
 def apply_runtime_patches() -> None:
+    nat_reg = Path("/torchtitan-native/torchtitan/experiments/tpu/examples/flint/config_registry.py")
+    if nat_reg.exists():
+        txt = nat_reg.read_text()
+        if "flint_40b_p9_n45_moe_route_comp_opt" not in txt:
+            nat_reg.write_text(txt + NATIVE_P9_PATCH)
+            print("[flint-v7x-pass9] Patched Native config_registry.py with Pass 9 configs", flush=True)
+
     hf_ac = Path("/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py")
     if hf_ac.exists():
         txt = hf_ac.read_text()
-        if "_ConfigurableSplashSaveOps" not in txt:
-            hf_ac.write_text(txt + HF_HYBRID_AC_PATCH_V2)
-            print("[flint-v7x-pass9] Patched HF activation_checkpoint.py with compiler-native HybridAC v2 + cache_size_limit=256", flush=True)
+        if "_hybrid_attn_only_wrap_v3" not in txt:
+            hf_ac.write_text(txt + HF_HYBRID_AC_PATCH_V3)
+            print("[flint-v7x-pass9] Patched HF activation_checkpoint.py with per-layer HybridAC v3", flush=True)
+
+
+def filter_supported_xla_flags(candidates: list[str]) -> str:
+    try:
+        import libtpu
+
+        so_dir = Path(libtpu.__file__).parent
+        so_files = list(so_dir.glob("*.so"))
+        blob = b"".join(p.read_bytes() for p in so_files) if so_files else b""
+    except Exception:
+        blob = b""
+    if not blob:
+        return " ".join(candidates)
+    kept, dropped = [], []
+    for flag in candidates:
+        name = flag.lstrip("-").split("=", 1)[0].encode("utf-8")
+        if name in blob:
+            kept.append(flag)
+        else:
+            dropped.append(flag)
+    print(f"[flint-v7x-pass9] Validated XLA flags: kept={len(kept)} dropped={dropped}", flush=True)
+    return " ".join(kept)
+
+
+def probe_compile_opt_args(workdir: str) -> list[str]:
+    code = (
+        "from torchtitan.experiments.tpu.tpu_job_config import TPUTrainerConfig; "
+        "c = TPUTrainerConfig(); out = []; "
+        "hasattr(c, 'compile') and hasattr(c.compile, 'compile_grad_norm') and out.append('--compile.compile_grad_norm'); "
+        "hasattr(c, 'compile') and hasattr(c.compile, 'optimizer_compile') and out.append('--compile.optimizer_compile=separate_graph'); "
+        "hasattr(c, 'tpu_config') and hasattr(c.tpu_config, 'compile_grad_norm') and out.append('--tpu_config.compile_grad_norm'); "
+        "hasattr(c, 'tpu_config') and hasattr(c.tpu_config, 'compile_optimizer') and out.append('--tpu_config.compile_optimizer'); "
+        "print(' '.join(out))"
+    )
+    try:
+        env = os.environ.copy()
+        env["PYTHONPATH"] = workdir
+        res = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, timeout=20)
+        if res.returncode == 0 and res.stdout.strip():
+            flags = res.stdout.strip().split()
+            print(f"[flint-v7x-pass9] {workdir} compiled-opt flags: {flags}", flush=True)
+            return flags
+    except Exception as exc:
+        print(f"[flint-v7x-pass9] probe_compile_opt_args({workdir}) warn: {exc}", flush=True)
+    return []
 
 
 def wait_for_master_dns(master_addr: str, timeout_s: int = 300) -> str:
@@ -99,9 +197,28 @@ def wait_for_master_dns(master_addr: str, timeout_s: int = 300) -> str:
 
 
 def build_v7x_pass9_experiments(world_size: int, hf_model_path: str, steps: int) -> list[dict]:
-    mb48 = 48 * 2048  # 98,304 tok/rank -> 3.15M tok/step on 32 ranks
-    mb64 = 64 * 2048  # 131,072 tok/rank -> 4.19M tok/step on 32 ranks (2.10M/shard on HSDP 2x16)
-    mb80 = 80 * 2048  # 163,840 tok/rank -> 5.24M tok/step on 32 ranks (max hardware SMEM ceiling)
+    mb48 = 48 * 2048  # 98,304 tok/rank -> 3.15M tok/microbatch across 32 TensorCores
+    mb56 = 56 * 2048  # 114,688 tok/rank -> 3.67M tok/microbatch across 32 TensorCores
+
+    v7x_scout_candidates = [
+        "--xla_tpu_enable_sparse_core_collective_aggregator=true",
+        "--xla_tpu_enable_latency_hiding_layer_scheduler=true",
+        "--xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false",
+        "--xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true",
+        "--xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true",
+        "--xla_tpu_dvfs_p_state=7",
+        "--xla_enable_async_all_gather=true",
+        "--xla_enable_async_all_reduce=true",
+        "--xla_tpu_enable_async_all_to_all=true",
+        "--xla_tpu_enable_ag_backward_pipelining=true",
+        "--xla_tpu_enable_ici_ag_pipelining=true",
+        "--xla_tpu_overlap_compute_collective_tc=true",
+        "--xla_max_concurrent_async_all_gathers=4",
+        "--xla_latency_hiding_scheduler_rerun=2",
+        "--xla_enable_transpose_trace=false",
+    ]
+    v7x_scout_xla = filter_supported_xla_flags(v7x_scout_candidates)
+    hf_comp_opt = probe_compile_opt_args("/torchtitan-hf")
 
     hf_splash_args = [
         "--splash_attention_kernel.sa_block_q=512",
@@ -111,14 +228,6 @@ def build_v7x_pass9_experiments(world_size: int, hf_model_path: str, steps: int)
         "--splash_attention_kernel.sa_block_kv_dkv=512",
         "--splash_attention_kernel.sa_block_kv_dkv_compute=512",
     ]
-    v7x_hier_sc_flags = (
-        "xla_tpu_enable_sparse_core_collective_aggregator=true "
-        "xla_tpu_enable_latency_hiding_layer_scheduler=true "
-        "xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false "
-        "xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true "
-        "xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true "
-        "xla_tpu_dvfs_p_state=7"
-    )
     paired_gmm_str = (
         "use_pallas_paired_grouped_mm=true,"
         "pallas_grouped_mm_tile_m=1024,"
@@ -126,104 +235,111 @@ def build_v7x_pass9_experiments(world_size: int, hf_model_path: str, steps: int)
         "pallas_grouped_mm_w2_tgmm_tiling=512:512:0,"
         "pallas_grouped_mm_w2_transposed_tgmm_tiling=512:0:2048"
     )
-    base_args = [
+    hf_base = [
         "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
         "--config=hf_moe_auto_max_attnac",
         f"--hf-model={hf_model_path}",
         "--training.max_context_length=2048",
         f"--training.steps={steps}",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--lr_scheduler.warmup_steps=0",
+        "--lr_scheduler.decay_ratio=0.0",
         "--metrics.log_freq=1",
         "--debug.seed=42",
         "--loss.b_block_size=1024",
         *hf_splash_args,
-        f"--extra-libtpu-init-flags={v7x_hier_sc_flags}",
+        *hf_comp_opt,
     ]
 
     return [
-        # 1. Direct A/B of Pass 7 winner (mb=48, N=0) + DEFER_AND_FUSE + Compiled AdamW + Compiled GradNorm
+        # 1. Native PR#122 (n45 + All49 MoE Routing + tile_m=1024 + CompiledOpt) + BF16 Reduce + v7x HierSC/Scout XLA (1x step)
         {
-            "name": "v7x_p9_01_hf_pr123_fsdp32_attnac_compopt_mb48",
-            "lane": "v7x-16 FSDP-32 HF PR#123 (AttnOnlyAC + DEFER_AND_FUSE + Compiled AdamW/GradNorm, mb=48 = 3.15M tok/step)",
-            "workdir": "/torchtitan-hf",
-            "env": {"TT_HF_GMM": paired_gmm_str, "TT_FULL_AC_FIRST_N": "0", "TORCH_TPU_DEFER_AND_FUSE": "1"},
+            "name": "v7x_p9_01_native_pr122_bf16red_scout_n45_mb48_1x",
+            "lane": "v7x-16 Native TpuGraphTrainer PR#122 (n45 + All49 MoERouting + BF16 Reduce + Scout/HierSC XLA, mb=48 = 3.15M tok/step)",
+            "workdir": "/torchtitan-native",
+            "env": {"LIBTPU_INIT_ARGS": v7x_scout_xla},
             "args": [
-                *base_args,
-                "--tpu_config.compile_optimizer",
-                "--tpu_config.compile_grad_norm",
+                "--module=torchtitan.experiments.tpu.examples.flint",
+                "--config=flint_40b_p9_n45_moe_route_comp_opt",
+                f"--training.steps={steps}",
+                "--training.mixed_precision_reduce=bfloat16",
+                "--metrics.log_freq=1",
+                "--debug.seed=42",
+                "--tpu_config.mfu_benchmark_start_step=3",
                 f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}",
                 f"--training.num_tokens_per_train_step={world_size * mb48}",
             ],
         },
-        # 2. Pure HybridAC v2 (N=22, mb=64 = 4.19M tok/step) + DEFER_AND_FUSE (zero optimizer HBM risk)
+        # 2. Native PR#122 (n43 + All49 MoE Routing + 2x GradAccum) + BF16 Reduce + v7x HierSC/Scout XLA (6.29M tok/step)
         {
-            "name": "v7x_p9_02_hf_pr123_fsdp32_hybridac22_defer_mb64",
-            "lane": "v7x-16 FSDP-32 HF PR#123 (Compiler-Native HybridAC N=22 + DEFER_AND_FUSE, mb=64 = 4.19M tok/step)",
-            "workdir": "/torchtitan-hf",
-            "env": {"TT_HF_GMM": paired_gmm_str, "TT_FULL_AC_FIRST_N": "22", "TORCH_TPU_DEFER_AND_FUSE": "1"},
+            "name": "v7x_p9_02_native_pr122_bf16red_scout_n43_mb48_ga2",
+            "lane": "v7x-16 Native TpuGraphTrainer PR#122 (2x GradAccum @ mb=48 = 6.29M tok/step + n43 + BF16 Reduce + Scout/HierSC XLA)",
+            "workdir": "/torchtitan-native",
+            "env": {"LIBTPU_INIT_ARGS": v7x_scout_xla},
             "args": [
-                *base_args,
-                f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
-                f"--training.num_tokens_per_train_step={world_size * mb64}",
+                "--module=torchtitan.experiments.tpu.examples.flint",
+                "--config=flint_40b_p9_n43_moe_route_comp_opt",
+                f"--training.steps={steps}",
+                "--training.mixed_precision_reduce=bfloat16",
+                "--metrics.log_freq=1",
+                "--debug.seed=42",
+                "--tpu_config.mfu_benchmark_start_step=3",
+                f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}",
+                f"--training.num_tokens_per_train_step={2 * world_size * mb48}",
             ],
         },
-        # 3. HybridAC v2 (N=24, mb=64 = 4.19M tok/step) + DEFER_AND_FUSE + Compiled AdamW/GradNorm
+        # 3. HF PR#123 (RecursiveSI/flint weights + Paired GMM tile_m=1024) + BF16 Reduce + Scout/HierSC XLA + CompiledOpt (1x step)
         {
-            "name": "v7x_p9_03_hf_pr123_fsdp32_hybridac24_compopt_mb64",
-            "lane": "v7x-16 FSDP-32 HF PR#123 (HybridAC N=24 + DEFER_AND_FUSE + Compiled AdamW/GradNorm, mb=64 = 4.19M tok/step)",
+            "name": "v7x_p9_03_hf_pr123_bf16red_scout_compopt_mb48_1x",
+            "lane": "v7x-16 FSDP-32 HF PR#123 (Paired GMM tile_m=1024 + BF16 Reduce + Scout/HierSC XLA + CompiledOpt, mb=48 = 3.15M tok/step)",
             "workdir": "/torchtitan-hf",
-            "env": {"TT_HF_GMM": paired_gmm_str, "TT_FULL_AC_FIRST_N": "24", "TORCH_TPU_DEFER_AND_FUSE": "1"},
+            "env": {
+                "TT_HF_GMM": paired_gmm_str,
+                "TT_FULL_AC_FIRST_N": "0",
+                "TORCH_TPU_DEFER_AND_FUSE": "1",
+                "LIBTPU_INIT_ARGS": v7x_scout_xla,
+            },
             "args": [
-                *base_args,
-                "--tpu_config.compile_optimizer",
-                "--tpu_config.compile_grad_norm",
-                f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
-                f"--training.num_tokens_per_train_step={world_size * mb64}",
-            ],
-        },
-        # 4. HybridAC v2 (N=40, mb=80 = 5.24M tok/step, max SMEM ceiling) + DEFER_AND_FUSE + Compiled AdamW/GradNorm
-        {
-            "name": "v7x_p9_04_hf_pr123_fsdp32_hybridac40_compopt_mb80",
-            "lane": "v7x-16 FSDP-32 HF PR#123 (HybridAC N=40 + DEFER_AND_FUSE + Compiled AdamW/GradNorm, mb=80 = 5.24M tok/step)",
-            "workdir": "/torchtitan-hf",
-            "env": {"TT_HF_GMM": paired_gmm_str, "TT_FULL_AC_FIRST_N": "40", "TORCH_TPU_DEFER_AND_FUSE": "1"},
-            "args": [
-                *base_args,
-                "--tpu_config.compile_optimizer",
-                "--tpu_config.compile_grad_norm",
-                f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
-                f"--training.num_tokens_per_train_step={world_size * mb80}",
-            ],
-        },
-        # 5. 8-Chip / 16-TensorCore FSDP-16 Shards via HSDP 2x16 @ mb=48 (HybridAC v2 N=28 + DEFER_AND_FUSE + Compiled AdamW/GradNorm)
-        {
-            "name": "v7x_p9_05_hf_pr123_hsdp_2x16_hybridac28_compopt_mb48",
-            "lane": "v7x-16 HSDP 2x FSDP-16 (8-Chip / 16-TC Shards, HybridAC N=28 + Compiled Opt, mb=48 = 1.57M/shard)",
-            "workdir": "/torchtitan-hf",
-            "env": {"TT_HF_GMM": paired_gmm_str, "TT_FULL_AC_FIRST_N": "28", "TORCH_TPU_DEFER_AND_FUSE": "1"},
-            "args": [
-                *base_args,
-                "--tpu_config.compile_optimizer",
-                "--tpu_config.compile_grad_norm",
-                "--parallelism.data_parallel_replicate_degree=2",
-                "--parallelism.data_parallel_shard_degree=16",
+                *hf_base,
                 f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}",
                 f"--training.num_tokens_per_train_step={world_size * mb48}",
             ],
         },
-        # 6. 8-Chip / 16-TensorCore FSDP-16 Shards via HSDP 2x16 @ mb=64 (FullAC v2 N=49 + DEFER_AND_FUSE + Compiled AdamW/GradNorm)
+        # 4. Native PR#122 (2x GradAccum @ mb=56 = 7.34M tok/step + n22 + BF16 Reduce + Scout/HierSC XLA)
         {
-            "name": "v7x_p9_06_hf_pr123_hsdp_2x16_fullac49_compopt_mb64",
-            "lane": "v7x-16 HSDP 2x FSDP-16 (8-Chip / 16-TC Shards, FullAC N=49 + Compiled Opt, mb=64 = 2.10M/shard)",
-            "workdir": "/torchtitan-hf",
-            "env": {"TT_HF_GMM": paired_gmm_str, "TT_FULL_AC_FIRST_N": "49", "TORCH_TPU_DEFER_AND_FUSE": "1"},
+            "name": "v7x_p9_04_native_pr122_bf16red_scout_n22_mb56_ga2",
+            "lane": "v7x-16 Native TpuGraphTrainer PR#122 (2x GradAccum @ mb=56 = 7.34M tok/step + n22 + BF16 Reduce + Scout/HierSC XLA)",
+            "workdir": "/torchtitan-native",
+            "env": {"LIBTPU_INIT_ARGS": v7x_scout_xla},
             "args": [
-                *base_args,
-                "--tpu_config.compile_optimizer",
-                "--tpu_config.compile_grad_norm",
+                "--module=torchtitan.experiments.tpu.examples.flint",
+                "--config=flint_40b_p9_n22_moe_route_comp_opt",
+                f"--training.steps={steps}",
+                "--training.mixed_precision_reduce=bfloat16",
+                "--metrics.log_freq=1",
+                "--debug.seed=42",
+                "--tpu_config.mfu_benchmark_start_step=3",
+                f"--training.num_tokens_per_microbatch_per_dp_rank={mb56}",
+                f"--training.num_tokens_per_train_step={2 * world_size * mb56}",
+            ],
+        },
+        # 5. HF PR#123 HSDP 2x FSDP-16 (8-Chip / 16-TC Shards) + Closure-Safe HybridAC v3 N=28 + BF16 Reduce (1x step)
+        {
+            "name": "v7x_p9_05_hf_pr123_hsdp2x16_bf16red_hybridac28_mb48_1x",
+            "lane": "v7x-16 HSDP 2x FSDP-16 (8-Chip / 16-TC Shards, HybridAC v3 N=28 + BF16 Reduce + Scout/HierSC XLA, mb=48 = 3.15M tok/step)",
+            "workdir": "/torchtitan-hf",
+            "env": {
+                "TT_HF_GMM": paired_gmm_str,
+                "TT_FULL_AC_FIRST_N": "28",
+                "TORCH_TPU_DEFER_AND_FUSE": "1",
+                "LIBTPU_INIT_ARGS": v7x_scout_xla,
+            },
+            "args": [
+                *hf_base,
                 "--parallelism.data_parallel_replicate_degree=2",
                 "--parallelism.data_parallel_shard_degree=16",
-                f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
-                f"--training.num_tokens_per_train_step={world_size * mb64}",
+                f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}",
+                f"--training.num_tokens_per_train_step={world_size * mb48}",
             ],
         },
     ]
@@ -236,6 +352,8 @@ def parse_metrics(log_text: str, chip_type: str) -> dict:
         if not m:
             continue
         step = int(m.group("step"))
+        if steps and steps[-1]["step"] == step:
+            continue
         loss = float(m.group("loss"))
         tps = float(m.group("tps").replace(",", ""))
         mfu_m = MFU_RE.search(line)
@@ -244,14 +362,16 @@ def parse_metrics(log_text: str, chip_type: str) -> dict:
         calc_mfu = 100.0 * FLINT_FLOPS_PER_TOKEN * tps / peak_tf
         logged_mfu = float(mfu_m.group("mfu")) if mfu_m else calc_mfu
         mem_gib = float(mem_m.group("mem")) if mem_m else None
-        steps.append({
-            "step": step,
-            "loss": loss,
-            "tps_per_rank": tps,
-            "logged_mfu_pct": logged_mfu,
-            "calc_mfu_pct": round(calc_mfu, 3),
-            "mem_gib": mem_gib,
-        })
+        steps.append(
+            {
+                "step": step,
+                "loss": loss,
+                "tps_per_rank": tps,
+                "logged_mfu_pct": logged_mfu,
+                "calc_mfu_pct": round(calc_mfu, 3),
+                "mem_gib": mem_gib,
+            }
+        )
     steady = [s for s in steps if s["step"] >= 4] or steps[-5:]
     if not steady:
         return {"num_logged_steps": 0, "steady_tps": 0.0, "steady_mfu_pct": 0.0}
@@ -271,7 +391,9 @@ def parse_metrics(log_text: str, chip_type: str) -> dict:
     }
 
 
-def write_summary(out_dir: Path, bench_dir: Path, slice_name: str, chip_type: str, world_size: int, results: list[dict]) -> None:
+def write_summary(
+    out_dir: Path, bench_dir: Path, slice_name: str, chip_type: str, world_size: int, results: list[dict]
+) -> None:
     payload = {
         "updated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "slice_name": slice_name,
@@ -283,7 +405,7 @@ def write_summary(out_dir: Path, bench_dir: Path, slice_name: str, chip_type: st
     }
     (out_dir / "summary.json").write_text(json.dumps(payload, indent=2))
     md_lines = [
-        f"# Flint (`RecursiveSI/flint` 40B MoE) TPU v7x Pass 9 Results — `{slice_name}`",
+        f"# Flint (`RecursiveSI/flint` 40B MoE) TPU v7x Pass 9 (`BF16 Reduce` + `Scout/HierSC XLA`) — `{slice_name}`",
         "",
         f"- **Updated (UTC):** `{payload['updated_at_utc']}`",
         f"- **Chip / World Size:** `{chip_type}` (`{world_size}` TensorCore ranks, `{PEAK_BF16_TFLOPS_PER_RANK.get(chip_type)}` BF16 TFLOP/s/rank)",
@@ -335,7 +457,7 @@ def main() -> int:
     exps = build_v7x_pass9_experiments(world_size, args.hf_model, args.steps)
     results = []
     for idx, exp in enumerate(exps):
-        port = args.base_port + idx
+        port = args.base_port + idx * 5
         cmd = [
             "torchrun",
             f"--nnodes={args.nnodes}",
@@ -377,23 +499,25 @@ def main() -> int:
             (out_dir / f"{exp['name']}.log").write_text(raw_log)
             metrics = parse_metrics(raw_log, args.chip_type)
             status = "PASS" if (rc == 0 and metrics.get("num_logged_steps", 0) > 0) else f"FAIL(rc={rc})"
-            results.append({
-                "name": exp["name"],
-                "lane": exp["lane"],
-                "status": status,
-                "return_code": rc,
-                "duration_s": round(dur, 1),
-                "command": cmd,
-                "env_overrides": exp["env"],
-                "metrics": metrics,
-            })
+            results.append(
+                {
+                    "name": exp["name"],
+                    "lane": exp["lane"],
+                    "status": status,
+                    "return_code": rc,
+                    "duration_s": round(dur, 1),
+                    "command": cmd,
+                    "env_overrides": exp["env"],
+                    "metrics": metrics,
+                }
+            )
             write_summary(out_dir, bench_dir, args.slice_name, args.chip_type, world_size, results)
             print(
                 f"[flint-v7x-pass9] SAVED {exp['name']}: status={status} "
                 f"steady_tps={metrics.get('steady_tps', 0)} steady_mfu={metrics.get('steady_mfu_pct', 0)}%",
                 flush=True,
             )
-        time.sleep(10)
+        time.sleep(8)
     return 0
 
 
