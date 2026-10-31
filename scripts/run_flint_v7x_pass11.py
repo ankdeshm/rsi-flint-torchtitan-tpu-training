@@ -478,6 +478,7 @@ EP_GRAD_NORM_PATCH = '''
 
 # --- Multi-mesh (EP + dense FSDP) CompiledGradNorm support ---
 def _ep_aware_global_grad_norm(grads: list[torch.Tensor]) -> torch.Tensor:
+  from torch.distributed.tensor import DTensor
   ep_grads: list[torch.Tensor] = []
   non_ep_grads: list[torch.Tensor] = []
   for g in grads:
@@ -516,6 +517,8 @@ def _ep_aware_clip_grad_norm_(
     parameters: list[torch.Tensor],
     max_norm: float,
 ) -> torch.Tensor:
+  from typing import cast
+  from torch.distributed.tensor import DTensor
   grads = cast(
       list[torch.Tensor],
       [parameter.grad for parameter in parameters if parameter.grad is not None],
