@@ -1,0 +1,335 @@
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793415361.265928   31402 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+[W1031 02:56:01.236166867 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_DEFER_AND_FUSE environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793415361.937892   31402 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793415361.940262   31402 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+W1031 02:56:01.964000 31402 site-packages/torch/distributed/run.py:982] 
+W1031 02:56:01.964000 31402 site-packages/torch/distributed/run.py:982] *****************************************
+W1031 02:56:01.964000 31402 site-packages/torch/distributed/run.py:982] Setting OMP_NUM_THREADS environment variable for each process to be 1 in default, to avoid your system being overloaded, please further tune the variable for optimal performance in your application as needed. 
+W1031 02:56:01.964000 31402 site-packages/torch/distributed/run.py:982] *****************************************
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793415364.305793   31475 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793415364.305793   31474 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793415364.309182   31473 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793415364.350848   31468 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793415364.399404   31472 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793415364.399403   31469 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+I0000 00:00:1793415364.399399   31471 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1793415364.404526   31470 pjrt_api.cc:119] GetPjrtApi was found for TPU at /usr/local/lib/python3.14/site-packages/libtpu/libtpu.so
+[W1031 02:56:04.267400658 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_DEFER_AND_FUSE environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793415364.968556   31474 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+[W1031 02:56:04.273782803 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_DEFER_AND_FUSE environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793415364.970930   31474 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+[W1031 02:56:04.278114717 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_DEFER_AND_FUSE environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793415364.974691   31473 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793415364.977074   31473 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793415364.978861   31475 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793415364.981297   31475 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+[W1031 02:56:05.352857200 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_DEFER_AND_FUSE environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793415365.054139   31468 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793415365.056687   31468 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+[W1031 02:56:05.362177163 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_DEFER_AND_FUSE environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1031 02:56:05.363617834 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_DEFER_AND_FUSE environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1031 02:56:05.364393179 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_DEFER_AND_FUSE environment variable is an experimental feature and may change or be removed without notice. (function operator())
+[W1031 02:56:05.366957039 env_vars.h:405] Warning: <TorchTpu/ApiStage/ExperimentalApi/> the TORCH_TPU_DEFER_AND_FUSE environment variable is an experimental feature and may change or be removed without notice. (function operator())
+I0000 00:00:1793415365.063481   31472 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793415365.065060   31471 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793415365.065774   31469 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793415365.065944   31472 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793415365.067398   31471 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+I0000 00:00:1793415365.068093   31470 device_rt.cc:166] PjRt runtime initialization deferred for tpu
+I0000 00:00:1793415365.068178   31469 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+Successfully renamed PrivateUse1 backend to 'tpu'. Device: device(type='tpu')
+Registered Python module for 'tpu'.
+Device type: tpu, Device index: default
+Initializing TPU distributed runtime
+I0000 00:00:1793415365.070477   31470 libtpu_version.cc:63] Setting libtpu version to: 0.0.50
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+W1031 02:56:06.450000 31474 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.453000 31473 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.454000 31475 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.468000 31474 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.471000 31473 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.472000 31475 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_mxfp8.cpython-310-x86_64-linux-gnu.so
+WARNING:torchao:Failed to load /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so: Could not load this library: /usr/local/lib/python3.14/site-packages/torchao/_C_cutlass_90a.abi3.so
+W1031 02:56:06.564000 31471 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.569000 31469 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.573000 31472 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.575000 31470 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.587000 31471 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.592000 31469 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.594000 31468 site-packages/torch/utils/_pytree.py:646] <enum 'KernelPreference'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.597000 31472 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.599000 31470 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+W1031 02:56:06.615000 31468 site-packages/torch/utils/_pytree.py:646] <enum 'ScaleCalculationMode'> is an Enum subclass and is now natively supported by torch.compile as an opaque value type. Calling register_constant() on Enum subclasses is deprecated and will be an error in a future release.
+Traceback (most recent call last):
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/torchtitan-hf/torchtitan/experiments/tpu/train.py", line 28, in <module>
+    import torchtitan.experiments.tpu.examples.gemma4  # trigger model registration
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/__init__.py", line 9, in <module>
+    from torchtitan.experiments.tpu.examples.gemma4.infra.parallelize import (
+        parallelize_gemma4,
+    )
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/infra/parallelize.py", line 18, in <module>
+    from torchtitan.experiments.tpu.activation_checkpoint import TPUSelectiveAC
+  File "/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py", line 141, in <module>
+    from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import ptd_checkpoint_wrapper
+ImportError: cannot import name 'ptd_checkpoint_wrapper' from 'torch.distributed.algorithms._checkpoint.checkpoint_wrapper' (/usr/local/lib/python3.14/site-packages/torch/distributed/algorithms/_checkpoint/checkpoint_wrapper.py)
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/torchtitan-hf/torchtitan/experiments/tpu/train.py", line 28, in <module>
+    import torchtitan.experiments.tpu.examples.gemma4  # trigger model registration
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/__init__.py", line 9, in <module>
+    from torchtitan.experiments.tpu.examples.gemma4.infra.parallelize import (
+        parallelize_gemma4,
+    )
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/infra/parallelize.py", line 18, in <module>
+    from torchtitan.experiments.tpu.activation_checkpoint import TPUSelectiveAC
+  File "/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py", line 141, in <module>
+    from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import ptd_checkpoint_wrapper
+ImportError: cannot import name 'ptd_checkpoint_wrapper' from 'torch.distributed.algorithms._checkpoint.checkpoint_wrapper' (/usr/local/lib/python3.14/site-packages/torch/distributed/algorithms/_checkpoint/checkpoint_wrapper.py)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/torchtitan-hf/torchtitan/experiments/tpu/train.py", line 28, in <module>
+    import torchtitan.experiments.tpu.examples.gemma4  # trigger model registration
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/__init__.py", line 9, in <module>
+    from torchtitan.experiments.tpu.examples.gemma4.infra.parallelize import (
+        parallelize_gemma4,
+    )
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/infra/parallelize.py", line 18, in <module>
+    from torchtitan.experiments.tpu.activation_checkpoint import TPUSelectiveAC
+  File "/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py", line 141, in <module>
+    from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import ptd_checkpoint_wrapper
+ImportError: cannot import name 'ptd_checkpoint_wrapper' from 'torch.distributed.algorithms._checkpoint.checkpoint_wrapper' (/usr/local/lib/python3.14/site-packages/torch/distributed/algorithms/_checkpoint/checkpoint_wrapper.py)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/torchtitan-hf/torchtitan/experiments/tpu/train.py", line 28, in <module>
+    import torchtitan.experiments.tpu.examples.gemma4  # trigger model registration
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/__init__.py", line 9, in <module>
+    from torchtitan.experiments.tpu.examples.gemma4.infra.parallelize import (
+        parallelize_gemma4,
+    )
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/infra/parallelize.py", line 18, in <module>
+    from torchtitan.experiments.tpu.activation_checkpoint import TPUSelectiveAC
+  File "/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py", line 141, in <module>
+    from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import ptd_checkpoint_wrapper
+ImportError: cannot import name 'ptd_checkpoint_wrapper' from 'torch.distributed.algorithms._checkpoint.checkpoint_wrapper' (/usr/local/lib/python3.14/site-packages/torch/distributed/algorithms/_checkpoint/checkpoint_wrapper.py)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/torchtitan-hf/torchtitan/experiments/tpu/train.py", line 28, in <module>
+    import torchtitan.experiments.tpu.examples.gemma4  # trigger model registration
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/__init__.py", line 9, in <module>
+    from torchtitan.experiments.tpu.examples.gemma4.infra.parallelize import (
+        parallelize_gemma4,
+    )
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/infra/parallelize.py", line 18, in <module>
+    from torchtitan.experiments.tpu.activation_checkpoint import TPUSelectiveAC
+  File "/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py", line 141, in <module>
+    from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import ptd_checkpoint_wrapper
+ImportError: cannot import name 'ptd_checkpoint_wrapper' from 'torch.distributed.algorithms._checkpoint.checkpoint_wrapper' (/usr/local/lib/python3.14/site-packages/torch/distributed/algorithms/_checkpoint/checkpoint_wrapper.py)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/torchtitan-hf/torchtitan/experiments/tpu/train.py", line 28, in <module>
+    import torchtitan.experiments.tpu.examples.gemma4  # trigger model registration
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/__init__.py", line 9, in <module>
+    from torchtitan.experiments.tpu.examples.gemma4.infra.parallelize import (
+        parallelize_gemma4,
+    )
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/infra/parallelize.py", line 18, in <module>
+    from torchtitan.experiments.tpu.activation_checkpoint import TPUSelectiveAC
+  File "/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py", line 141, in <module>
+    from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import ptd_checkpoint_wrapper
+ImportError: cannot import name 'ptd_checkpoint_wrapper' from 'torch.distributed.algorithms._checkpoint.checkpoint_wrapper' (/usr/local/lib/python3.14/site-packages/torch/distributed/algorithms/_checkpoint/checkpoint_wrapper.py)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/torchtitan-hf/torchtitan/experiments/tpu/train.py", line 28, in <module>
+    import torchtitan.experiments.tpu.examples.gemma4  # trigger model registration
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/__init__.py", line 9, in <module>
+    from torchtitan.experiments.tpu.examples.gemma4.infra.parallelize import (
+        parallelize_gemma4,
+    )
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/infra/parallelize.py", line 18, in <module>
+    from torchtitan.experiments.tpu.activation_checkpoint import TPUSelectiveAC
+  File "/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py", line 141, in <module>
+    from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import ptd_checkpoint_wrapper
+ImportError: cannot import name 'ptd_checkpoint_wrapper' from 'torch.distributed.algorithms._checkpoint.checkpoint_wrapper' (/usr/local/lib/python3.14/site-packages/torch/distributed/algorithms/_checkpoint/checkpoint_wrapper.py)
+Traceback (most recent call last):
+  File "<frozen runpy>", line 203, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/torchtitan-hf/torchtitan/experiments/tpu/train.py", line 28, in <module>
+    import torchtitan.experiments.tpu.examples.gemma4  # trigger model registration
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/__init__.py", line 9, in <module>
+    from torchtitan.experiments.tpu.examples.gemma4.infra.parallelize import (
+        parallelize_gemma4,
+    )
+  File "/torchtitan-hf/torchtitan/experiments/tpu/examples/gemma4/infra/parallelize.py", line 18, in <module>
+    from torchtitan.experiments.tpu.activation_checkpoint import TPUSelectiveAC
+  File "/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py", line 141, in <module>
+    from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import ptd_checkpoint_wrapper
+ImportError: cannot import name 'ptd_checkpoint_wrapper' from 'torch.distributed.algorithms._checkpoint.checkpoint_wrapper' (/usr/local/lib/python3.14/site-packages/torch/distributed/algorithms/_checkpoint/checkpoint_wrapper.py)
+W1031 02:56:09.395000 31402 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 31468 closing signal SIGTERM
+W1031 02:56:09.395000 31402 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 31469 closing signal SIGTERM
+W1031 02:56:09.395000 31402 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 31470 closing signal SIGTERM
+W1031 02:56:09.395000 31402 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 31471 closing signal SIGTERM
+W1031 02:56:09.395000 31402 site-packages/torch/distributed/elastic/multiprocessing/api.py:1028] Sending process 31472 closing signal SIGTERM
+E1031 02:56:09.459000 31402 site-packages/torch/distributed/elastic/multiprocessing/api.py:1002] failed (exitcode: 1) local_rank: 5 (pid: 31473) of binary: /usr/local/bin/python3.14
+Traceback (most recent call last):
+  File "/usr/local/bin/torchrun", line 6, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/elastic/multiprocessing/errors/__init__.py", line 384, in wrapper
+    result = f(*args, **kwargs)
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/run.py", line 1138, in main
+    run(args)
+    ~~~^^^^^^
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/run.py", line 1129, in run
+    elastic_launch(
+    ~~~~~~~~~~~~~~~
+        config=config,
+        ~~~~~~~~~~~~~~
+        entrypoint=cmd,
+        ~~~~~~~~~~~~~~~
+    )(*cmd_args)
+    ~^^^^^^^^^^^
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/launcher/api.py", line 197, in __call__
+    return launch_agent(
+        self._config,
+    ...<2 lines>...
+        health_check_server=self._health_check_server,
+    )
+  File "/usr/local/lib/python3.14/site-packages/torch/distributed/launcher/api.py", line 386, in launch_agent
+    raise ChildFailedError(
+    ...<2 lines>...
+    )
+torch.distributed.elastic.multiprocessing.errors.ChildFailedError: 
+============================================================
+torchtitan.experiments.tpu.train FAILED
+------------------------------------------------------------
+Failures:
+[1]:
+  time      : 2026-10-31_02:56:09
+  host      : flint-v7x-16-pass9-0.flint-v7x-16-pass9-svc.default.svc.cluster.local
+  rank      : 6 (local_rank: 6)
+  exitcode  : 1 (pid: 31474) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[2]:
+  time      : 2026-10-31_02:56:09
+  host      : flint-v7x-16-pass9-0.flint-v7x-16-pass9-svc.default.svc.cluster.local
+  rank      : 7 (local_rank: 7)
+  exitcode  : 1 (pid: 31475) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+[3]:
+  time      : 2026-10-31_02:56:09
+  host      : flint-v7x-16-pass9-0.flint-v7x-16-pass9-svc.default.svc.cluster.local
+  rank      : 0 (local_rank: 0)
+  exitcode  : -15 (pid: 31468)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 31468
+[4]:
+  time      : 2026-10-31_02:56:09
+  host      : flint-v7x-16-pass9-0.flint-v7x-16-pass9-svc.default.svc.cluster.local
+  rank      : 1 (local_rank: 1)
+  exitcode  : -15 (pid: 31469)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 31469
+[5]:
+  time      : 2026-10-31_02:56:09
+  host      : flint-v7x-16-pass9-0.flint-v7x-16-pass9-svc.default.svc.cluster.local
+  rank      : 2 (local_rank: 2)
+  exitcode  : -15 (pid: 31470)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 31470
+[6]:
+  time      : 2026-10-31_02:56:09
+  host      : flint-v7x-16-pass9-0.flint-v7x-16-pass9-svc.default.svc.cluster.local
+  rank      : 3 (local_rank: 3)
+  exitcode  : -15 (pid: 31471)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 31471
+[7]:
+  time      : 2026-10-31_02:56:09
+  host      : flint-v7x-16-pass9-0.flint-v7x-16-pass9-svc.default.svc.cluster.local
+  rank      : 4 (local_rank: 4)
+  exitcode  : -15 (pid: 31472)  (SIGTERM)
+  error_file: <N/A>
+  traceback : Signal 15 (SIGTERM) received by PID 31472
+------------------------------------------------------------
+Root Cause (first observed failure):
+[0]:
+  time      : 2026-10-31_02:56:09
+  host      : flint-v7x-16-pass9-0.flint-v7x-16-pass9-svc.default.svc.cluster.local
+  rank      : 5 (local_rank: 5)
+  exitcode  : 1 (pid: 31473) 
+  error_file: <N/A>
+  traceback : To enable traceback see: https://pytorch.org/docs/stable/elastic/errors.html
+============================================================
