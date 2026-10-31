@@ -168,7 +168,7 @@ def _static_tpu_ep_dispatch(
     valid_N = j_N < cap_C
     slot_N = p_N * cap_C + torch.clamp(j_N, min=0, max=cap_C - 1)
 
-    padded_lexp = _sep_F.pad((sorted_eids_N % e).to(torch.int32), (0, 1), value=e)
+    padded_lexp = _sep_F.pad((sorted_eids_N % e).to(torch.int32), (0, 1), value=e - 1)
     send_lexp = torch.index_select(padded_lexp, 0, src_idx_S)
 
   send_x = _StaticEPPack.apply(routed_ND, src_idx_S, slot_N, valid_N)
@@ -272,17 +272,24 @@ _P11_V7X_BASE_FLAGS = {
 }
 
 
-def _configure_static_ep_p11(config, *, ep_degree: int, tile_m: int = 512) -> None:
+def _configure_static_ep_p11(
+    config, *, ep_degree: int, tile_m: int = 512, paired: bool = True
+) -> None:
   config.parallelism.expert_parallel_degree = ep_degree
   for _, td, _, _ in config.model_spec.model.traverse(TpuAllToAllTokenDispatcher.Config):
     td.fuse_route_score_backward = True
   for _, ex, _, _ in config.model_spec.model.traverse(TpuGroupedExperts.Config):
     ex.use_pallas_grouped_mm = True
-    ex.use_pallas_paired_grouped_mm = True
+    ex.use_pallas_paired_grouped_mm = paired
     ex.pallas_grouped_mm_tile_m = tile_m
-    ex.pallas_grouped_mm_tgmm_tiling = (tile_m, 1024, 0)
-    ex.pallas_grouped_mm_w2_tgmm_tiling = (256, 512, 0)
-    ex.pallas_grouped_mm_w2_transposed_tgmm_tiling = (256, 0, 1024)
+    if paired:
+      ex.pallas_grouped_mm_tgmm_tiling = (tile_m, 1024, 0)
+      ex.pallas_grouped_mm_w2_tgmm_tiling = (256, 512, 0)
+      ex.pallas_grouped_mm_w2_transposed_tgmm_tiling = (256, 0, 1024)
+    else:
+      ex.pallas_grouped_mm_tgmm_tiling = (tile_m, 512, 512)
+      ex.pallas_grouped_mm_w2_tgmm_tiling = (256, 512, 512)
+      ex.pallas_grouped_mm_w2_transposed_tgmm_tiling = (256, 512, 1024)
     ex.use_kernel_native_weight_layout = True
   if _P11_BF16_ROPE not in config.override.imports:
     config.override.imports.append(_P11_BF16_ROPE)
@@ -296,9 +303,11 @@ def _configure_static_ep_p11(config, *, ep_degree: int, tile_m: int = 512) -> No
   )
 
 
-def _build_split_staticep_zero2_p11(*, ep_degree: int, tile_m: int, save_attn_layers: int) -> TpuGraphTrainer.Config:
+def _build_split_staticep_zero2_p11(
+    *, ep_degree: int, tile_m: int, save_attn_layers: int, paired: bool = True
+) -> TpuGraphTrainer.Config:
   config = flint_40b_v012_hier_rs()
-  _configure_static_ep_p11(config, ep_degree=ep_degree, tile_m=tile_m)
+  _configure_static_ep_p11(config, ep_degree=ep_degree, tile_m=tile_m, paired=paired)
   config.parallelism.fsdp_reshard_after_forward = "never"
   config.compile.graph_split.enabled = True
   config.compile.graph_split.forward_layers_per_executable = 1
@@ -314,10 +323,15 @@ def _build_split_staticep_zero2_p11(*, ep_degree: int, tile_m: int, save_attn_la
 
 
 def _build_wholestep_staticep_zero2_p11(
-    *, ep_degree: int, tile_m: int, save_attn_layers: int, opt_compile: str = "separate_graph"
+    *,
+    ep_degree: int,
+    tile_m: int,
+    save_attn_layers: int,
+    opt_compile: str = "separate_graph",
+    paired: bool = True,
 ) -> TpuGraphTrainer.Config:
   config = flint_40b_v005_gt_rb()
-  _configure_static_ep_p11(config, ep_degree=ep_degree, tile_m=tile_m)
+  _configure_static_ep_p11(config, ep_degree=ep_degree, tile_m=tile_m, paired=paired)
   config.parallelism.fsdp_reshard_after_forward = "never"
   config.compile.graph_split.enabled = False
   config.compile.enable_remat_barriers = True
@@ -330,7 +344,7 @@ def _build_wholestep_staticep_zero2_p11(
   return config
 
 
-# --- Pass 11A Configs ---
+# --- Pass 11A / 11C Configs ---
 def flint_40b_p11a_split_ep8_zero2_n36() -> TpuGraphTrainer.Config:
   return _build_split_staticep_zero2_p11(ep_degree=8, tile_m=256, save_attn_layers=36)
 
@@ -341,6 +355,12 @@ def flint_40b_p11a_split_ep16_zero2_n40() -> TpuGraphTrainer.Config:
 
 def flint_40b_p11a_split_ep32_zero2_n45() -> TpuGraphTrainer.Config:
   return _build_split_staticep_zero2_p11(ep_degree=32, tile_m=512, save_attn_layers=45)
+
+
+def flint_40b_p11c_split_ep32_zero2_unpaired512_n45() -> TpuGraphTrainer.Config:
+  return _build_split_staticep_zero2_p11(
+      ep_degree=32, tile_m=512, save_attn_layers=45, paired=False
+  )
 
 
 def flint_40b_p11a_split_ep32_zero2_n36() -> TpuGraphTrainer.Config:
@@ -381,7 +401,7 @@ def flint_40b_p11a_ep1_sbdp_paired256_n36() -> TpuGraphTrainer.Config:
 
 # --- Pass 11B Configs ---
 def flint_40b_p11b_wholestep_ep32_zero2_n49() -> TpuGraphTrainer.Config:
-  return _build_wholestep_staticep_zero2_p11(ep_degree=32, tile_m=512, save_attn_layers=49)
+  return _build_wholestep_staticep_zero2_p11(ep_degree=32, tile_m=512, save_attn_layers=45)
 
 
 def flint_40b_p11b_wholestep_ep8_zero2_n36() -> TpuGraphTrainer.Config:
@@ -425,6 +445,7 @@ __all__.extend([
     "flint_40b_p11a_split_ep8_zero2_n36",
     "flint_40b_p11a_split_ep16_zero2_n40",
     "flint_40b_p11a_split_ep32_zero2_n45",
+    "flint_40b_p11c_split_ep32_zero2_unpaired512_n45",
     "flint_40b_p11a_split_ep32_zero2_n36",
     "flint_40b_p11a_ep1_sbdp_paired256_n36",
     "flint_40b_p11b_wholestep_ep32_zero2_n49",
@@ -433,6 +454,17 @@ __all__.extend([
     "flint_40b_p11b_ep1_sbdp_fulloffload",
     "flint_40b_p11b_staticep16_fulloffload",
 ])
+'''
+
+GROUPED_EXPERTS_EP_PATCH = '''
+
+# StaticTpuAllToAllTokenDispatcher provides static tile-aligned exact-row EP dispatch
+# (`R = EP * cap_C`, `R % tile_m == 0`, zero-padded tail rows assigned to last local
+# expert and stripped in `_StaticEPUnpack`), enabling `use_pallas_paired_grouped_mm=True`
+# under `ep_degree > 1`.
+TpuGroupedExperts.parallelize = lambda self, parallel_dims: GroupedExperts.parallelize(
+    self, parallel_dims
+)
 '''
 
 
@@ -444,12 +476,19 @@ def apply_runtime_patches() -> None:
             td_path.write_text(txt + STATIC_EP_DISPATCHER_PATCH)
             print("[flint-v7x-p11] Patched token_dispatcher.py with StaticTpuAllToAllTokenDispatcher", flush=True)
 
+    ge_path = Path("/torchtitan-native/torchtitan/experiments/tpu/grouped_experts.py")
+    if ge_path.exists():
+        txt = ge_path.read_text()
+        if "StaticTpuAllToAllTokenDispatcher provides static" not in txt:
+            ge_path.write_text(txt + GROUPED_EXPERTS_EP_PATCH)
+            print("[flint-v7x-p11] Patched grouped_experts.py to allow StaticEP + PairedGMM", flush=True)
+
     nat_reg = Path("/torchtitan-native/torchtitan/experiments/tpu/examples/flint/config_registry.py")
     if nat_reg.exists():
         txt = nat_reg.read_text()
         if "flint_40b_p11a_split_ep8_zero2_n36" not in txt:
             nat_reg.write_text(txt + NATIVE_P11_REGISTRY_PATCH)
-            print("[flint-v7x-p11] Patched Native config_registry.py with Pass 11A/11B configs", flush=True)
+            print("[flint-v7x-p11] Patched Native config_registry.py with Pass 11A/11B/11C configs", flush=True)
 
 
 def filter_supported_xla_flags(candidates: list[str]) -> str:
@@ -576,6 +615,58 @@ def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> lis
                 "v7x-16 EP=1 SBDP + PairedGMM-256 + Direct config.libtpu_init_flags + log_freq=5 (n36, mb=48 2xGA)",
                 "flint_40b_p11a_ep1_sbdp_paired256_n36",
                 mb48,
+                2,
+                align=256,
+            ),
+        ]
+
+    if suite == "pass11c":
+        return [
+            _nat_exp(
+                "v7x_p11c_01_split_staticep8_zero2_paired256_mb48_ga2",
+                "v7x-16 GraphSplit + Intra-Host StaticEP=8 + ZeRO-2 + PairedGMM-256 (100% intra-host A2A, 18,432 tok/exp, n36, mb=48 2xGA)",
+                "flint_40b_p11a_split_ep8_zero2_n36",
+                mb48,
+                2,
+                align=256,
+            ),
+            _nat_exp(
+                "v7x_p11c_02_split_staticep16_zero2_paired256_mb48_ga2",
+                "v7x-16 GraphSplit + StaticEP=16 + ZeRO-2 + PairedGMM-256 (36,864 tok/exp, 100.6MB/layer, n40, mb=48 2xGA)",
+                "flint_40b_p11a_split_ep16_zero2_n40",
+                mb48,
+                2,
+                align=256,
+            ),
+            _nat_exp(
+                "v7x_p11c_03_split_staticep32_zero2_paired512_mb48_ga2",
+                "v7x-16 GraphSplit + StaticEP=32 + ZeRO-2 + PairedGMM-512 (0 expert AG/RS, 50.3MB/layer, 73,728 tok/exp, n45, mb=48 2xGA)",
+                "flint_40b_p11a_split_ep32_zero2_n45",
+                mb48,
+                2,
+                align=512,
+            ),
+            _nat_exp(
+                "v7x_p11c_04_split_staticep32_zero2_unpaired512_mb48_ga2",
+                "v7x-16 GraphSplit + StaticEP=32 + ZeRO-2 + MegaBlox UnpairedGMM-512 (0 expert AG/RS, 73,728 tok/exp, n45, mb=48 2xGA)",
+                "flint_40b_p11c_split_ep32_zero2_unpaired512_n45",
+                mb48,
+                2,
+                align=512,
+            ),
+            _nat_exp(
+                "v7x_p11c_05_wholestep_staticep32_zero2_paired512_mb32_ga2",
+                "v7x-16 WholeStep Single-Graph + StaticEP=32 + ZeRO-2 + PairedGMM-512 (n45, 49,152 tok/exp, mb=32 2xGA)",
+                "flint_40b_p11b_wholestep_ep32_zero2_n49",
+                mb32,
+                2,
+                align=512,
+            ),
+            _nat_exp(
+                "v7x_p11c_06_wholestep_staticep8_zero2_paired256_mb32_ga2",
+                "v7x-16 WholeStep Single-Graph + Intra-Host StaticEP=8 + ZeRO-2 + PairedGMM-256 (n36, mb=32 2xGA)",
+                "flint_40b_p11b_wholestep_ep8_zero2_n36",
+                mb32,
                 2,
                 align=256,
             ),
