@@ -633,7 +633,7 @@ def _mesh_chunked_build_compiled_optimizer_groups(opt: torch.optim.Optimizer) ->
           and "ep" in p.device_mesh.mesh_dim_names
           for p in plist[:1]
       )
-      chunk_sz = max_expert_chunk if is_ep else 256
+      chunk_sz = max_expert_chunk if is_ep else 96
       for start in range(0, len(plist), chunk_sz):
         sub = dict(grp)
         sub["params"] = plist[start : start + chunk_sz]
@@ -651,6 +651,98 @@ def _mesh_chunked_build_compiled_optimizer_groups(opt: torch.optim.Optimizer) ->
 
 _build_compiled_optimizer_groups = _mesh_chunked_build_compiled_optimizer_groups
 '''
+
+HF_HYBRID_AC_PATCH_V3 = '''
+
+import os as _tt_os
+import torch._dynamo
+
+torch._dynamo.config.cache_size_limit = 256
+torch._dynamo.config.accumulated_cache_size_limit = 1024
+
+
+class _LayerSplashSaveOps(set):
+  def __init__(self, save_attn: bool):
+    super().__init__()
+    self._save_attn = save_attn
+
+  def __contains__(self, op) -> bool:
+    if not self._save_attn:
+      return False
+    return _PALLAS_ATTENTION_FWD_MARKER in _op_name(op)
+
+
+def _hybrid_attn_only_wrap_v3(self, module, *, base_fqn=None):
+  self.config.preserve_rng_state = False
+  n_full = int(_tt_os.environ.get("TT_FULL_AC_FIRST_N", "0"))
+  self._cur_layer_save_attn = True
+  if n_full > 0 and base_fqn:
+    parts = [p for p in base_fqn.split(".") if p.isdigit()]
+    if parts and int(parts[0]) < n_full:
+      self._cur_layer_save_attn = False
+  return SelectiveAC._wrap_block(self, module, base_fqn=base_fqn)
+
+
+def _hybrid_get_save_ops_v3(self) -> set:
+  return _LayerSplashSaveOps(getattr(self, "_cur_layer_save_attn", True))
+
+
+AttentionOnlyAC._wrap_block = _hybrid_attn_only_wrap_v3
+AttentionOnlyAC.get_save_ops = _hybrid_get_save_ops_v3
+'''
+
+HF_SBDP_PATCH = '''
+
+_orig_substitute_tpu_experts = substitute_tpu_experts
+
+
+def _p9_substitute_tpu_experts(model):
+  import os
+  _orig_substitute_tpu_experts(model)
+  if os.environ.get("TT_HF_SBDP", "0") != "1":
+    return
+  from torchtitan.experiments.tpu.token_dispatcher import (
+      TpuRoutedExperts,
+      TpuRoutedExpertsConverter,
+  )
+  rc = TpuRoutedExpertsConverter(TpuRoutedExpertsConverter.Config())
+  n_sbdp = 0
+  for layer in model.layers.values():
+    cfg = getattr(layer, "_native_moe_config", None)
+    if cfg is not None:
+      cfg = rc.convert(cfg)
+      for _, r, _, _ in cfg.traverse(TpuRoutedExperts.Config):
+        r.scale_before_down_proj = True
+        n_sbdp += 1
+      layer._native_moe_config = cfg
+  if n_sbdp:
+    logger.info("Enabled scale_before_down_proj on %d HF MoE layer(s).", n_sbdp)
+
+
+substitute_tpu_experts = _p9_substitute_tpu_experts
+'''
+
+
+def probe_compile_opt_args(workdir: str) -> list[str]:
+    code = (
+        "from torchtitan.experiments.tpu.tpu_job_config import TPUTrainerConfig; "
+        "c = TPUTrainerConfig(); out = []; "
+        "hasattr(c, 'compile') and hasattr(c.compile, 'compile_grad_norm') and out.append('--compile.compile_grad_norm'); "
+        "hasattr(c, 'compile') and hasattr(c.compile, 'optimizer_compile') and out.append('--compile.optimizer_compile=separate_graph'); "
+        "hasattr(c, 'tpu_config') and hasattr(c.tpu_config, 'compile_grad_norm') and out.append('--tpu_config.compile_grad_norm'); "
+        "hasattr(c, 'tpu_config') and hasattr(c.tpu_config, 'compile_optimizer') and out.append('--tpu_config.compile_optimizer'); "
+        "print(' '.join(out))"
+    )
+    try:
+        env = os.environ.copy()
+        env["PYTHONPATH"] = workdir
+        env["TORCH_DEVICE_BACKEND_AUTOLOAD"] = "0"
+        res = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, timeout=20)
+        if res.returncode == 0 and res.stdout.strip():
+            return res.stdout.strip().split()
+    except Exception:
+        pass
+    return []
 
 
 def apply_runtime_patches() -> None:
@@ -686,19 +778,45 @@ def apply_runtime_patches() -> None:
             gn_path.write_text(txt + EP_GRAD_NORM_PATCH)
             print("[flint-v7x-p11] Patched grad_norm.py with EP-aware CompiledGradNorm", flush=True)
 
-    sg_path = Path("/torchtitan-native/torchtitan/experiments/tpu/compiled_optimizers/separate_graph.py")
-    if sg_path.exists():
-        txt = sg_path.read_text()
-        if "_mesh_chunked_build_compiled_optimizer_groups" not in txt:
-            sg_path.write_text(txt + SEPARATE_GRAPH_MESH_SPLIT_PATCH)
-            print("[flint-v7x-p11] Patched separate_graph.py with mesh-pure chunked AdamW groups", flush=True)
+    for sg_root in ("/torchtitan-native", "/torchtitan-hf"):
+        sg_path = Path(f"{sg_root}/torchtitan/experiments/tpu/compiled_optimizers/separate_graph.py")
+        if sg_path.exists():
+            txt = sg_path.read_text()
+            if "_mesh_chunked_build_compiled_optimizer_groups" not in txt:
+                sg_path.write_text(txt + SEPARATE_GRAPH_MESH_SPLIT_PATCH)
+                print(f"[flint-v7x-p11] Patched {sg_root} separate_graph.py with mesh-pure 96-chunk AdamW", flush=True)
 
     nat_reg = Path("/torchtitan-native/torchtitan/experiments/tpu/examples/flint/config_registry.py")
     if nat_reg.exists():
         txt = nat_reg.read_text()
         if "flint_40b_p11a_split_ep8_zero2_n36" not in txt:
             nat_reg.write_text(txt + NATIVE_P11_REGISTRY_PATCH)
-            print("[flint-v7x-p11] Patched Native config_registry.py with Pass 11A/11B/11C/11D configs", flush=True)
+            print("[flint-v7x-p11] Patched Native config_registry.py with Pass 11A..11F configs", flush=True)
+
+    hf_ac = Path("/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py")
+    if hf_ac.exists():
+        txt = hf_ac.read_text()
+        if "_hybrid_attn_only_wrap_v3" not in txt:
+            hf_ac.write_text(txt + HF_HYBRID_AC_PATCH_V3)
+            print("[flint-v7x-p11] Patched HF activation_checkpoint.py with HybridAC v3", flush=True)
+
+    hf_mod = Path("/torchtitan-hf/torchtitan/experiments/tpu/transformers_modeling_backend/model.py")
+    if hf_mod.exists():
+        txt = hf_mod.read_text()
+        if "_p9_substitute_tpu_experts" not in txt:
+            hf_mod.write_text(txt + HF_SBDP_PATCH)
+            hf_par = Path("/torchtitan-hf/torchtitan/experiments/tpu/transformers_modeling_backend/parallelize.py")
+            if hf_par.exists():
+                ptxt = hf_par.read_text()
+                if "from .model import substitute_tpu_experts" in ptxt:
+                    hf_par.write_text(
+                        ptxt.replace(
+                            "from .model import substitute_tpu_experts",
+                            "from . import model as _hf_model_mod\n"
+                            "def substitute_tpu_experts(m): return _hf_model_mod.substitute_tpu_experts(m)",
+                        )
+                    )
+            print("[flint-v7x-p11] Patched HF model.py & parallelize.py with TT_HF_SBDP=1 hook", flush=True)
 
 
 def filter_supported_xla_flags(candidates: list[str]) -> str:
@@ -733,11 +851,19 @@ def wait_for_master_dns(master_addr: str, timeout_s: int = 300) -> str:
     return master_addr
 
 
-def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> list[dict]:
-    mb32 = 32 * 2048    # 65,536 tok/rank  -> @EP=32: 49,152 tok/exp | @EP=8: 12,288 tok/exp
-    mb48 = 48 * 2048    # 98,304 tok/rank  -> @EP=32: 73,728 tok/exp | @EP=16: 36,864 tok/exp | @EP=8: 18,432 tok/exp
-    mb64 = 64 * 2048    # 131,072 tok/rank -> @EP=32: 98,304 tok/exp
-    mb96 = 96 * 2048    # 196,608 tok/rank -> @EP=16: 73,728 tok/exp
+def build_v7x_pass11_experiments(
+    suite: str,
+    world_size: int,
+    steps: int,
+    hf_model_path: str = "/models/models/RecursiveSI/flint",
+) -> list[dict]:
+    mb32 = 32 * 2048    # 65,536 tok/rank
+    mb48 = 48 * 2048    # 98,304 tok/rank
+    mb64 = 64 * 2048    # 131,072 tok/rank (3,072 tok/exp @ EP=1)
+    mb80 = 80 * 2048    # 163,840 tok/rank (3,840 tok/exp @ EP=1)
+    mb96 = 96 * 2048    # 196,608 tok/rank (4,608 tok/exp @ EP=1)
+    mb112 = 112 * 2048  # 229,376 tok/rank (5,376 tok/exp @ EP=1)
+    mb128 = 128 * 2048  # 262,144 tok/rank (6,144 tok/exp @ EP=1)
 
     calibrated_v7x_flags = filter_supported_xla_flags([
         "--xla_tpu_dvfs_p_state=7",
@@ -795,6 +921,160 @@ def build_v7x_pass11_experiments(suite: str, world_size: int, steps: int) -> lis
                 f"--training.num_tokens_per_train_step={ga * world_size * mb}",
             ],
         }
+
+    if suite == "pass11f":
+        hf_comp_opt = probe_compile_opt_args("/torchtitan-hf")
+        hf_splash_1024 = [
+            "--splash_attention_kernel.sa_block_q=1024",
+            "--splash_attention_kernel.sa_block_kv=1024",
+            "--splash_attention_kernel.sa_block_kv_compute=512",
+            "--splash_attention_kernel.sa_block_q_dkv=1024",
+            "--splash_attention_kernel.sa_block_kv_dkv=1024",
+            "--splash_attention_kernel.sa_block_kv_dkv_compute=512",
+        ]
+        gmm_env_512 = (
+            "use_pallas_paired_grouped_mm=true,"
+            "pallas_grouped_mm_tile_m=512,"
+            "pallas_grouped_mm_tgmm_tiling=512:1024:0,"
+            "pallas_grouped_mm_w2_tgmm_tiling=256:512:0,"
+            "pallas_grouped_mm_w2_transposed_tgmm_tiling=256:0:1024"
+        )
+        gmm_env_1024 = (
+            "use_pallas_paired_grouped_mm=true,"
+            "pallas_grouped_mm_tile_m=1024,"
+            "pallas_grouped_mm_tgmm_tiling=1024:1024:0,"
+            "pallas_grouped_mm_w2_tgmm_tiling=512:512:0,"
+            "pallas_grouped_mm_w2_transposed_tgmm_tiling=512:0:1024"
+        )
+        hf_base = [
+            "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+            "--config=hf_moe_auto_max_attnac",
+            f"--hf-model={hf_model_path}",
+            "--training.max_context_length=2048",
+            f"--training.steps={steps}",
+            "--training.mixed_precision_reduce=bfloat16",
+            "--optimizer.implementation=fused",
+            "--lr_scheduler.warmup_steps=0",
+            "--lr_scheduler.decay_ratio=0.0",
+            "--metrics.log_freq=1",
+            "--debug.seed=42",
+            "--loss.b_block_size=1024",
+            *hf_splash_1024,
+            *hf_comp_opt,
+        ]
+        return [
+            {
+                "name": "v7x_p11f_01_hf_sbdp_sa1024_hybridac16_tile512_mb64_1x_log1",
+                "lane": "v7x-16 HF PR#123 + SBDP + ChunkedOpt + sa=1024 + HybridAC16 + tile512 (mb=64 = 3,072 tok/exp, 1x)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_GMM": gmm_env_512,
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "16",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": calibrated_v7x_flags,
+                },
+                "args": [
+                    *hf_base,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                    f"--training.num_tokens_per_train_step={world_size * mb64}",
+                ],
+            },
+            {
+                "name": "v7x_p11f_02_hf_sbdp_sa1024_hybridac20_tile512_mb80_1x_log1",
+                "lane": "v7x-16 HF PR#123 + SBDP + ChunkedOpt + sa=1024 + HybridAC20 + tile512 (mb=80 = 3,840 tok/exp, 1x)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_GMM": gmm_env_512,
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "20",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": calibrated_v7x_flags,
+                },
+                "args": [
+                    *hf_base,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                    f"--training.num_tokens_per_train_step={world_size * mb80}",
+                ],
+            },
+            {
+                "name": "v7x_p11f_03_hf_sbdp_sa1024_hybridac26_tile512_mb96_1x_log1",
+                "lane": "v7x-16 HF PR#123 + SBDP + ChunkedOpt + sa=1024 + HybridAC26 + tile512 (mb=96 = 4,608 tok/exp, 1x)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_GMM": gmm_env_512,
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "26",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": calibrated_v7x_flags,
+                },
+                "args": [
+                    *hf_base,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
+                    f"--training.num_tokens_per_train_step={world_size * mb96}",
+                ],
+            },
+            {
+                "name": "v7x_p11f_04_hf_sbdp_sa1024_hybridac36_tile512_mb112_1x_log1",
+                "lane": "v7x-16 HF PR#123 + SBDP + ChunkedOpt + sa=1024 + HybridAC36 + tile512 (mb=112 = 5,376 tok/exp, 1x)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_GMM": gmm_env_512,
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "36",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": calibrated_v7x_flags,
+                },
+                "args": [
+                    *hf_base,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb112}",
+                    f"--training.num_tokens_per_train_step={world_size * mb112}",
+                ],
+            },
+            {
+                "name": "v7x_p11f_05_hf_sbdp_sa1024_hybridac46_tile1024_mb128_1x_log1",
+                "lane": "v7x-16 HF PR#123 + SBDP + ChunkedOpt + sa=1024 + HybridAC46 + tile1024 (mb=128 = 6,144 tok/exp, 1x)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_GMM": gmm_env_1024,
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "46",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": calibrated_v7x_flags,
+                },
+                "args": [
+                    *hf_base,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb128}",
+                    f"--training.num_tokens_per_train_step={world_size * mb128}",
+                ],
+            },
+            {
+                "name": "v7x_p11f_06_hf_sbdp_sa1024_hybridac26_tile512_mb96_ga2_log1",
+                "lane": "v7x-16 HF PR#123 + SBDP + ChunkedOpt + sa=1024 + HybridAC26 + tile512 (mb=96 = 4,608 tok/exp, 2xGA = 12.58M tok/step)",
+                "workdir": "/torchtitan-hf",
+                "env": {
+                    "TT_HF_GMM": gmm_env_512,
+                    "TT_HF_SBDP": "1",
+                    "TT_FULL_AC_FIRST_N": "26",
+                    "TORCH_TPU_DEFER_AND_FUSE": "1",
+                    "LIBTPU_INIT_ARGS": calibrated_v7x_flags,
+                },
+                "args": [
+                    *hf_base,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
+                    f"--training.num_tokens_per_train_step={2 * world_size * mb96}",
+                ],
+            },
+            _nat_exp(
+                "v7x_p11f_07_split7_fsdppipe_staticep32_zero3_paired512_mb48_ga2_log1",
+                "v7x-16 Split-7 fsdp_pipeline + StaticEP=32 (0 device mismatch, 0 expert AG/RS) + ZeRO-3 + PairedGMM-512 (n36, mb=48 2xGA)",
+                "flint_40b_p11e_split7_fsdppipe_ep32_zero3_n36",
+                mb48,
+                2,
+                align=512,
+                log_freq=1,
+            ),
+        ]
 
     if suite == "pass11e":
         return [
@@ -1209,7 +1489,9 @@ def write_summary(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", choices=["pass11a", "pass11b", "pass11c", "pass11d", "pass11e"], default="pass11a")
+    parser.add_argument(
+        "--suite", choices=["pass11a", "pass11b", "pass11c", "pass11d", "pass11e", "pass11f"], default="pass11a"
+    )
     parser.add_argument("--chip-type", choices=["v7x", "v5p", "v6e"], default="v7x")
     parser.add_argument("--nnodes", type=int, required=True)
     parser.add_argument("--nproc-per-node", type=int, default=8)
@@ -1234,7 +1516,7 @@ def main() -> int:
         out_dir.mkdir(parents=True, exist_ok=True)
         bench_dir.mkdir(parents=True, exist_ok=True)
 
-    exps = build_v7x_pass11_experiments(args.suite, world_size, args.steps)
+    exps = build_v7x_pass11_experiments(args.suite, world_size, args.steps, args.hf_model)
     results = []
     for idx, exp in enumerate(exps):
         port = args.base_port + idx * 5
