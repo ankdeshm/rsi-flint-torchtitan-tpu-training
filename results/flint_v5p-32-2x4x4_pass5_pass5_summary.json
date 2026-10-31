@@ -1,0 +1,215 @@
+{
+  "updated_at_utc": "2026-10-30T22:17:21.189031+00:00",
+  "slice_name": "v5p-32-2x4x4_pass5",
+  "chip_type": "v5p",
+  "world_size_ranks": 32,
+  "flops_per_token": 17385000000.0,
+  "peak_bf16_tflops_per_rank": 459.0,
+  "results": [
+    {
+      "name": "v5p_p5_01_hf_pr123_paired_tile256_b512_mb56",
+      "lane": "v5p-32 Pass5 HF Backend PR#123 (Paired GMM tile_m=256 + b=512, mb=56 = 3.67M tok/step)",
+      "status": "FAIL(rc=1)",
+      "return_code": 1,
+      "duration_s": 229.4,
+      "command": [
+        "torchrun",
+        "--nnodes=8",
+        "--nproc_per_node=4",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v5p-32-pass5-0.flint-v5p-32-pass5-svc.default.svc.cluster.local:29851",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=2048",
+        "--training.steps=12",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--loss.b_block_size=512",
+        "--training.num_tokens_per_microbatch_per_dp_rank=114688",
+        "--training.num_tokens_per_train_step=3670016",
+        "--splash_attention_kernel.sa_block_q=512",
+        "--splash_attention_kernel.sa_block_kv=512",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=256,pallas_grouped_mm_tgmm_tiling=256:1024:0,pallas_grouped_mm_w2_tgmm_tiling=256:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=256:0:1024"
+      },
+      "metrics": {
+        "num_logged_steps": 0,
+        "steady_tps": 0.0,
+        "steady_mfu_pct": 0.0
+      }
+    },
+    {
+      "name": "v5p_p5_02_hf_pr123_paired_tile256_b512_mb60",
+      "lane": "v5p-32 Pass5 HF Backend PR#123 (Paired GMM tile_m=256 + b=512, mb=60 = 3.93M tok/step)",
+      "status": "FAIL(rc=1)",
+      "return_code": 1,
+      "duration_s": 228.0,
+      "command": [
+        "torchrun",
+        "--nnodes=8",
+        "--nproc_per_node=4",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v5p-32-pass5-0.flint-v5p-32-pass5-svc.default.svc.cluster.local:29852",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=2048",
+        "--training.steps=12",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--loss.b_block_size=512",
+        "--training.num_tokens_per_microbatch_per_dp_rank=122880",
+        "--training.num_tokens_per_train_step=3932160",
+        "--splash_attention_kernel.sa_block_q=512",
+        "--splash_attention_kernel.sa_block_kv=512",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=256,pallas_grouped_mm_tgmm_tiling=256:1024:0,pallas_grouped_mm_w2_tgmm_tiling=256:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=256:0:1024"
+      },
+      "metrics": {
+        "num_logged_steps": 0,
+        "steady_tps": 0.0,
+        "steady_mfu_pct": 0.0
+      }
+    },
+    {
+      "name": "v5p_p5_03_hf_pr123_paired_tile256_b256_mb62",
+      "lane": "v5p-32 Pass5 HF Backend PR#123 (Paired GMM tile_m=256 + b=256, mb=62 = 4.06M tok/step)",
+      "status": "FAIL(rc=1)",
+      "return_code": 1,
+      "duration_s": 237.3,
+      "command": [
+        "torchrun",
+        "--nnodes=8",
+        "--nproc_per_node=4",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v5p-32-pass5-0.flint-v5p-32-pass5-svc.default.svc.cluster.local:29853",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=2048",
+        "--training.steps=12",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--loss.b_block_size=256",
+        "--training.num_tokens_per_microbatch_per_dp_rank=126976",
+        "--training.num_tokens_per_train_step=4063232",
+        "--splash_attention_kernel.sa_block_q=512",
+        "--splash_attention_kernel.sa_block_kv=512",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=256,pallas_grouped_mm_tgmm_tiling=256:1024:0,pallas_grouped_mm_w2_tgmm_tiling=256:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=256:0:1024"
+      },
+      "metrics": {
+        "num_logged_steps": 0,
+        "steady_tps": 0.0,
+        "steady_mfu_pct": 0.0
+      }
+    },
+    {
+      "name": "v5p_p5_04_hf_pr123_hsdp_2x16_b512_mb40",
+      "lane": "v5p-32 Pass5 HSDP 2x FSDP-16 (dp_replicate=2, dp_shard=16, mb=40)",
+      "status": "FAIL(rc=1)",
+      "return_code": 1,
+      "duration_s": 205.3,
+      "command": [
+        "torchrun",
+        "--nnodes=8",
+        "--nproc_per_node=4",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v5p-32-pass5-0.flint-v5p-32-pass5-svc.default.svc.cluster.local:29854",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=2048",
+        "--training.steps=12",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--loss.b_block_size=512",
+        "--parallelism.data_parallel_replicate_degree=2",
+        "--parallelism.data_parallel_shard_degree=16",
+        "--training.num_tokens_per_microbatch_per_dp_rank=81920",
+        "--training.num_tokens_per_train_step=2621440",
+        "--splash_attention_kernel.sa_block_q=512",
+        "--splash_attention_kernel.sa_block_kv=512",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=256,pallas_grouped_mm_tgmm_tiling=256:1024:0,pallas_grouped_mm_w2_tgmm_tiling=256:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=256:0:1024"
+      },
+      "metrics": {
+        "num_logged_steps": 4,
+        "first_loss": 12.49558,
+        "final_loss": 12.49558,
+        "steady_tps": 460.0,
+        "peak_tps": 460.0,
+        "steady_mfu_pct": 1.74,
+        "peak_mfu_pct": 1.74,
+        "peak_mem_gib": 14.34,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.49558,
+            "tps_per_rank": 460.0,
+            "logged_mfu_pct": 1.74,
+            "calc_mfu_pct": 1.742,
+            "mem_gib": 14.34
+          },
+          {
+            "step": 1,
+            "loss": 12.49558,
+            "tps_per_rank": 460.0,
+            "logged_mfu_pct": 1.74,
+            "calc_mfu_pct": 1.742,
+            "mem_gib": 14.34
+          },
+          {
+            "step": 1,
+            "loss": 12.49558,
+            "tps_per_rank": 460.0,
+            "logged_mfu_pct": 1.74,
+            "calc_mfu_pct": 1.742,
+            "mem_gib": 14.34
+          },
+          {
+            "step": 1,
+            "loss": 12.49558,
+            "tps_per_rank": 460.0,
+            "logged_mfu_pct": 1.74,
+            "calc_mfu_pct": 1.742,
+            "mem_gib": 14.34
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,312 @@
+{
+  "updated_at_utc": "2026-10-31T05:16:54.033554+00:00",
+  "slice_name": "v7x-16-2x2x4",
+  "chip_type": "v7x",
+  "world_size_ranks": 32,
+  "flops_per_token": 17385000000.0,
+  "peak_bf16_tflops_per_rank": 1153.5,
+  "results": [
+    {
+      "name": "v7x_p9_03_hf_pr123_bf16red_scout_compopt_mb48_1x",
+      "lane": "v7x-16 FSDP-32 HF PR#123 (Paired GMM tile_m=1024 + BF16 Reduce + Scout/HierSC XLA + CompiledOpt, mb=48 = 3.15M tok/step)",
+      "status": "PASS",
+      "return_code": 0,
+      "duration_s": 302.7,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass9-0.flint-v7x-16-pass9-svc.default.svc.cluster.local:29991",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=2048",
+        "--training.steps=12",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--lr_scheduler.warmup_steps=0",
+        "--lr_scheduler.decay_ratio=0.0",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--loss.b_block_size=1024",
+        "--splash_attention_kernel.sa_block_q=512",
+        "--splash_attention_kernel.sa_block_kv=512",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512",
+        "--training.num_tokens_per_microbatch_per_dp_rank=98304",
+        "--training.num_tokens_per_train_step=3145728"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=1024,pallas_grouped_mm_tgmm_tiling=512:2048:0,pallas_grouped_mm_w2_tgmm_tiling=512:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=512:0:2048",
+        "TT_FULL_AC_FIRST_N": "0",
+        "TORCH_TPU_DEFER_AND_FUSE": "1",
+        "LIBTPU_INIT_ARGS": "--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_dvfs_p_state=7 --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "num_logged_steps": 12,
+        "first_loss": 12.31036,
+        "final_loss": 4.50414,
+        "steady_tps": 12132.8,
+        "peak_tps": 12170.0,
+        "steady_mfu_pct": 18.29,
+        "peak_mfu_pct": 18.34,
+        "peak_mem_gib": 16.92,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.31036,
+            "tps_per_rank": 513.0,
+            "logged_mfu_pct": 0.77,
+            "calc_mfu_pct": 0.773,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 2,
+            "loss": 6.46171,
+            "tps_per_rank": 12316.0,
+            "logged_mfu_pct": 18.56,
+            "calc_mfu_pct": 18.562,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 3,
+            "loss": 12.30594,
+            "tps_per_rank": 12132.0,
+            "logged_mfu_pct": 18.28,
+            "calc_mfu_pct": 18.285,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 4,
+            "loss": 18.12608,
+            "tps_per_rank": 12093.0,
+            "logged_mfu_pct": 18.23,
+            "calc_mfu_pct": 18.226,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 5,
+            "loss": 17.83021,
+            "tps_per_rank": 12136.0,
+            "logged_mfu_pct": 18.29,
+            "calc_mfu_pct": 18.291,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 6,
+            "loss": 10.07781,
+            "tps_per_rank": 12170.0,
+            "logged_mfu_pct": 18.34,
+            "calc_mfu_pct": 18.342,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 7,
+            "loss": 7.78093,
+            "tps_per_rank": 12144.0,
+            "logged_mfu_pct": 18.3,
+            "calc_mfu_pct": 18.303,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 8,
+            "loss": 7.32673,
+            "tps_per_rank": 12147.0,
+            "logged_mfu_pct": 18.31,
+            "calc_mfu_pct": 18.307,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 9,
+            "loss": 6.14796,
+            "tps_per_rank": 12139.0,
+            "logged_mfu_pct": 18.3,
+            "calc_mfu_pct": 18.295,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 10,
+            "loss": 5.13067,
+            "tps_per_rank": 12146.0,
+            "logged_mfu_pct": 18.31,
+            "calc_mfu_pct": 18.306,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 11,
+            "loss": 4.20546,
+            "tps_per_rank": 12074.0,
+            "logged_mfu_pct": 18.2,
+            "calc_mfu_pct": 18.197,
+            "mem_gib": 16.92
+          },
+          {
+            "step": 12,
+            "loss": 4.50414,
+            "tps_per_rank": 12146.0,
+            "logged_mfu_pct": 18.31,
+            "calc_mfu_pct": 18.306,
+            "mem_gib": 16.92
+          }
+        ]
+      }
+    },
+    {
+      "name": "v7x_p9_05_hf_pr123_hsdp2x16_bf16red_hybridac28_mb48_1x",
+      "lane": "v7x-16 HSDP 2x FSDP-16 (8-Chip / 16-TC Shards, HybridAC v3 N=28 + BF16 Reduce + Scout/HierSC XLA, mb=48 = 3.15M tok/step)",
+      "status": "PASS",
+      "return_code": 0,
+      "duration_s": 301.2,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass9-0.flint-v7x-16-pass9-svc.default.svc.cluster.local:29996",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=2048",
+        "--training.steps=12",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--lr_scheduler.warmup_steps=0",
+        "--lr_scheduler.decay_ratio=0.0",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--loss.b_block_size=1024",
+        "--splash_attention_kernel.sa_block_q=512",
+        "--splash_attention_kernel.sa_block_kv=512",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv=512",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512",
+        "--parallelism.data_parallel_replicate_degree=2",
+        "--parallelism.data_parallel_shard_degree=16",
+        "--training.num_tokens_per_microbatch_per_dp_rank=98304",
+        "--training.num_tokens_per_train_step=3145728"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=1024,pallas_grouped_mm_tgmm_tiling=512:2048:0,pallas_grouped_mm_w2_tgmm_tiling=512:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=512:0:2048",
+        "TT_FULL_AC_FIRST_N": "28",
+        "TORCH_TPU_DEFER_AND_FUSE": "1",
+        "LIBTPU_INIT_ARGS": "--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_dvfs_p_state=7 --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "num_logged_steps": 12,
+        "first_loss": 12.43409,
+        "final_loss": 3.98824,
+        "steady_tps": 11682.8,
+        "peak_tps": 11703.0,
+        "steady_mfu_pct": 17.61,
+        "peak_mfu_pct": 17.64,
+        "peak_mem_gib": 21.4,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.43409,
+            "tps_per_rank": 525.0,
+            "logged_mfu_pct": 0.79,
+            "calc_mfu_pct": 0.791,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 2,
+            "loss": 6.59786,
+            "tps_per_rank": 11639.0,
+            "logged_mfu_pct": 17.54,
+            "calc_mfu_pct": 17.542,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 3,
+            "loss": 11.56607,
+            "tps_per_rank": 11620.0,
+            "logged_mfu_pct": 17.51,
+            "calc_mfu_pct": 17.513,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 4,
+            "loss": 6.76683,
+            "tps_per_rank": 11688.0,
+            "logged_mfu_pct": 17.61,
+            "calc_mfu_pct": 17.616,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 5,
+            "loss": 23.1209,
+            "tps_per_rank": 11643.0,
+            "logged_mfu_pct": 17.55,
+            "calc_mfu_pct": 17.548,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 6,
+            "loss": 11.03712,
+            "tps_per_rank": 11684.0,
+            "logged_mfu_pct": 17.61,
+            "calc_mfu_pct": 17.61,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 7,
+            "loss": 7.18814,
+            "tps_per_rank": 11680.0,
+            "logged_mfu_pct": 17.6,
+            "calc_mfu_pct": 17.604,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 8,
+            "loss": 6.64079,
+            "tps_per_rank": 11693.0,
+            "logged_mfu_pct": 17.62,
+            "calc_mfu_pct": 17.623,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 9,
+            "loss": 6.01219,
+            "tps_per_rank": 11693.0,
+            "logged_mfu_pct": 17.62,
+            "calc_mfu_pct": 17.623,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 10,
+            "loss": 5.34551,
+            "tps_per_rank": 11695.0,
+            "logged_mfu_pct": 17.63,
+            "calc_mfu_pct": 17.626,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 11,
+            "loss": 4.57645,
+            "tps_per_rank": 11703.0,
+            "logged_mfu_pct": 17.64,
+            "calc_mfu_pct": 17.638,
+            "mem_gib": 21.4
+          },
+          {
+            "step": 12,
+            "loss": 3.98824,
+            "tps_per_rank": 11666.0,
+            "logged_mfu_pct": 17.58,
+            "calc_mfu_pct": 17.582,
+            "mem_gib": 21.4
+          }
+        ]
+      }
+    }
+  ]
+}
