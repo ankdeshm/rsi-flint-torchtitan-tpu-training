@@ -48,7 +48,7 @@ MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 STATIC_EP_DISPATCHER_PATCH = '''
 
 # ==============================================================================
-# Pass 9B/9C StaticTpuAllToAllTokenDispatcher (100% Static-Shape, Scatter-Free TPU EP)
+# Pass 9E StaticTpuAllToAllTokenDispatcher (Zero-Argsort Counting-Bucket TPU EP)
 # ==============================================================================
 import math as _sep_math
 import os as _sep_os
@@ -59,8 +59,7 @@ from torchtitan.distributed.utils import get_spmd_backend as _sep_get_spmd_backe
 
 @dataclass(frozen=True)
 class StaticEPDispatchMetadata:
-  token_indices_experts_sorted_N: torch.Tensor
-  topk_scores_experts_sorted_N: torch.Tensor
+  topk_scores_N: torch.Tensor
   src_idx_S: torch.Tensor
   slot_N: torch.Tensor
   valid_N: torch.Tensor
@@ -140,45 +139,34 @@ def _static_tpu_ep_dispatch(
   ep_size = self.ep_mesh.size()
   E = num_local_tokens_per_expert_E.numel()
   e = E // ep_size
-  N = x_TD.shape[0] * self.top_k
+  T, D = x_TD.shape
+  K = self.top_k
+  N = T * K
   cap_factor = float(_sep_os.environ.get("TT_STATIC_EP_CAP_FACTOR", "1.15"))
-  tile_align = int(_sep_os.environ.get("TT_STATIC_EP_ALIGN", "256"))
+  tile_align = int(_sep_os.environ.get("TT_STATIC_EP_ALIGN", "512"))
   cap_C = max(tile_align, _sep_math.ceil(cap_factor * N / ep_size / tile_align) * tile_align)
   S = ep_size * cap_C
+  dev = x_TD.device
 
-  with annotate_region(MOE_ROUTING):
+  with annotate_region(MOE_ROUTING), torch.no_grad():
     flat_eids_N = topk_expert_ids_TK.reshape(-1)
-    perm_N = torch.argsort(flat_eids_N, stable=True)
-    sorted_eids_N = torch.index_select(flat_eids_N, 0, perm_N)
-
-  routed_ND, tok_idx_N, sorted_scores_N = _LocalReorder.apply(
-      x_TD, topk_scores_TK, perm_N, self.top_k
-  )
-
-  if _sep_get_spmd_backend() == "spmd_types" and _sep_spmd.is_type_checking():
-    _sep_spmd.mutate_type(
-        num_local_tokens_per_expert_E,
-        src=_sep_spmd.P,
-        dst={"dp": _sep_spmd.V, "cp": _sep_spmd.V, "tp": _sep_spmd.V},
-    )
-
-  with torch.no_grad():
-    peer_counts = num_local_tokens_per_expert_E.reshape(ep_size, e).sum(dim=1).to(torch.int64)
-    peer_starts = torch.cumsum(peer_counts, dim=0) - peer_counts
-    s_arange = torch.arange(S, device=x_TD.device, dtype=torch.int64)
-    s_peer = s_arange // cap_C
-    s_off = s_arange % cap_C
-    s_valid = s_off < peer_counts[s_peer]
-    src_idx_S = torch.where(s_valid, peer_starts[s_peer] + s_off, torch.full_like(s_off, N))
-
-    p_N = (sorted_eids_N // e).to(torch.int64)
-    j_N = torch.arange(N, device=x_TD.device, dtype=torch.int64) - peer_starts[p_N]
+    p_N = torch.div(flat_eids_N, e, rounding_mode="floor").to(torch.int32)
+    oh_NP = (p_N.unsqueeze(1) == torch.arange(ep_size, device=dev, dtype=torch.int32)).to(torch.int32)
+    j_N = torch.gather(torch.cumsum(oh_NP, dim=0) - 1, 1, p_N.unsqueeze(1).long()).squeeze(1).to(torch.int64)
     valid_N = j_N < cap_C
-    slot_N = p_N * cap_C + torch.clamp(j_N, min=0, max=cap_C - 1)
-
-    padded_lexp = _sep_F.pad((sorted_eids_N % e).to(torch.int32), (0, 1), value=e - 1)
+    slot_N = p_N.to(torch.int64) * cap_C + torch.clamp(j_N, min=0, max=cap_C - 1)
+    vz = slot_N[:1] * 0
+    src_pad = torch.scatter(
+        vz.expand(S + 1) + N,
+        0,
+        torch.where(valid_N, slot_N, vz.expand(N) + S),
+        vz.expand(N) + torch.arange(N, device=dev, dtype=torch.int64),
+    )
+    src_idx_S = src_pad[:S]
+    padded_lexp = _sep_F.pad((flat_eids_N % e).to(torch.int32), (0, 1), value=e - 1)
     send_lexp = torch.index_select(padded_lexp, 0, src_idx_S)
 
+  routed_ND = x_TD.unsqueeze(1).expand(T, K, D).reshape(N, D)
   send_x = _StaticEPPack.apply(routed_ND, src_idx_S, slot_N, valid_N)
   splits = [cap_C] * ep_size
 
@@ -191,17 +179,22 @@ def _static_tpu_ep_dispatch(
     recv_x = self._dispatch_token_exchange(send_x, pg, splits, splits)
     with torch.no_grad():
       recv_lexp = self._dispatch_token_exchange(send_lexp, pg, splits, splits)
-      exp_perm_R = torch.argsort(recv_lexp, stable=True)
-      inv_exp_perm_R = torch.argsort(exp_perm_R)
-      counts_e = (
-          recv_lexp.unsqueeze(1)
-          == torch.arange(e, device=x_TD.device, dtype=torch.int32)
-      ).sum(dim=0, dtype=torch.int32)
+      oh_Se = (recv_lexp.unsqueeze(1) == torch.arange(e, device=dev, dtype=torch.int32)).to(torch.int32)
+      counts_e = oh_Se.sum(dim=0, dtype=torch.int32)
+      starts_e = (torch.cumsum(counts_e, dim=0) - counts_e).to(torch.int64)
+      pos_S = torch.gather(torch.cumsum(oh_Se, dim=0) - 1, 1, recv_lexp.unsqueeze(1).long()).squeeze(1).to(torch.int64)
+      inv_exp_perm_R = starts_e[recv_lexp.long()] + pos_S
+      vz_S = inv_exp_perm_R[:1] * 0
+      exp_perm_R = torch.scatter(
+          vz_S.expand(S).clone(),
+          0,
+          inv_exp_perm_R,
+          vz_S.expand(S) + torch.arange(S, device=dev, dtype=torch.int64),
+      )
     routed_RD = _StaticEPPermute.apply(recv_x, exp_perm_R, inv_exp_perm_R)
 
   meta = StaticEPDispatchMetadata(
-      token_indices_experts_sorted_N=tok_idx_N,
-      topk_scores_experts_sorted_N=sorted_scores_N,
+      topk_scores_N=topk_scores_TK.reshape(-1),
       src_idx_S=src_idx_S,
       slot_N=slot_N,
       valid_N=valid_N,
@@ -235,14 +228,12 @@ def _static_tpu_ep_combine(
 
   y_ND = _StaticEPUnpack.apply(ret_SD, metadata.slot_N, metadata.valid_N, metadata.src_idx_S)
   if self.fuse_route_score_backward:
-    weighted_ND = scale_route_weights(y_ND, metadata.topk_scores_experts_sorted_N)
+    weighted_ND = scale_route_weights(y_ND, metadata.topk_scores_N)
   else:
     weighted_ND = (
-        y_ND.float() * metadata.topk_scores_experts_sorted_N.reshape(-1, 1)
+        y_ND.float() * metadata.topk_scores_N.reshape(-1, 1)
     ).to(y_ND.dtype)
-  return stable_grouped_reduce(
-      weighted_ND, metadata.token_indices_experts_sorted_N, self.top_k
-  )
+  return weighted_ND.reshape(x_TD.shape[0], self.top_k, x_TD.shape[1]).sum(dim=1)
 
 
 TpuAllToAllTokenDispatcher.dispatch = _static_tpu_ep_dispatch
@@ -252,9 +243,13 @@ TpuAllToAllTokenDispatcher.combine = _static_tpu_ep_combine
 NATIVE_V5P_P9BC_PATCH = '''
 
 # ==============================================================================
-# Pass 9B / 9C Flint v5p StaticEP Configs (EP=4/8/16 + ZeRO-2 + WholeStep)
+# Pass 9B / 9C / 9E Flint v5p Zero-Argsort StaticEP Configs
 # ==============================================================================
-from torchtitan.experiments.tpu.token_dispatcher import TpuAllToAllTokenDispatcher
+from torchtitan.experiments.tpu.token_dispatcher import (
+    TpuAllToAllTokenDispatcher,
+    TpuRoutedExperts,
+    TpuRoutedExpertsConverter,
+)
 
 _P9BC_BF16_ROPE = (
     "torchtitan.experiments.tpu.overrides.bf16_rope"
@@ -280,6 +275,10 @@ def _build_v5p_staticep_zero2(
   config = flint_40b_v005_gt_rb() if wholestep else flint_40b_v5p_n40()
   config.parallelism.expert_parallel_degree = ep_degree
   config.parallelism.fsdp_reshard_after_forward = "never"
+  rc = TpuRoutedExpertsConverter(TpuRoutedExpertsConverter.Config())
+  config.model_spec.model = rc.convert(config.model_spec.model)
+  for _, r, _, _ in config.model_spec.model.traverse(TpuRoutedExperts.Config):
+    r.scale_before_down_proj = True
   for _, td, _, _ in config.model_spec.model.traverse(TpuAllToAllTokenDispatcher.Config):
     td.fuse_route_score_backward = True
   for _, ex, _, _ in config.model_spec.model.traverse(TpuGroupedExperts.Config):
@@ -330,6 +329,42 @@ def flint_40b_v5p_p9bc_wholestep_staticep16_zero2_n49() -> TpuGraphTrainer.Confi
   return _build_v5p_staticep_zero2(ep_degree=16, tile_m=512, save_attn_layers=45, wholestep=True)
 
 
+def flint_40b_v5p_p9e_split1_staticep8_zero3_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_v5p_staticep_zero2(ep_degree=8, tile_m=512, save_attn_layers=36, wholestep=False)
+  cfg.parallelism.fsdp_reshard_after_forward = "always"
+  cfg.compile.graph_split.backward_partition_mode = "fsdp_pipeline"
+  return cfg
+
+
+def flint_40b_v5p_p9e_split1_staticep16_zero3_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_v5p_staticep_zero2(ep_degree=16, tile_m=512, save_attn_layers=36, wholestep=False)
+  cfg.parallelism.fsdp_reshard_after_forward = "always"
+  cfg.compile.graph_split.backward_partition_mode = "fsdp_pipeline"
+  return cfg
+
+
+def flint_40b_v5p_p9e_split7_staticep16_zero3_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_v5p_staticep_zero2(ep_degree=16, tile_m=512, save_attn_layers=36, wholestep=False)
+  cfg.parallelism.fsdp_reshard_after_forward = "always"
+  cfg.compile.graph_split.forward_layers_per_executable = 7
+  cfg.compile.graph_split.backward_partition_mode = "fsdp_pipeline"
+  cfg.compile.graph_split.backward_layers_per_executable = 7
+  return cfg
+
+
+def flint_40b_v5p_p9e_wholestep_staticep16_zero3_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_v5p_staticep_zero2(ep_degree=16, tile_m=512, save_attn_layers=36, wholestep=True)
+  cfg.parallelism.fsdp_reshard_after_forward = "always"
+  return cfg
+
+
+def flint_40b_v5p_p9e_split1_staticep32_zero3_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_v5p_staticep_zero2(ep_degree=32, tile_m=512, save_attn_layers=36, wholestep=False)
+  cfg.parallelism.fsdp_reshard_after_forward = "always"
+  cfg.compile.graph_split.backward_partition_mode = "fsdp_pipeline"
+  return cfg
+
+
 def flint_40b_v5p_p9e_wholestep_staticep32_zero3_n36() -> TpuGraphTrainer.Config:
   cfg = _build_v5p_staticep_zero2(ep_degree=32, tile_m=512, save_attn_layers=36, wholestep=True)
   cfg.parallelism.fsdp_reshard_after_forward = "always"
@@ -350,6 +385,11 @@ __all__.extend([
     "flint_40b_v5p_p9bc_staticep8_zero2_n45",
     "flint_40b_v5p_p9bc_staticep16_zero2_n45",
     "flint_40b_v5p_p9bc_wholestep_staticep16_zero2_n49",
+    "flint_40b_v5p_p9e_split1_staticep8_zero3_n36",
+    "flint_40b_v5p_p9e_split1_staticep16_zero3_n36",
+    "flint_40b_v5p_p9e_split7_staticep16_zero3_n36",
+    "flint_40b_v5p_p9e_wholestep_staticep16_zero3_n36",
+    "flint_40b_v5p_p9e_split1_staticep32_zero3_n36",
     "flint_40b_v5p_p9e_wholestep_staticep32_zero3_n36",
     "flint_40b_v5p_p9e_split7_staticep32_zero3_n36",
 ])
