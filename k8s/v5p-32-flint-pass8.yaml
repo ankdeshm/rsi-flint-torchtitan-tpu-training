@@ -64,8 +64,6 @@ spec:
         - name: PJRT_DEVICE
           value: "TPU"
         resources:
-        - requests:
-        resources:
           requests:
             google.com/tpu: "4"
           limits:
