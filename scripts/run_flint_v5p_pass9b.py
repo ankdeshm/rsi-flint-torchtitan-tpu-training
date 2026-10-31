@@ -787,6 +787,18 @@ def apply_runtime_patches() -> None:
             if "_mesh_chunked_build_compiled_optimizer_groups" not in txt:
                 sg_path.write_text(txt + SEPARATE_GRAPH_MESH_SPLIT_PATCH)
                 print(f"[flint-v5p-p9bc] Patched {sg_root} separate_graph.py with mesh-pure 96-chunk AdamW", flush=True)
+        opt_path = Path(f"{sg_root}/torchtitan/components/optimizer/optimizer.py")
+        if opt_path.exists():
+            txt = opt_path.read_text()
+            if "_microflushed_opt_container_step" not in txt:
+                opt_path.write_text(txt + MICROFLUSH_OPT_PATCH)
+                print(f"[flint-v5p-p9bc] Patched {sg_root} optimizer.py with 24-tensor shape-bucketed microflush", flush=True)
+        du_path = Path(f"{sg_root}/torchtitan/distributed/utils.py")
+        if du_path.exists():
+            txt = du_path.read_text()
+            if "_microflushed_clip_grad_norm_" not in txt:
+                du_path.write_text(txt + MICROFLUSH_GRADNORM_PATCH)
+                print(f"[flint-v5p-p9bc] Patched {sg_root} distributed/utils.py with 24-tensor grad_norm microflush", flush=True)
 
     nat_reg = Path("/torchtitan-native/torchtitan/experiments/tpu/examples/flint/config_registry.py")
     if nat_reg.exists():
@@ -945,6 +957,163 @@ def build_v5p_pass9bc_experiments(suite: str, world_size: int, hf_model_path: st
         *hf_comp_opt,
     ]
     mb72 = 72 * 2048    # 147,456 tok/rank  (3,456 tok/expert @ EP=1)
+
+    if suite == "pass9g":
+        mf_env = {
+            "TT_MICROFLUSH_OPT": "1",
+            "TT_MICROFLUSH_CHUNK": "24",
+            "TORCH_TPU_DEFER_AND_FUSE": "1",
+            "LIBTPU_INIT_ARGS": v5p_flags,
+        }
+        if world_size == 16:
+            return [
+                {
+                    "name": "v5p_p9g_01_hf_sbdp_sa1024_fullac48_microflush_mb80_1x",
+                    "lane": "v5p-16 HF PR#123 + SBDP + MicroFlushOpt24 + sa=1024 + FullAC48(1 exec) + NativeTile1024 (mb=80 = 3,840 tok/exp)",
+                    "workdir": "/torchtitan-hf",
+                    "env": {**mf_env, "TT_HF_SBDP": "1", "TT_FULL_AC_FIRST_N": "48"},
+                    "args": [
+                        *hf_base_pure_fused,
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                        f"--training.num_tokens_per_train_step={world_size * mb80}",
+                    ],
+                },
+                {
+                    "name": "v5p_p9g_02_hf_sbdp_sa1024_fullac48_microflush_mb96_1x",
+                    "lane": "v5p-16 HF PR#123 + SBDP + MicroFlushOpt24 + sa=1024 + FullAC48(1 exec) + NativeTile1024 (mb=96 = 4,608 tok/exp)",
+                    "workdir": "/torchtitan-hf",
+                    "env": {**mf_env, "TT_HF_SBDP": "1", "TT_FULL_AC_FIRST_N": "48"},
+                    "args": [
+                        *hf_base_pure_fused,
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
+                        f"--training.num_tokens_per_train_step={world_size * mb96}",
+                    ],
+                },
+                {
+                    "name": "v5p_p9g_03_hf_sbdp_sa1024_fullac48_microflush_mb112_1x",
+                    "lane": "v5p-16 HF PR#123 + SBDP + MicroFlushOpt24 + sa=1024 + FullAC48(1 exec) + NativeTile1024 (mb=112 = 5,376 tok/exp)",
+                    "workdir": "/torchtitan-hf",
+                    "env": {**mf_env, "TT_HF_SBDP": "1", "TT_FULL_AC_FIRST_N": "48"},
+                    "args": [
+                        *hf_base_pure_fused,
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb112}",
+                        f"--training.num_tokens_per_train_step={world_size * mb112}",
+                    ],
+                },
+                {
+                    "name": "v5p_p9g_04_hf_sbdp_sa1024_hybridac24_microflush_mb80_1x",
+                    "lane": "v5p-16 HF PR#123 + SBDP + MicroFlushOpt24 + sa=1024 + HybridAC24(50% zero recomp) + NativeTile1024 (mb=80 = 3,840 tok/exp)",
+                    "workdir": "/torchtitan-hf",
+                    "env": {**mf_env, "TT_HF_SBDP": "1", "TT_FULL_AC_FIRST_N": "24"},
+                    "args": [
+                        *hf_base_pure_fused,
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                        f"--training.num_tokens_per_train_step={world_size * mb80}",
+                    ],
+                },
+                {
+                    "name": "v5p_p9g_05_native_fp8dense_sbdp_microflush_mb64_ga2",
+                    "lane": "v5p-16 Native TpuGraphTrainer + Rowwise FP8 Dense(use_fast_accum=False) + SBDP + MicroFlushOpt24 (mb=64, 2xGA)",
+                    "workdir": "/torchtitan-native",
+                    "env": {"LIBTPU_INIT_ARGS": v5p_flags, "TT_MICROFLUSH_OPT": "1", "TT_MICROFLUSH_CHUNK": "24"},
+                    "args": [
+                        "--module=torchtitan.experiments.tpu.examples.flint",
+                        "--config=flint_40b_v5p_p9f_fp8dense_sbdp_n40",
+                        f"--training.steps={steps}",
+                        "--training.mixed_precision_reduce=bfloat16",
+                        "--metrics.log_freq=1",
+                        "--debug.seed=42",
+                        "--tpu_config.mfu_benchmark_start_step=4",
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                        f"--training.num_tokens_per_train_step={2 * world_size * mb64}",
+                    ],
+                },
+                {
+                    "name": "v5p_p9g_06_hf_fp8dense_sbdp_sa1024_fullac48_microflush_mb96_1x",
+                    "lane": "v5p-16 HF PR#123 + Rowwise FP8 Dense(use_fast_accum=False) + SBDP + MicroFlushOpt24 + sa=1024 + FullAC48 (mb=96, 1x)",
+                    "workdir": "/torchtitan-hf",
+                    "env": {**mf_env, "TT_HF_SBDP": "1", "TT_HF_FP8_DENSE": "1", "TT_FULL_AC_FIRST_N": "48"},
+                    "args": [
+                        *hf_base_pure_fused,
+                        f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
+                        f"--training.num_tokens_per_train_step={world_size * mb96}",
+                    ],
+                },
+            ]
+        return [
+            {
+                "name": "v5p_p9g_01_hf_sbdp_sa1024_hybridac16_microflush_mb80_1x",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + MicroFlushOpt24 + sa=1024 + HybridAC16(67% zero recomp) + NativeTile1024 (mb=80 = 3,840 tok/exp)",
+                "workdir": "/torchtitan-hf",
+                "env": {**mf_env, "TT_HF_SBDP": "1", "TT_FULL_AC_FIRST_N": "16"},
+                "args": [
+                    *hf_base_pure_fused,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                    f"--training.num_tokens_per_train_step={world_size * mb80}",
+                ],
+            },
+            {
+                "name": "v5p_p9g_02_hf_sbdp_sa1024_hybridac24_microflush_mb96_1x",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + MicroFlushOpt24 + sa=1024 + HybridAC24(50% zero recomp) + NativeTile1024 (mb=96 = 4,608 tok/exp)",
+                "workdir": "/torchtitan-hf",
+                "env": {**mf_env, "TT_HF_SBDP": "1", "TT_FULL_AC_FIRST_N": "24"},
+                "args": [
+                    *hf_base_pure_fused,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb96}",
+                    f"--training.num_tokens_per_train_step={world_size * mb96}",
+                ],
+            },
+            {
+                "name": "v5p_p9g_03_hf_sbdp_sa1024_fullac48_microflush_mb112_1x",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + MicroFlushOpt24 + sa=1024 + FullAC48(1 exec) + NativeTile1024 (mb=112 = 5,376 tok/exp)",
+                "workdir": "/torchtitan-hf",
+                "env": {**mf_env, "TT_HF_SBDP": "1", "TT_FULL_AC_FIRST_N": "48"},
+                "args": [
+                    *hf_base_pure_fused,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb112}",
+                    f"--training.num_tokens_per_train_step={world_size * mb112}",
+                ],
+            },
+            {
+                "name": "v5p_p9g_04_hf_sbdp_sa1024_fullac48_microflush_mb128_1x",
+                "lane": f"v5p-{world_size} HF PR#123 + SBDP + MicroFlushOpt24 + sa=1024 + FullAC48(1 exec) + NativeTile1024 (mb=128 = 6,144 tok/exp)",
+                "workdir": "/torchtitan-hf",
+                "env": {**mf_env, "TT_HF_SBDP": "1", "TT_FULL_AC_FIRST_N": "48"},
+                "args": [
+                    *hf_base_pure_fused,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb128}",
+                    f"--training.num_tokens_per_train_step={world_size * mb128}",
+                ],
+            },
+            {
+                "name": "v5p_p9g_05_native_fp8dense_sbdp_microflush_mb64_ga2",
+                "lane": f"v5p-{world_size} Native TpuGraphTrainer + Rowwise FP8 Dense(use_fast_accum=False) + SBDP + MicroFlushOpt24 (mb=64, 2xGA)",
+                "workdir": "/torchtitan-native",
+                "env": {"LIBTPU_INIT_ARGS": v5p_flags, "TT_MICROFLUSH_OPT": "1", "TT_MICROFLUSH_CHUNK": "24"},
+                "args": [
+                    "--module=torchtitan.experiments.tpu.examples.flint",
+                    "--config=flint_40b_v5p_p9f_fp8dense_sbdp_n40",
+                    f"--training.steps={steps}",
+                    "--training.mixed_precision_reduce=bfloat16",
+                    "--metrics.log_freq=1",
+                    "--debug.seed=42",
+                    "--tpu_config.mfu_benchmark_start_step=4",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                    f"--training.num_tokens_per_train_step={2 * world_size * mb64}",
+                ],
+            },
+            {
+                "name": "v5p_p9g_06_hf_fp8dense_sbdp_sa1024_fullac48_microflush_mb112_1x",
+                "lane": f"v5p-{world_size} HF PR#123 + Rowwise FP8 Dense(use_fast_accum=False) + SBDP + MicroFlushOpt24 + sa=1024 + FullAC48 (mb=112, 1x)",
+                "workdir": "/torchtitan-hf",
+                "env": {**mf_env, "TT_HF_SBDP": "1", "TT_HF_FP8_DENSE": "1", "TT_FULL_AC_FIRST_N": "48"},
+                "args": [
+                    *hf_base_pure_fused,
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb112}",
+                    f"--training.num_tokens_per_train_step={world_size * mb112}",
+                ],
+            },
+        ]
 
     if suite == "pass9f":
         if world_size == 16:
