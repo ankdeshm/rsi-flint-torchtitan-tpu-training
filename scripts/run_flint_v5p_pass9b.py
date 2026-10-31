@@ -304,7 +304,7 @@ def _build_v5p_staticep_zero2(
   config.compile.save_regions = ("moe.routing",)
   config.compile.save_last_n_layers = {"attention.inner_attention": save_attn_layers}
   config.compile.optimizer_compile = "separate_graph"
-  config.compile.compile_grad_norm = False
+  config.compile.compile_grad_norm = True
   config.optimizer.implementation = "fused"
   config.libtpu_init_flags = tpu_flags.merge_flags(
       config.libtpu_init_flags,
@@ -327,7 +327,7 @@ def flint_40b_v5p_p9bc_staticep16_zero2_n45() -> TpuGraphTrainer.Config:
 
 
 def flint_40b_v5p_p9bc_wholestep_staticep16_zero2_n49() -> TpuGraphTrainer.Config:
-  return _build_v5p_staticep_zero2(ep_degree=16, tile_m=512, save_attn_layers=49, wholestep=True)
+  return _build_v5p_staticep_zero2(ep_degree=16, tile_m=512, save_attn_layers=45, wholestep=True)
 
 
 __all__.extend([
@@ -415,6 +415,107 @@ TpuGroupedExperts.parallelize = lambda self, parallel_dims: GroupedExperts.paral
 )
 '''
 
+EP_GRAD_NORM_PATCH = '''
+
+def _ep_aware_global_grad_norm(grads: list[torch.Tensor]) -> torch.Tensor:
+  ep_grads: list[torch.Tensor] = []
+  non_ep_grads: list[torch.Tensor] = []
+  for g in grads:
+    if (
+        isinstance(g, DTensor)
+        and g.device_mesh.mesh_dim_names is not None
+        and "ep" in g.device_mesh.mesh_dim_names
+    ):
+      ep_grads.append(g)
+    else:
+      non_ep_grads.append(g)
+  sq_terms: list[torch.Tensor] = []
+  for group in (ep_grads, non_ep_grads):
+    if group:
+      n = torch.nn.utils.get_total_norm(group, norm_type=2.0, error_if_nonfinite=False, foreach=True)
+      if isinstance(n, DTensor):
+        n = n.full_tensor()
+      sq_terms.append(n * n)
+  if not sq_terms:
+    return torch.zeros((), device=grads[0].device, dtype=torch.float32)
+  total_sq = sq_terms[0] + sq_terms[1] if len(sq_terms) == 2 else sq_terms[0]
+  return torch.sqrt(total_sq)
+
+
+global_grad_norm = _ep_aware_global_grad_norm
+
+
+@torch.no_grad()
+def _ep_aware_clip_grad_norm_(self, parameters: list[torch.Tensor], max_norm: float) -> torch.Tensor:
+  grads = cast(list[torch.Tensor], [p.grad for p in parameters if p.grad is not None])
+  signature = _grad_signature(grads)
+  if self._runner is None:
+    if not grads:
+      raise ValueError("compile_grad_norm requires at least one gradient")
+    traced = minimal_fx_tracer(_ep_aware_global_grad_norm)(grads)
+    traced.gm = tpu_backend_compile_pass(traced.gm, traced.example_inputs, is_fwd=True)
+    self._runner = run_traced(traced, _validate_runtime=True)
+    self._signature = signature
+  elif signature != self._signature:
+    raise ValueError("gradient metadata changed after compiling the gradient norm")
+  total_norm = self._runner(grads)
+  ep_params = [
+      p for p in parameters
+      if p.grad is not None and isinstance(p.grad, DTensor)
+      and p.grad.device_mesh.mesh_dim_names is not None
+      and "ep" in p.grad.device_mesh.mesh_dim_names
+  ]
+  non_ep_params = [p for p in parameters if p.grad is not None and p not in set(ep_params)]
+  if ep_params:
+    torch.nn.utils.clip_grads_with_norm_(ep_params, max_norm, total_norm, foreach=True)
+  if non_ep_params:
+    torch.nn.utils.clip_grads_with_norm_(non_ep_params, max_norm, total_norm, foreach=True)
+  return total_norm
+
+
+CompiledGradNorm.clip_grad_norm_ = _ep_aware_clip_grad_norm_
+'''
+
+SEPARATE_GRAPH_MESH_SPLIT_PATCH = '''
+
+_orig_build_compiled_optimizer_groups = _build_compiled_optimizer_groups
+
+
+def _mesh_chunked_build_compiled_optimizer_groups(opt: torch.optim.Optimizer) -> list:
+  from torch.distributed.tensor import DTensor
+  max_expert_chunk = int(os.environ.get("TT_OPT_EXPERT_CHUNK", "48"))
+  orig_groups = list(opt.param_groups)
+  expanded_groups: list[dict] = []
+  group_orig_indices: list[int] = []
+  for orig_idx, grp in enumerate(orig_groups):
+    buckets: dict[tuple, list[torch.Tensor]] = {}
+    for p in grp["params"]:
+      key = (id(p.device_mesh), repr(p.placements), p.dtype) if isinstance(p, DTensor) else (0, "local", p.dtype)
+      buckets.setdefault(key, []).append(p)
+    for plist in buckets.values():
+      is_ep = any(
+          isinstance(p, DTensor) and p.device_mesh.mesh_dim_names is not None and "ep" in p.device_mesh.mesh_dim_names
+          for p in plist[:1]
+      )
+      chunk_sz = max_expert_chunk if is_ep else 256
+      for start in range(0, len(plist), chunk_sz):
+        sub = dict(grp)
+        sub["params"] = plist[start : start + chunk_sz]
+        expanded_groups.append(sub)
+        group_orig_indices.append(orig_idx)
+  opt.param_groups = expanded_groups
+  try:
+    built = _orig_build_compiled_optimizer_groups(opt)
+  finally:
+    opt.param_groups = orig_groups
+  for (_run, _params, _states, lr_ref), orig_idx in zip(built, group_orig_indices):
+    lr_ref._group_idx = orig_idx
+  return built
+
+
+_build_compiled_optimizer_groups = _mesh_chunked_build_compiled_optimizer_groups
+'''
+
 
 def apply_runtime_patches() -> None:
     td_path = Path("/torchtitan-native/torchtitan/experiments/tpu/token_dispatcher.py")
@@ -431,12 +532,37 @@ def apply_runtime_patches() -> None:
             ge_path.write_text(txt + GROUPED_EXPERTS_EP_PATCH)
             print("[flint-v5p-p9bc] Patched Native grouped_experts.py for StaticEP + PairedGMM", flush=True)
 
+    jc_path = Path("/torchtitan-native/torchtitan/experiments/tpu/tpu_job_config.py")
+    if jc_path.exists():
+        txt = jc_path.read_text()
+        target = (
+            "          self.parallelism.expert_parallel_degree > 1\n"
+            "          or self.parallelism.pipeline_parallel_degree > 1"
+        )
+        if target in txt:
+            jc_path.write_text(txt.replace(target, "          self.parallelism.pipeline_parallel_degree > 1"))
+            print("[flint-v5p-p9bc] Patched Native tpu_job_config.py to allow compile_grad_norm with EP > 1", flush=True)
+
+    gn_path = Path("/torchtitan-native/torchtitan/experiments/tpu/grad_norm.py")
+    if gn_path.exists():
+        txt = gn_path.read_text()
+        if "_ep_aware_global_grad_norm" not in txt:
+            gn_path.write_text(txt + EP_GRAD_NORM_PATCH)
+            print("[flint-v5p-p9bc] Patched Native grad_norm.py with EPCompiledGradNorm", flush=True)
+
+    sg_path = Path("/torchtitan-native/torchtitan/experiments/tpu/compiled_optimizers/separate_graph.py")
+    if sg_path.exists():
+        txt = sg_path.read_text()
+        if "_mesh_chunked_build_compiled_optimizer_groups" not in txt:
+            sg_path.write_text(txt + SEPARATE_GRAPH_MESH_SPLIT_PATCH)
+            print("[flint-v5p-p9bc] Patched Native separate_graph.py with mesh-pure chunked AdamW", flush=True)
+
     nat_reg = Path("/torchtitan-native/torchtitan/experiments/tpu/examples/flint/config_registry.py")
     if nat_reg.exists():
         txt = nat_reg.read_text()
         if "flint_40b_v5p_p9bc_staticep4_zero2_n40" not in txt:
             nat_reg.write_text(txt + NATIVE_V5P_P9BC_PATCH)
-            print("[flint-v5p-p9bc] Patched Native config_registry.py with Pass 9B/9C configs", flush=True)
+            print("[flint-v5p-p9bc] Patched Native config_registry.py with Pass 9B/9C/9D configs", flush=True)
 
     hf_ac = Path("/torchtitan-hf/torchtitan/experiments/tpu/activation_checkpoint.py")
     if hf_ac.exists():
