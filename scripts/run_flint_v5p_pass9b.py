@@ -396,12 +396,17 @@ def flint_40b_v5p_p9f_fp8dense_sbdp_n40() -> TpuGraphTrainer.Config:
   config.model_spec.model = rc.convert(config.model_spec.model)
   for _, r, _, _ in config.model_spec.model.traverse(TpuRoutedExperts.Config):
     r.scale_before_down_proj = True
+  import dataclasses as _dc
   fp8_conv = TpuFloat8LinearConverter(
       TpuFloat8LinearConverter.Config(
           model_compile_enabled=True,
           recipe_name="rowwise",
           filter_fqns=["router", "gate", "experts"],
       )
+  )
+  fp8_conv.torchao_config = _dc.replace(
+      fp8_conv.torchao_config,
+      gemm_config_output=_dc.replace(fp8_conv.torchao_config.gemm_config_output, use_fast_accum=False),
   )
   layers_obj = getattr(config.model_spec.model, "layers", None)
   if isinstance(layers_obj, list):
@@ -505,17 +510,121 @@ def _p9_substitute_tpu_experts(model):
       logger.info("Enabled scale_before_down_proj on %d HF MoE layer(s).", n_sbdp)
 
   if os.environ.get("TT_HF_FP8_DENSE", "0") == "1":
+    import dataclasses as _dc
     from torchao.float8 import Float8LinearConfig, convert_to_float8_training
     fp8_cfg = Float8LinearConfig.from_recipe_name("rowwise")
+    fp8_cfg = _dc.replace(
+        fp8_cfg,
+        gemm_config_output=_dc.replace(fp8_cfg.gemm_config_output, use_fast_accum=False),
+    )
     def _filter_fn(mod: nn.Module, fqn: str) -> bool:
       if any(skip in fqn for skip in ("lm_head", "output", "gate", "router", "experts")):
         return False
       return type(mod) is nn.Linear and mod.in_features % 128 == 0 and mod.out_features % 128 == 0
     convert_to_float8_training(model, config=fp8_cfg, module_filter_fn=_filter_fn)
-    logger.info("Converted HF dense nn.Linear modules to Float8Linear (rowwise FP8) via torchao.")
+    logger.info("Converted HF dense nn.Linear modules to Float8Linear (rowwise FP8, use_fast_accum=False) via torchao.")
 
 
 substitute_tpu_experts = _p9_substitute_tpu_experts
+'''
+
+MICROFLUSH_OPT_PATCH = '''
+
+_orig_opt_container_step = OptimizersContainer.step
+
+
+def _microflushed_opt_container_step(self, closure=None):
+  import os
+  import torch
+  from torch.distributed.tensor import DTensor
+  if os.environ.get("TT_MICROFLUSH_OPT", "0") != "1":
+    return _orig_opt_container_step(self, closure=closure)
+  assert closure is None
+  chunk_sz = int(os.environ.get("TT_MICROFLUSH_CHUNK", "24"))
+  torch.accelerator.synchronize()
+  for opt in self.optimizers:
+    if "step" in getattr(opt, "__dict__", {}):
+      opt.step()
+      torch.accelerator.synchronize()
+      continue
+    orig_groups = list(opt.param_groups)
+    for grp in orig_groups:
+      buckets: dict[tuple, list[torch.Tensor]] = {}
+      for p in grp["params"]:
+        if p.grad is None:
+          continue
+        if isinstance(p, DTensor):
+          key = (id(p.device_mesh), repr(p.placements), p.dtype, tuple(p._local_tensor.shape))
+        else:
+          key = (0, "local", p.dtype, tuple(p.shape))
+        buckets.setdefault(key, []).append(p)
+      for plist in buckets.values():
+        for start in range(0, len(plist), chunk_sz):
+          sub = dict(grp)
+          sub["params"] = plist[start : start + chunk_sz]
+          opt.param_groups = [sub]
+          opt.step()
+          torch.accelerator.synchronize()
+    opt.param_groups = orig_groups
+  return None
+
+
+OptimizersContainer.step = _microflushed_opt_container_step
+'''
+
+MICROFLUSH_GRADNORM_PATCH = '''
+
+_orig_clip_grad_norm_ = clip_grad_norm_
+
+
+def _microflushed_clip_grad_norm_(
+    parameters,
+    max_norm: float,
+    norm_type: float = 2.0,
+    error_if_nonfinite: bool = False,
+    foreach: bool | None = None,
+    pp_mesh=None,
+    ep_enabled: bool = False,
+) -> torch.Tensor:
+  import os
+  if os.environ.get("TT_MICROFLUSH_OPT", "0") != "1" or ep_enabled or pp_mesh is not None or norm_type != 2.0:
+    return _orig_clip_grad_norm_(parameters, max_norm, norm_type, error_if_nonfinite, foreach, pp_mesh, ep_enabled)
+  chunk_sz = int(os.environ.get("TT_MICROFLUSH_CHUNK", "24"))
+  params = [parameters] if isinstance(parameters, torch.Tensor) else list(parameters)
+  params_with_grad = [p for p in params if p.grad is not None]
+  if not params_with_grad:
+    return torch.tensor(0.0)
+  torch.accelerator.synchronize()
+  buckets: dict[tuple, list[torch.Tensor]] = {}
+  for p in params_with_grad:
+    g = p.grad
+    if isinstance(g, DTensor):
+      key = (id(g.device_mesh), repr(g.placements), g.dtype, tuple(g._local_tensor.shape))
+    else:
+      key = (0, "local", g.dtype, tuple(g.shape))
+    buckets.setdefault(key, []).append(p)
+  sq_sum = None
+  for plist in buckets.values():
+    for start in range(0, len(plist), chunk_sz):
+      g_chunk = [x.grad for x in plist[start : start + chunk_sz]]
+      cn = torch.nn.utils.get_total_norm(g_chunk, 2.0, error_if_nonfinite, foreach)
+      if isinstance(cn, DTensor):
+        cn = cn.full_tensor()
+      term = cn.float() * cn.float()
+      sq_sum = term if sq_sum is None else (sq_sum + term)
+      torch.accelerator.synchronize()
+  assert sq_sum is not None
+  total_norm = torch.sqrt(sq_sum)
+  torch.accelerator.synchronize()
+  for plist in buckets.values():
+    for start in range(0, len(plist), chunk_sz):
+      p_chunk = plist[start : start + chunk_sz]
+      torch.nn.utils.clip_grads_with_norm_(p_chunk, max_norm, total_norm, foreach)
+      torch.accelerator.synchronize()
+  return total_norm
+
+
+clip_grad_norm_ = _microflushed_clip_grad_norm_
 '''
 
 
