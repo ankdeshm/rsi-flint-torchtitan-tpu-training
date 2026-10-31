@@ -51,7 +51,8 @@ from torchtitan.distributed.utils import get_spmd_backend as _sep_get_spmd_backe
 
 @dataclass(frozen=True)
 class StaticEPDispatchMetadata:
-  topk_scores_N: torch.Tensor
+  token_indices_experts_sorted_N: torch.Tensor
+  topk_scores_experts_sorted_N: torch.Tensor
   src_idx_S: torch.Tensor
   slot_N: torch.Tensor
   valid_N: torch.Tensor
@@ -131,34 +132,45 @@ def _static_tpu_ep_dispatch(
   ep_size = self.ep_mesh.size()
   E = num_local_tokens_per_expert_E.numel()
   e = E // ep_size
-  T, D = x_TD.shape
-  K = self.top_k
-  N = T * K
+  N = x_TD.shape[0] * self.top_k
   cap_factor = float(_sep_os.environ.get("TT_STATIC_EP_CAP_FACTOR", "1.15"))
   tile_align = int(_sep_os.environ.get("TT_STATIC_EP_ALIGN", "512"))
   cap_C = max(tile_align, _sep_math.ceil(cap_factor * N / ep_size / tile_align) * tile_align)
   S = ep_size * cap_C
-  dev = x_TD.device
 
-  with annotate_region(MOE_ROUTING), torch.no_grad():
+  with annotate_region(MOE_ROUTING):
     flat_eids_N = topk_expert_ids_TK.reshape(-1)
-    p_N = torch.div(flat_eids_N, e, rounding_mode="floor").to(torch.int32)
-    oh_NP = (p_N.unsqueeze(1) == torch.arange(ep_size, device=dev, dtype=torch.int32)).to(torch.int32)
-    j_N = torch.gather(torch.cumsum(oh_NP, dim=0) - 1, 1, p_N.unsqueeze(1).long()).squeeze(1).to(torch.int64)
-    valid_N = j_N < cap_C
-    slot_N = p_N.to(torch.int64) * cap_C + torch.clamp(j_N, min=0, max=cap_C - 1)
-    vz = slot_N[:1] * 0
-    src_pad = torch.scatter(
-        vz.expand(S + 1) + N,
-        0,
-        torch.where(valid_N, slot_N, vz.expand(N) + S),
-        vz.expand(N) + torch.arange(N, device=dev, dtype=torch.int64),
+    perm_N = torch.argsort(flat_eids_N, stable=True)
+    sorted_eids_N = torch.index_select(flat_eids_N, 0, perm_N)
+
+  routed_ND, tok_idx_N, sorted_scores_N = _LocalReorder.apply(
+      x_TD, topk_scores_TK, perm_N, self.top_k
+  )
+
+  if _sep_get_spmd_backend() == "spmd_types" and _sep_spmd.is_type_checking():
+    _sep_spmd.mutate_type(
+        num_local_tokens_per_expert_E,
+        src=_sep_spmd.P,
+        dst={"dp": _sep_spmd.V, "cp": _sep_spmd.V, "tp": _sep_spmd.V},
     )
-    src_idx_S = src_pad[:S]
-    padded_lexp = _sep_F.pad((flat_eids_N % e).to(torch.int32), (0, 1), value=e - 1)
+
+  with torch.no_grad():
+    peer_counts = num_local_tokens_per_expert_E.reshape(ep_size, e).sum(dim=1).to(torch.int64)
+    peer_starts = torch.cumsum(peer_counts, dim=0) - peer_counts
+    s_arange = torch.arange(S, device=x_TD.device, dtype=torch.int64)
+    s_peer = s_arange // cap_C
+    s_off = s_arange % cap_C
+    s_valid = s_off < peer_counts[s_peer]
+    src_idx_S = torch.where(s_valid, peer_starts[s_peer] + s_off, torch.full_like(s_off, N))
+
+    p_N = (sorted_eids_N // e).to(torch.int64)
+    j_N = torch.arange(N, device=x_TD.device, dtype=torch.int64) - peer_starts[p_N]
+    valid_N = j_N < cap_C
+    slot_N = p_N * cap_C + torch.clamp(j_N, min=0, max=cap_C - 1)
+
+    padded_lexp = _sep_F.pad((sorted_eids_N % e).to(torch.int32), (0, 1), value=e - 1)
     send_lexp = torch.index_select(padded_lexp, 0, src_idx_S)
 
-  routed_ND = x_TD.unsqueeze(1).expand(T, K, D).reshape(N, D)
   send_x = _StaticEPPack.apply(routed_ND, src_idx_S, slot_N, valid_N)
   splits = [cap_C] * ep_size
 
@@ -171,22 +183,17 @@ def _static_tpu_ep_dispatch(
     recv_x = self._dispatch_token_exchange(send_x, pg, splits, splits)
     with torch.no_grad():
       recv_lexp = self._dispatch_token_exchange(send_lexp, pg, splits, splits)
-      oh_Se = (recv_lexp.unsqueeze(1) == torch.arange(e, device=dev, dtype=torch.int32)).to(torch.int32)
-      counts_e = oh_Se.sum(dim=0, dtype=torch.int32)
-      starts_e = (torch.cumsum(counts_e, dim=0) - counts_e).to(torch.int64)
-      pos_S = torch.gather(torch.cumsum(oh_Se, dim=0) - 1, 1, recv_lexp.unsqueeze(1).long()).squeeze(1).to(torch.int64)
-      inv_exp_perm_R = starts_e[recv_lexp.long()] + pos_S
-      vz_S = inv_exp_perm_R[:1] * 0
-      exp_perm_R = torch.scatter(
-          vz_S.expand(S).clone(),
-          0,
-          inv_exp_perm_R,
-          vz_S.expand(S) + torch.arange(S, device=dev, dtype=torch.int64),
-      )
+      exp_perm_R = torch.argsort(recv_lexp, stable=True)
+      inv_exp_perm_R = torch.argsort(exp_perm_R)
+      counts_e = (
+          recv_lexp.unsqueeze(1)
+          == torch.arange(e, device=x_TD.device, dtype=torch.int32)
+      ).sum(dim=0, dtype=torch.int32)
     routed_RD = _StaticEPPermute.apply(recv_x, exp_perm_R, inv_exp_perm_R)
 
   meta = StaticEPDispatchMetadata(
-      topk_scores_N=topk_scores_TK.reshape(-1),
+      token_indices_experts_sorted_N=tok_idx_N,
+      topk_scores_experts_sorted_N=sorted_scores_N,
       src_idx_S=src_idx_S,
       slot_N=slot_N,
       valid_N=valid_N,
@@ -220,12 +227,14 @@ def _static_tpu_ep_combine(
 
   y_ND = _StaticEPUnpack.apply(ret_SD, metadata.slot_N, metadata.valid_N, metadata.src_idx_S)
   if self.fuse_route_score_backward:
-    weighted_ND = scale_route_weights(y_ND, metadata.topk_scores_N)
+    weighted_ND = scale_route_weights(y_ND, metadata.topk_scores_experts_sorted_N)
   else:
     weighted_ND = (
-        y_ND.float() * metadata.topk_scores_N.reshape(-1, 1)
+        y_ND.float() * metadata.topk_scores_experts_sorted_N.reshape(-1, 1)
     ).to(y_ND.dtype)
-  return weighted_ND.reshape(x_TD.shape[0], self.top_k, x_TD.shape[1]).sum(dim=1)
+  return stable_grouped_reduce(
+      weighted_ND, metadata.token_indices_experts_sorted_N, self.top_k
+  )
 
 
 TpuAllToAllTokenDispatcher.dispatch = _static_tpu_ep_dispatch
