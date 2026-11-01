@@ -195,7 +195,10 @@ def _static_tpu_ep_dispatch(
       recv_lexp = self._dispatch_token_exchange(send_lexp, pg, splits, splits)
       exp_perm_R = torch.argsort(recv_lexp, stable=True)
       inv_exp_perm_R = torch.argsort(exp_perm_R)
-      counts_e = torch.bincount(recv_lexp, minlength=e)[:e].to(torch.int32)
+      counts_e = (
+          recv_lexp.unsqueeze(1)
+          == torch.arange(e, device=recv_lexp.device, dtype=recv_lexp.dtype)
+      ).sum(dim=0, dtype=torch.int32)
     routed_RD = _StaticEPPermute.apply(recv_x, exp_perm_R, inv_exp_perm_R)
 
   meta = StaticEPDispatchMetadata(
@@ -784,7 +787,8 @@ def build_v7x_pass12_experiments(
                 "LIBTPU_INIT_ARGS": v7x_p12_flags,
                 "TT_STATIC_EP_CAP_FACTOR": "1.12",
                 "TT_STATIC_EP_ALIGN": "512",
-                "TT_OPT_EXPERT_CHUNK": "48",
+                "TT_FORCE_CHUNK_OPT": "1",
+                "TT_OPT_EXPERT_CHUNK": "96",
             },
             "args": [
                 "--module=torchtitan.experiments.tpu.examples.flint",
@@ -1136,6 +1140,17 @@ def main() -> int:
         bench_dir.mkdir(parents=True, exist_ok=True)
 
     exps = build_v7x_pass12_experiments(world_size, args.hf_model)
+    if args.suite == "pass12b":
+        hf_ga4 = dict(exps[3])
+        hf_ga4["name"] = "v7x_p12b_04_hf_pr123_sbdp_purefused_sa1024_tile1024_hybridac12_mb64_ga4_log5"
+        hf_ga4["lane"] = "v7x-16 HF PR#123 + SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC12 (mb=64, 4xGA = 16.78M tok/step, log5)"
+        hf_ga4["args"] = [
+            f"--training.num_tokens_per_train_step={4 * world_size * 64 * 2048}"
+            if a.startswith("--training.num_tokens_per_train_step=")
+            else a
+            for a in exps[3]["args"]
+        ]
+        exps = [exps[0], exps[1], exps[2], hf_ga4, exps[7], exps[8]]
     results = []
     for idx, exp in enumerate(exps):
         port = args.base_port + idx * 5
