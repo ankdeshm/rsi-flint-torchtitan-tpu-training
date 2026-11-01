@@ -493,6 +493,14 @@ def flint_40b_p12g_staticep2_zero3_sbdp_n43() -> TpuGraphTrainer.Config:
   return cfg
 
 
+def flint_40b_p12h_staticep2_zero3_bf16rope_fusedopt_n49() -> TpuGraphTrainer.Config:
+  cfg = _build_p12_staticep(ep_degree=2, tile_m=512, save_attn_layers=49)
+  cfg.optimizer.implementation = "fused"
+  if _P12_BF16_ROPE not in cfg.override.imports:
+    cfg.override.imports.append(_P12_BF16_ROPE)
+  return cfg
+
+
 __all__.extend([
     "flint_40b_p12_ep1_sbdp_tile1024_n45",
     "flint_40b_p12_ep1_sbdp_tile1024_n43",
@@ -512,6 +520,7 @@ __all__.extend([
     "flint_40b_p12f_staticep2_zero3_sbdp_n43",
     "flint_40b_p12g_ep1_p9base_sbdp_fusedopt_n49",
     "flint_40b_p12g_staticep2_zero3_sbdp_n43",
+    "flint_40b_p12h_staticep2_zero3_bf16rope_fusedopt_n49",
 ])
 '''
 
@@ -939,7 +948,8 @@ F.embedding = _safe_tp_f_embedding
 _orig_pallas_ce = pallas_cross_entropy_loss
 
 
-def _tp_aware_pallas_ce(x, labels, weight, *args, **kwargs):
+def _tp_aware_pallas_ce(x, labels, weight=None, *args, **kwargs):
+    import inspect
     import torch
     import torch.distributed.nn.functional as dist_nn
     from torch.distributed.tensor import DTensor, Replicate
@@ -982,7 +992,10 @@ def _tp_aware_pallas_ce(x, labels, weight, *args, **kwargs):
             parts = dist_nn.all_gather(x.contiguous(), group=tp_mesh.get_group())
             x = torch.cat(parts, dim=gdim)
 
-    return _orig_pallas_ce(x, labels, weight, *args, **kwargs)
+    sig = inspect.signature(_orig_pallas_ce)
+    if "weight" in sig.parameters or weight is not None:
+        return _orig_pallas_ce(x, labels, weight, *args, **kwargs)
+    return _orig_pallas_ce(x, labels, *args, **kwargs)
 
 
 pallas_cross_entropy_loss = _tp_aware_pallas_ce
@@ -2026,6 +2039,105 @@ def main() -> int:
                 ],
             },
             # 5. HSDP (DP_rep=2 x FSDP=16) @ mb=40 (<20.66 GiB slab) + FullAC49, 2x GA
+            hsdp_40_ac49,
+        ]
+    elif args.suite == "pass12h":
+        mb40 = 40 * 2048
+        mb48 = 48 * 2048
+        mb52 = 52 * 2048
+        mb56 = 56 * 2048
+        p9_scout_flags = filter_supported_xla_flags([
+            "--xla_tpu_enable_sparse_core_collective_aggregator=true",
+            "--xla_tpu_enable_latency_hiding_layer_scheduler=true",
+            "--xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false",
+            "--xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true",
+            "--xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true",
+            "--xla_tpu_dvfs_p_state=7",
+            "--xla_enable_async_all_gather=true",
+            "--xla_enable_async_all_reduce=true",
+            "--xla_tpu_enable_async_all_to_all=true",
+            "--xla_tpu_enable_ag_backward_pipelining=true",
+            "--xla_tpu_enable_ici_ag_pipelining=true",
+            "--xla_tpu_overlap_compute_collective_tc=true",
+            "--xla_max_concurrent_async_all_gathers=4",
+            "--xla_latency_hiding_scheduler_rerun=2",
+            "--xla_enable_transpose_trace=false",
+        ])
+        base_nat_env = dict(exps[7]["env"])
+        p9_nat_env = {
+            "LIBTPU_INIT_ARGS": p9_scout_flags,
+            "TT_FORCE_CHUNK_OPT": "0",
+        }
+        tp2_48_ce_fixed = dict(exps[6])
+        tp2_48_ce_fixed["name"] = "v7x_p12h_03_hf_pr123_tp2_dp16_sbdp_purefused_sa1024_tile1024_hybridac24_mb48_ga2_log5"
+        tp2_48_ce_fixed["lane"] = "v7x-16 Intra-Chip TP=2 x FSDP=16 + SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC24 + TP2PallasCE (mb=48/dp_rank, 2xGA = 3.15M tok/step, log5)"
+        tp2_48_ce_fixed["env"] = {**exps[6]["env"], "TT_FULL_AC_FIRST_N": "24"}
+        tp2_48_ce_fixed["args"] = [
+            f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}"
+            if a.startswith("--training.num_tokens_per_microbatch_per_dp_rank=")
+            else (
+                f"--training.num_tokens_per_train_step={2 * (world_size // 2) * mb48}"
+                if a.startswith("--training.num_tokens_per_train_step=")
+                else a
+            )
+            for a in exps[6]["args"]
+        ]
+
+        hsdp_40_ac49 = dict(exps[5])
+        hsdp_40_ac49["name"] = "v7x_p12h_05_hf_pr123_hsdp2x16_sbdp_purefused_sa1024_tile1024_fullac49_mb40_ga4_log5"
+        hsdp_40_ac49["lane"] = "v7x-16 HSDP (DP_rep=2 x FSDP=16) + SBDP + PureFusedOpt + sa=1024 + tile1024 + FullAC49 (mb=40 = 1,920 tok/exp, 4xGA = 10.49M tok/step, log5)"
+        hsdp_40_ac49["env"] = {**exps[5]["env"], "TT_FULL_AC_FIRST_N": "49"}
+        hsdp_40_ac49["args"] = [
+            f"--training.num_tokens_per_microbatch_per_dp_rank={mb40}"
+            if a.startswith("--training.num_tokens_per_microbatch_per_dp_rank=")
+            else (
+                f"--training.num_tokens_per_train_step={4 * world_size * mb40}"
+                if a.startswith("--training.num_tokens_per_train_step=")
+                else a
+            )
+            for a in exps[5]["args"]
+        ]
+
+        exps = [
+            # 1. Push past 20.80% Steady / 20.81% Peak: n49 + PureFusedOpt + mb=52 + 8x GA (27.26M tok/step)
+            {
+                "name": "v7x_p12h_01_native_p9base_sbdp_bf16rope_fusedopt_n49_mb52_ga8_log5",
+                "lane": "v7x-16 Native PR#122 (n49 + PureFusedOpt + mb=52 + 8xGA = 27.26M tok/step, SBDP + BF16-RoPE, log5)",
+                "workdir": "/torchtitan-native",
+                "env": p9_nat_env,
+                "args": [
+                    "--module=torchtitan.experiments.tpu.examples.flint",
+                    "--config=flint_40b_p12g_ep1_p9base_sbdp_fusedopt_n49",
+                    "--training.steps=15",
+                    "--training.mixed_precision_reduce=bfloat16",
+                    "--metrics.log_freq=5",
+                    "--debug.seed=42",
+                    "--tpu_config.mfu_benchmark_start_step=5",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb52}",
+                    f"--training.num_tokens_per_train_step={8 * world_size * mb52}",
+                ],
+            },
+            # 2. Intra-Chip StaticEP=2 x FSDP=16 + ZeRO-3 + BF16-RoPE + PureFusedOpt + n49 @ mb=56 (5,376 tok/exp, 4xGA)
+            {
+                "name": "v7x_p12h_02_native_intrachip_staticep2_zero3_bf16rope_fusedopt_paired512_n49_mb56_ga4_log5",
+                "lane": "v7x-16 Intra-Chip StaticEP=2 x FSDP=16 + ZeRO-3 + BF16-RoPE + PureFusedOpt + PairedGMM-512 + n49 (mb=56 = 5,376 tok/exp, 4xGA = 14.68M tok/step)",
+                "workdir": "/torchtitan-native",
+                "env": base_nat_env,
+                "args": [
+                    "--module=torchtitan.experiments.tpu.examples.flint",
+                    "--config=flint_40b_p12h_staticep2_zero3_bf16rope_fusedopt_n49",
+                    "--training.steps=15",
+                    "--training.mixed_precision_reduce=bfloat16",
+                    "--metrics.log_freq=5",
+                    "--debug.seed=42",
+                    "--tpu_config.mfu_benchmark_start_step=5",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb56}",
+                    f"--training.num_tokens_per_train_step={4 * world_size * mb56}",
+                ],
+            },
+            # 3. Intra-Chip TP=2 x FSDP=16 with fixed 2/3-arg TP=2 Pallas CE
+            tp2_48_ce_fixed,
+            # 4. HSDP (DP_rep=2 x FSDP=16) @ mb=40 + FullAC49 + 4xGA with fixed Pallas CE
             hsdp_40_ac49,
         ]
     results = []
