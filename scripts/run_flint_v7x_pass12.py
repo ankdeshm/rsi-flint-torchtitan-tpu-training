@@ -374,12 +374,54 @@ def flint_40b_p12_staticep4_zero3_n40() -> TpuGraphTrainer.Config:
   return _build_p12_staticep(ep_degree=4, tile_m=512, save_attn_layers=40)
 
 
+def _build_p12c_ep1_p9base_sbdp(save_attn_layers: int) -> TpuGraphTrainer.Config:
+  # Preserves flint_40b_v014_tile1024()'s exact libtpu_init_flags, GMM tiling, and
+  # for_each separate_graph optimizer from all-time #1 v7x_p9_02 (18.68% MFU),
+  # adding ONLY SBDP (eliminates 47-layer bwd W2 recompute) + BF16-RoPE!
+  config = flint_40b_v014_tile1024()
+  config.model_spec.model = (
+      TpuRoutedExpertsConverter.Config().build().convert(config.model_spec.model)
+  )
+  for _, r, _, _ in config.model_spec.model.traverse(TpuRoutedExperts.Config):
+    r.scale_before_down_proj = True
+  if _P12_BF16_ROPE not in config.override.imports:
+    config.override.imports.append(_P12_BF16_ROPE)
+  config.compile.memory_policy = "tpu_selective"
+  config.compile.save_regions = ("moe.routing",)
+  config.compile.save_last_n_layers = {"attention.inner_attention": save_attn_layers}
+  config.compile.optimizer_compile = "separate_graph"
+  config.compile.compile_grad_norm = True
+  return config
+
+
+def flint_40b_p12c_ep1_p9base_sbdp_n41() -> TpuGraphTrainer.Config:
+  return _build_p12c_ep1_p9base_sbdp(41)
+
+
+def flint_40b_p12c_ep1_p9base_sbdp_n30() -> TpuGraphTrainer.Config:
+  return _build_p12c_ep1_p9base_sbdp(30)
+
+
+def flint_40b_p12c_staticep2_zero3_n36() -> TpuGraphTrainer.Config:
+  return _build_p12_staticep(ep_degree=2, tile_m=512, save_attn_layers=36)
+
+
+def flint_40b_p12c_staticep2_zero2_n36() -> TpuGraphTrainer.Config:
+  cfg = _build_p12_staticep(ep_degree=2, tile_m=512, save_attn_layers=36)
+  cfg.parallelism.fsdp_reshard_after_forward = "default"
+  return cfg
+
+
 __all__.extend([
     "flint_40b_p12_ep1_sbdp_tile1024_n45",
     "flint_40b_p12_ep1_sbdp_tile1024_n43",
     "flint_40b_p12_ep1_sbdp_tile1024_n36",
     "flint_40b_p12_staticep2_zero3_n43",
     "flint_40b_p12_staticep4_zero3_n40",
+    "flint_40b_p12c_ep1_p9base_sbdp_n41",
+    "flint_40b_p12c_ep1_p9base_sbdp_n30",
+    "flint_40b_p12c_staticep2_zero3_n36",
+    "flint_40b_p12c_staticep2_zero2_n36",
 ])
 '''
 
@@ -693,6 +735,78 @@ def apply_runtime_patches() -> None:
                         )
                     )
             print("[flint-v7x-p12] Patched HF model.py & parallelize.py with TT_HF_SBDP=1 hook", flush=True)
+
+    hf_sh = Path("/torchtitan-hf/torchtitan/experiments/transformers_modeling_backend/hf_sharding.py")
+    if hf_sh.exists():
+        txt = hf_sh.read_text()
+        target_attn = (
+            "    attn._sharding_config = ShardingConfig(\n"
+            "        in_src_shardings={"
+        )
+        repl_attn = (
+            "    attn._sharding_config = ShardingConfig(\n"
+            '        state_shardings={"sinks": dense_param_placement(tp=spmd.S(0))} if hasattr(attn, "sinks") else {},\n'
+            "        in_src_shardings={"
+        )
+        if target_attn in txt and 'state_shardings={"sinks"' not in txt:
+            hf_sh.write_text(txt.replace(target_attn, repl_attn))
+            print("[flint-v7x-p12] Patched HF hf_sharding.py for TP=2 FlintAttention.sinks", flush=True)
+
+    hf_at = Path("/torchtitan-hf/torchtitan/experiments/tpu/transformers_modeling_backend/attention.py")
+    if hf_at.exists():
+        txt = hf_at.read_text()
+        if "_dtensor_sbd_splash_wrap" not in txt:
+            dt_patch = '''
+
+# _dtensor_sbd_splash_wrap: support DTensor inputs (e.g. TP=2 head-sharded q/k/v + sinks)
+_orig_sbd_forward = _sbd_forward
+
+
+def _dtensor_sbd_splash_wrap(query, key, value, segment_ids, is_causal, scaling, window,
+                             dropout, kernel_kwargs, seg_desc, softcap=None, sinks=None):
+    from torch.distributed.tensor import DTensor
+    if not isinstance(query, DTensor):
+        return _orig_sbd_forward(
+            query, key, value, segment_ids, is_causal, scaling, window,
+            dropout, kernel_kwargs, seg_desc, softcap=softcap, sinks=sinks,
+        )
+    from torch.distributed.tensor.experimental import local_map
+    mesh = query.device_mesh
+    q_pl = query.placements
+    k_pl = key.placements if isinstance(key, DTensor) else None
+    v_pl = value.placements if isinstance(value, DTensor) else None
+    if sinks is not None and isinstance(sinks, DTensor):
+        s_pl = sinks.placements
+        fn = local_map(
+            lambda ql, kl, vl, sl: _orig_sbd_forward(
+                ql, kl, vl,
+                segment_ids.to_local() if isinstance(segment_ids, DTensor) else segment_ids,
+                is_causal, scaling, window, dropout, kernel_kwargs, seg_desc,
+                softcap=softcap, sinks=sl,
+            ),
+            out_placements=q_pl,
+            in_placements=(q_pl, k_pl, v_pl, s_pl),
+            device_mesh=mesh,
+        )
+        return fn(query, key, value, sinks)
+    fn = local_map(
+        lambda ql, kl, vl: _orig_sbd_forward(
+            ql, kl, vl,
+            segment_ids.to_local() if isinstance(segment_ids, DTensor) else segment_ids,
+            is_causal, scaling, window, dropout, kernel_kwargs, seg_desc,
+            softcap=softcap, sinks=sinks,
+        ),
+        out_placements=q_pl,
+        in_placements=(q_pl, k_pl, v_pl),
+        device_mesh=mesh,
+    )
+    return fn(query, key, value)
+
+
+_sbd_forward = _dtensor_sbd_splash_wrap
+'''
+            hf_at.write_text(txt + dt_patch)
+            print("[flint-v7x-p12] Patched HF attention.py with DTensor local_map for TP=2 SplashAttention", flush=True)
 
 
 def filter_supported_xla_flags(candidates: list[str]) -> str:
@@ -1151,6 +1265,138 @@ def main() -> int:
             for a in exps[3]["args"]
         ]
         exps = [exps[0], exps[1], exps[2], hf_ga4, exps[7], exps[8]]
+    elif args.suite == "pass12c":
+        mb48 = 48 * 2048
+        mb64 = 64 * 2048
+        mb80 = 80 * 2048
+        p9_scout_flags = filter_supported_xla_flags([
+            "--xla_tpu_enable_sparse_core_collective_aggregator=true",
+            "--xla_tpu_enable_latency_hiding_layer_scheduler=true",
+            "--xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false",
+            "--xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true",
+            "--xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true",
+            "--xla_tpu_dvfs_p_state=7",
+            "--xla_enable_async_all_gather=true",
+            "--xla_enable_async_all_reduce=true",
+            "--xla_tpu_enable_async_all_to_all=true",
+            "--xla_tpu_enable_ag_backward_pipelining=true",
+            "--xla_tpu_enable_ici_ag_pipelining=true",
+            "--xla_tpu_overlap_compute_collective_tc=true",
+            "--xla_max_concurrent_async_all_gathers=4",
+            "--xla_latency_hiding_scheduler_rerun=2",
+            "--xla_enable_transpose_trace=false",
+        ])
+        base_nat_env = dict(exps[7]["env"])
+        p9_nat_env = {
+            "LIBTPU_INIT_ARGS": p9_scout_flags,
+            "TT_FORCE_CHUNK_OPT": "0",
+        }
+        hsdp_48 = dict(exps[5])
+        hsdp_48["name"] = "v7x_p12c_05_hf_pr123_hsdp2x16_sbdp_purefused_sa1024_tile1024_hybridac28_mb48_ga2_log5"
+        hsdp_48["lane"] = "v7x-16 HSDP (DP_rep=2 x FSDP=16) + SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC28 (mb=48, 2xGA = 6.29M tok/step, log5)"
+        hsdp_48["env"] = {**exps[5]["env"], "TT_FULL_AC_FIRST_N": "28"}
+        hsdp_48["args"] = [
+            f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}"
+            if a.startswith("--training.num_tokens_per_microbatch_per_dp_rank=")
+            else (
+                f"--training.num_tokens_per_train_step={2 * world_size * mb48}"
+                if a.startswith("--training.num_tokens_per_train_step=")
+                else a
+            )
+            for a in exps[5]["args"]
+        ]
+        tp2_64 = dict(exps[6])
+        tp2_64["name"] = "v7x_p12c_06_hf_pr123_tp2_dp16_sbdp_purefused_sa1024_tile1024_hybridac16_mb48_ga2_log5"
+        tp2_64["lane"] = "v7x-16 Intra-Chip TP=2 x FSDP=16 + SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC16 + SinksTP (mb=48/dp_rank, 2xGA = 3.15M tok/step, log5)"
+        tp2_64["env"] = {**exps[6]["env"], "TT_FULL_AC_FIRST_N": "16"}
+        tp2_64["args"] = [
+            f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}"
+            if a.startswith("--training.num_tokens_per_microbatch_per_dp_rank=")
+            else (
+                f"--training.num_tokens_per_train_step={2 * (world_size // 2) * mb48}"
+                if a.startswith("--training.num_tokens_per_train_step=")
+                else a
+            )
+            for a in exps[6]["args"]
+        ]
+        exps = [
+            # 1. Exact v7x_p9_02 (18.68% MFU) base + SBDP + BF16-RoPE + n41 @ mb=48, 2xGA (zero bottom-of-HBM overflow!)
+            {
+                "name": "v7x_p12c_01_native_p9base_sbdp_bf16rope_n41_mb48_ga2_log5",
+                "lane": "v7x-16 Native PR#122 (v7x_p9_02 base + SBDP + BF16-RoPE + n41, mb=48, 2xGA = 6.29M tok/step, log5)",
+                "workdir": "/torchtitan-native",
+                "env": p9_nat_env,
+                "args": [
+                    "--module=torchtitan.experiments.tpu.examples.flint",
+                    "--config=flint_40b_p12c_ep1_p9base_sbdp_n41",
+                    "--training.steps=20",
+                    "--training.mixed_precision_reduce=bfloat16",
+                    "--metrics.log_freq=5",
+                    "--debug.seed=42",
+                    "--tpu_config.mfu_benchmark_start_step=5",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb48}",
+                    f"--training.num_tokens_per_train_step={2 * world_size * mb48}",
+                ],
+            },
+            # 2. Exact v7x_p9_02 base + SBDP + BF16-RoPE scaled to mb=64 (3,072 tok/exp) + n30, 2xGA = 8.39M tok/step
+            {
+                "name": "v7x_p12c_02_native_p9base_sbdp_bf16rope_n30_mb64_ga2_log5",
+                "lane": "v7x-16 Native PR#122 (v7x_p9_02 base + SBDP + BF16-RoPE + n30, mb=64 = 3,072 tok/exp, 2xGA = 8.39M tok/step, log5)",
+                "workdir": "/torchtitan-native",
+                "env": p9_nat_env,
+                "args": [
+                    "--module=torchtitan.experiments.tpu.examples.flint",
+                    "--config=flint_40b_p12c_ep1_p9base_sbdp_n30",
+                    "--training.steps=20",
+                    "--training.mixed_precision_reduce=bfloat16",
+                    "--metrics.log_freq=5",
+                    "--debug.seed=42",
+                    "--tpu_config.mfu_benchmark_start_step=5",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb64}",
+                    f"--training.num_tokens_per_train_step={2 * world_size * mb64}",
+                ],
+            },
+            # 3. Intra-Chip StaticEP=2 x FSDP=16 scaled to mb=80 (7,680 tok/exp!) + ZeRO-3 + PairedGMM-512
+            {
+                "name": "v7x_p12c_03_native_intrachip_staticep2_zero3_paired512_n36_mb80_ga2_log5",
+                "lane": "v7x-16 Intra-Chip StaticEP=2 x FSDP=16 (Zero Inter-Chip A2A, 7,680 tok/exp) + ZeRO-3 + PairedGMM-512 + n36 (mb=80, 2xGA = 10.49M tok/step)",
+                "workdir": "/torchtitan-native",
+                "env": base_nat_env,
+                "args": [
+                    "--module=torchtitan.experiments.tpu.examples.flint",
+                    "--config=flint_40b_p12c_staticep2_zero3_n36",
+                    "--training.steps=15",
+                    "--training.mixed_precision_reduce=bfloat16",
+                    "--metrics.log_freq=5",
+                    "--debug.seed=42",
+                    "--tpu_config.mfu_benchmark_start_step=5",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                    f"--training.num_tokens_per_train_step={2 * world_size * mb80}",
+                ],
+            },
+            # 4. Intra-Chip StaticEP=2 x FSDP=16 scaled to mb=80 + ZeRO-2 (skips 100% of backward parameter AllGather!)
+            {
+                "name": "v7x_p12c_04_native_intrachip_staticep2_zero2_paired512_n36_mb80_ga2_log5",
+                "lane": "v7x-16 Intra-Chip StaticEP=2 x FSDP=16 (Zero Inter-Chip A2A, 7,680 tok/exp) + ZeRO-2 (No Bwd AG) + PairedGMM-512 + n36 (mb=80, 2xGA = 10.49M tok/step)",
+                "workdir": "/torchtitan-native",
+                "env": base_nat_env,
+                "args": [
+                    "--module=torchtitan.experiments.tpu.examples.flint",
+                    "--config=flint_40b_p12c_staticep2_zero2_n36",
+                    "--training.steps=15",
+                    "--training.mixed_precision_reduce=bfloat16",
+                    "--metrics.log_freq=5",
+                    "--debug.seed=42",
+                    "--tpu_config.mfu_benchmark_start_step=5",
+                    f"--training.num_tokens_per_microbatch_per_dp_rank={mb80}",
+                    f"--training.num_tokens_per_train_step={2 * world_size * mb80}",
+                ],
+            },
+            # 5. HSDP (DP_rep=2 x FSDP=16) @ mb=48, HybridAC28, 2xGA
+            hsdp_48,
+            # 6. Intra-Chip TP=2 x FSDP=16 with FlintAttention.sinks + DTensor SplashAttention
+            tp2_64,
+        ]
     results = []
     for idx, exp in enumerate(exps):
         port = args.base_port + idx * 5
