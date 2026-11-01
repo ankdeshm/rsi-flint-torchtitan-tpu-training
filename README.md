@@ -2,7 +2,7 @@
 
 End-to-end distributed pre-training, HuggingFace safetensors fine-tuning, numerical checkpoint parity verification, and Model FLOPs Utilization (MFU) optimization for **[`RecursiveSI/flint`](https://huggingface.co/RecursiveSI/flint)** (`39.8B` total / `~2.52B` active parameters per token) on **TPU v7x (Ironwood)** and **TPU v5p** using **TorchTitan** and **TorchTPU `0.2.0` GA**.
 
-See [`docs/TRAINING_LEADERBOARD.md`](./docs/TRAINING_LEADERBOARD.md) for the complete experiment-by-experiment leaderboard across all `v7x-16` (`Pass 1..9B`) and `v5p` (`Pass 1..8`) sweeps.
+See [`docs/TRAINING_LEADERBOARD.md`](./docs/TRAINING_LEADERBOARD.md) for the complete experiment-by-experiment leaderboard across all `v7x-16` (`Pass 1..12B`) and `v5p` (`Pass 1..9F`) sweeps.
 
 ---
 
@@ -43,12 +43,18 @@ See [`docs/TRAINING_LEADERBOARD.md`](./docs/TRAINING_LEADERBOARD.md) for the com
 | **TPU `v5p-32` (`2x4x4`, 32 Chips)** | **HF Backend + `HSDP 2×16` (`v5p_p8_06`, `2x` GA, `6.29M` tok/step)** | `19.76%` *(v5p-16)* | **`23.81%`** *(+4.05 pp)* | **`23.83%`** | **`6,285.7` tok/s** | **`201,142` tok/s** | `12.4958 -> 3.7789` *(`21.08 GiB` HBM)* |
 | **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native `TpuGraphTrainer` (`v7x_p9_02`, BF16 Reduce + Scout XLA + `2x` GA)** | `16.23%` *(v7x-8)* / `16.56%` *(v7x-16 base)* | **`18.68%`** *(+2.45 pp)* | **`18.76%`** | **`12,392.8` tok/s** *(12,447 peak)* | **`396,570` tok/s** *(398.3K peak)* | `12.3201 -> 4.1606` *(`27.12 GiB` HBM — **All-Time Throughput Record!**)* |
 | **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native `TpuGraphTrainer` (`v7x_p9_01`, `1x` step `n45` + BF16 Reduce)** | `16.23%` *(v7x-8)* / `16.56%` *(v7x-16 base)* | **`18.53%`** *(+2.30 pp)* | **`18.62%`** | **`12,297.1` tok/s** | **`393,507` tok/s** | `12.3215 -> 4.5422` *(`27.64 GiB` HBM)* |
-| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **HF Backend + Paired GMM (`v7x_p9_03`, BF16 Reduce + Scout XLA)** | `16.29%` *(v7x-8)* / `15.87%` *(v7x-16 base)* | **`18.29%`** *(+2.00 pp)* | **`18.34%`** *(18.56% step-2)* | **`12,132.8` tok/s** *(12,316 peak)* | **`388,250` tok/s** *(394.1K peak)* | `12.3104 -> 4.5041` *(`16.92 GiB` HBM)* |
-| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native `StaticEP=16` + `ZeRO-2` + `PairedGMM-256` (`v7x_p11c_02` / `p11d`)** | `Blocked upstream` *(SymNode / EP>1 asserts)* | **Verified `StaticEP=16`** | **`36,864` tok/exp** | *(`Pass 11D` live)* | *(`Pass 11D` live)* | **`12.3210 -> 3.6920`** *(`24.71 GiB` HBM — **First Static-Shape EP>1 Convergence!**)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **HF Backend + `SBDP` + `PureFusedOpt` + `sa=1024` + `tile1024` + `HybridAC12` (`v7x_p12_04`, `mb=64`, `2x` GA)** | `16.29%` *(v7x-8)* / `15.87%` *(v7x-16 base)* | **`18.58%`** *(+2.71 pp)* | **`18.59%`** | **`12,331.0` tok/s** | **`394,592` tok/s** | `12.3104 -> 3.7640` *(`25.50 GiB` HBM — **HF #1 Record!**)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **HF Backend + `SBDP` + `ChunkedOpt` + `sa=1024` + `HybridAC16` (`v7x_p11f_01`, `mb=64`, `1x` step)** | `16.29%` *(v7x-8)* / `15.87%` *(v7x-16 base)* | **`18.39%`** *(+2.52 pp)* | **`18.41%`** | **`12,199.9` tok/s** | **`390,397` tok/s** | `12.3104 -> 5.1286` *(`25.55 GiB` HBM)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Native Full Host Offload `save_last_n=0, prefetch=2` (`v7x_p11b_04`, `mb=96`, `2x` GA = `12.58M` tok/step)** | `OOM` *(without offload)* | **`18.14%`** | **`18.16%`** | **`12,037.5` tok/s** | **`385,200` tok/s** | `12.3202 -> 3.6790` *(`53.43 GiB` HBM)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **HF Backend + `SBDP` + `PureFusedOpt` + `sa=1024` + `tile1024` + `HybridAC12` (`v7x_p12b_04`, `mb=64`, `4x` GA = `16.78M` tok/step)** | `15.87%` *(v7x-16 base)* | **`18.55%`** *(+2.68 pp)* | **`18.56%`** | **`12,311.0` tok/s** | **`393,952` tok/s** | `12.3105 -> 4.1872` *(`25.50 GiB` HBM)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Intra-Chip `StaticEP=2 × FSDP=16 + ZeRO-3 + PairedGMM-512` (`v7x_p12_08`, `0` Inter-Chip A2A)** | `Recompile/OOM` *(dynamic EP)* | **`11.85%`** *(+76% vs EP=8)* | **`12.24%`** *(step-5)* | **`7,860.0` tok/s** *(8,120 pk)* | **`251,520` tok/s** *(259.8K pk)* | `12.3189 -> 3.6921` *(`19.73 GiB` HBM — **#1 StaticEP Record!**)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Intra-Tray `StaticEP=4 × FSDP=8 + ZeRO-3 + PairedGMM-512` (`v7x_p12_09`, `2`-Chip A2A)** | `Recompile/OOM` *(dynamic EP)* | **`7.17%`** | **`7.37%`** *(step-5)* | **`4,759.5` tok/s** | **`152,304` tok/s** | `12.3177 -> 3.6906` *(`21.05 GiB` HBM — **#2 StaticEP**)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Intra-Host `StaticEP=8 × FSDP=4 + ZeRO-3 + PairedGMM-256` (`v7x_p11d_04`, `4`-Chip A2A)** | `Recompile/OOM` *(dynamic EP)* | **`6.73%`** | **`6.81%`** | **`4,463.0` tok/s** | **`142,816` tok/s** | `12.3215 -> 4.1913` *(`22.69 GiB` HBM)* |
+| **TPU `v7x-16` (`2x2x4`, 32 TensorCores)** | **Inter-Host `StaticEP=16 × FSDP=2 + ZeRO-2 + PairedGMM-256` (`v7x_p11d_03`)** | `Blocked upstream` *(SymNode / EP>1 asserts)* | **`5.85%`** | **`6.11%`** | **`3,880.0` tok/s** | **`124,160` tok/s** | `12.3210 -> 3.6920` *(`24.48 GiB` HBM)* |
 
 ---
 
-## 4. From Baseline to `25.76%` (`v5p-16`), `24.88%` (`v5p-32`) & `StaticEP=16` (`v7x-16`) — Engineering Breakdown
+## 4. From Baseline to `25.76%` (`v5p-16`), `24.88%` (`v5p-32`) & `StaticEP=2..32` (`v7x-16`) — Engineering Breakdown
 
 ### Track A: Native `TpuGraphTrainer` (PR #122 `flint_40b_v011_n40` -> `p7_01` & `p7_02`)
 
@@ -103,7 +109,7 @@ See [`docs/TRAINING_LEADERBOARD.md`](./docs/TRAINING_LEADERBOARD.md) for the com
 ├── docker/
 │   ├── Dockerfile                     # Builds PyTorch 2.15 + TorchTPU 0.2.0 GA + PR #122 & PR #123
 │   └── patch_flint_configs.py         # Appends hillclimb & v5p/v6e configs to Native config_registry.py
-├── scripts/                           # All Pass 1..7 & v5p training sweep & staging scripts
+├── scripts/                           # All Pass 1..12B (v7x-16) & Pass 1..9F (v5p) training sweep & staging scripts
 ├── k8s/                               # Multi-host GKE TPU Indexed Job & GCS Fuse manifests
 └── results/                           # Output summary.json & SUMMARY.md artifacts across v7x-16 & v5p
 ```
@@ -121,7 +127,7 @@ docker push us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/torchtpu/torchtitan-f
 kubectl apply -f k8s/storage-gcsfuse.yaml
 kubectl apply -f k8s/stage-flint-job.yaml
 
-# 3. Run Pass 7 (#1 Native 18.36%/18.42% MFU & #1 HF Backend 18.02%/18.05% MFU) on TPU v7x-16 (2x2x4)
-kubectl apply -f k8s/v7x-16-flint-pass7.yaml
-kubectl logs -f job/flint-v7x-16-pass7
+# 3. Run Pass 9 / Pass 12 (#1 Native 18.68%/18.76% MFU & #1 HF Backend 18.58%/18.59% MFU) on TPU v7x-16 (2x2x4)
+kubectl apply -f k8s/v7x-16-flint-pass12.yaml
+kubectl logs -f job/flint-v7x-16-pass12
 ```
