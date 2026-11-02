@@ -1,5 +1,5 @@
 {
-  "updated_at_utc": "2026-11-02T20:59:26.726783+00:00",
+  "updated_at_utc": "2026-11-02T21:06:17.994420+00:00",
   "suite": "pass11_mfu_frontier",
   "slice_name": "v5p-16-4n-2x2x4",
   "chip_type": "v5p",
@@ -225,5 +225,5 @@
       }
     }
   ],
-  "diagnostic_oom_boundary_probes": 2
+  "diagnostic_oom_boundary_probes": 3
 }

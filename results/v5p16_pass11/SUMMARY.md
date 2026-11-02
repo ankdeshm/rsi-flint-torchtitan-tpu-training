@@ -1,6 +1,6 @@
 # Flint (`RecursiveSI/flint` 40B MoE) TorchTitan 40%-55%+ MFU Frontier (`16K / 32K / 64K`) (`PASS11_MFU_FRONTIER`) — `v5p-16-4n-2x2x4`
 
-- **Updated (UTC):** `2026-11-02T20:59:26.726783+00:00`
+- **Updated (UTC):** `2026-11-02T21:06:17.994420+00:00`
 - **Chip / World Size:** `v5p` (`16` chips/ranks, `459.0` BF16 TFLOP/s/rank)
 
 | Experiment | Seq Len | GFLOP/tok | Status | Steady tok/s/rank | Cluster tok/s | Steady MFU (%) | Peak MFU (%) | Logged MFU (%) | Peak HBM (GiB) | Loss (start -> end) | Wall Time (s) |
