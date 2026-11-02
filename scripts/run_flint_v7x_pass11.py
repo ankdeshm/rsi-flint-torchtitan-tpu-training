@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 11A & Pass 11B TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) StaticEP MFU Breakthrough Sweeps.
+"""Pass 11A & Pass 11B TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) StaticEP MFU Optimization Sweeps.
 
 Resolves the exact `GuardOnDataDependentSymNode` root cause uncovered in Pass 10C/10D when `EP > 1`:
   - Upstream `AllToAllTokenDispatcher` called `.to("cpu").tolist()` on dynamic per-peer token counts

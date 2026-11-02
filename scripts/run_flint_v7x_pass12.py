@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 12 TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Frontier & EP/DP/TP Matrix for Flint.
+"""Pass 12 TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Sweep & EP/DP/TP Matrix for Flint.
 
 Unlocks the high-impact optimizations & parallelism combinations left untested when Pass 11 pivoted:
   1. Fixes the Pass 11A `MfuBenchmark` boundary bug (`mfu_benchmark_start_step=5`, `steps=20` with `log_freq=5`)
@@ -12,7 +12,7 @@ Unlocks the high-impact optimizations & parallelism combinations left untested w
        `ICI_AG_PIPELINING`, `HierSC`, `RegionAnalysis`, NO `scoped_vmem_limit_kib` override -> preserves full
        `34.58 GiB` bottom-of-HBM executable reservation!)
      - Tested across `mb=48` (`n45 1x`, `n43 2xGA`, `n45 4xGA` = 12.58M tok/step) and `mb=64` (`n36 2xGA` = 8.39M tok/step).
-  2. Upgrades Pass 11F's HF PR#123 record (`18.39%` at `mb=64 1x tile512`) with `tile_m=1024` (`tgmm=512:2048:0`),
+  2. Upgrades Pass 11F's HF PR#123 baseline (`18.39%` at `mb=64 1x tile512`) with `tile_m=1024` (`tgmm=512:2048:0`),
      Pure `FusedCompiledOpt`, `Splash sa=1024`, `SBDP`, `2x` GradAccum, `log_freq=5` at `mb=64` (`HybridAC N=12`)
      and `mb=72` (`HybridAC N=16`, safely below the `34.58 GiB` bottom-of-HBM slab limit).
   3. Completes the systematic `(EP, DP/FSDP, HSDP, TP)` parallelism matrix on `v7x-16`:
@@ -254,7 +254,7 @@ TpuAllToAllTokenDispatcher.combine = _static_tpu_ep_combine
 NATIVE_P12_REGISTRY_PATCH = '''
 
 # ==============================================================================
-# Pass 12 Flint v7x-16 MFU Frontier & EP/DP/TP Configs
+# Pass 12 Flint v7x-16 MFU Sweep & EP/DP/TP Configs
 # ==============================================================================
 from torchtitan.experiments.tpu.token_dispatcher import (
     TpuAllToAllTokenDispatcher,
@@ -376,7 +376,7 @@ def flint_40b_p12_staticep4_zero3_n40() -> TpuGraphTrainer.Config:
 
 def _build_p12c_ep1_p9base_sbdp(save_attn_layers: int) -> TpuGraphTrainer.Config:
   # Preserves flint_40b_v014_tile1024()'s exact libtpu_init_flags, GMM tiling, and
-  # for_each separate_graph optimizer from all-time #1 v7x_p9_02 (18.68% MFU),
+  # for_each separate_graph optimizer from top v7x_p9_02 (18.68% MFU),
   # adding ONLY SBDP (eliminates 47-layer bwd W2 recompute) + BF16-RoPE!
   config = flint_40b_v014_tile1024()
   config.model_spec.model = (
@@ -1157,7 +1157,7 @@ def build_v7x_pass12_experiments(
         }
 
     return [
-        # 1. Direct upgrade over all-time #1 v7x_p9_02 (18.68% steady / 18.76% peak):
+        # 1. Direct upgrade over top v7x_p9_02 (18.68% steady / 18.76% peak):
         #    Native tile_m=1024 + SBDP + BF16-RoPE + PureFusedOpt + Direct config.libtpu_init_flags + log_freq=5 @ mb=48 2xGA
         _nat_exp(
             "v7x_p12_01_native_tile1024_sbdp_bf16rope_fusedopt_libtpu_n43_mb48_ga2_log5",
@@ -1188,7 +1188,7 @@ def build_v7x_pass12_experiments(
             log_freq=5,
             steps=15,
         ),
-        # 4. Upgrade over Pass 11F HF #1 winner (18.39%): HF PR#123 + tile1024 (safe tgmm) + PureFusedOpt + SBDP + sa=1024 + HybridAC12 @ mb=64 2xGA
+        # 4. Upgrade over Pass 11F HF top config (18.39%): HF PR#123 + tile1024 (safe tgmm) + PureFusedOpt + SBDP + sa=1024 + HybridAC12 @ mb=64 2xGA
         _hf_exp(
             "v7x_p12_04_hf_pr123_sbdp_purefused_sa1024_tile1024_hybridac12_mb64_ga2_log5",
             "v7x-16 HF PR#123 + SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC12 (mb=64 = 3,072 tok/exp, 2xGA = 8.39M tok/step, log5)",
@@ -1398,7 +1398,7 @@ def write_summary(
     }
     (out_dir / "summary.json").write_text(json.dumps(payload, indent=2))
     md_lines = [
-        f"# Flint (`RecursiveSI/flint` 40B MoE) TPU v7x `{suite.upper()}` (MFU Frontier + `EP/DP/TP` Matrix) — `{slice_name}`",
+        f"# Flint (`RecursiveSI/flint` 40B MoE) TPU v7x `{suite.upper()}` (MFU Sweep + `EP/DP/TP` Matrix) — `{slice_name}`",
         "",
         f"- **Updated (UTC):** `{payload['updated_at_utc']}`",
         f"- **Chip / World Size:** `{chip_type}` (`{world_size}` TensorCore ranks, `{PEAK_BF16_TFLOPS_PER_RANK.get(chip_type)}` BF16 TFLOP/s/rank)",
@@ -2000,7 +2000,7 @@ def main() -> int:
                     f"--training.num_tokens_per_train_step={16 * world_size * mb48}",
                 ],
             },
-            # 2. PureFusedOpt A/B on exact 8xGA 20.75% champion (25.17M tok/step)
+            # 2. PureFusedOpt A/B on exact 8xGA 20.75% baseline (25.17M tok/step)
             {
                 "name": "v7x_p12g_02_native_p9base_sbdp_bf16rope_fusedopt_n49_mb48_ga8_log5",
                 "lane": "v7x-16 Native PR#122 (n49 + PureFusedOpt + 8xGA = 25.17M tok/step, SBDP + BF16-RoPE, mb=48, log5)",

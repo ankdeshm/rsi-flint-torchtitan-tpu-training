@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Pass 8 TPU v7x (16 chips / 32 TensorCores & 8 chips / 16 TensorCores) MFU Frontier for Flint.
+"""Pass 8 TPU v7x (16 chips / 32 TensorCores & 8 chips / 16 TensorCores) MFU Sweep for Flint.
 
-Key Compiler & Memory Breakthrough (`TT_FULL_AC_FIRST_N` Hybrid `AttentionOnlyAC` + `FullAC`):
+Compiler & Memory Optimization (`TT_FULL_AC_FIRST_N` Hybrid `AttentionOnlyAC` + `FullAC`):
   - Pure `AttentionOnlyAC` (`hf_moe_auto_max_attnac`) saves `bf16[T, 2048] + bf16[T, 4096] + f32[32, T]`
     (`12,416 * T` bytes/layer) across all 49 layers, hitting the 95 GiB HBM wall right above `mb=48` (`55.7 GiB` saved).
   - Wrapping the first `N` layers with `FullAC` (`ptd_checkpoint_wrapper`, `4,096 * T` bytes/layer) and the

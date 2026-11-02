@@ -1,4 +1,4 @@
-# Flint (`RecursiveSI/flint` 40B MoE) TPU v7x `PASS12G` (MFU Frontier + `EP/DP/TP` Matrix) — `v7x-16-flex-2x2x4`
+# Flint (`RecursiveSI/flint` 40B MoE) TPU v7x `PASS12G` (MFU Sweep + `EP/DP/TP` Matrix) — `v7x-16-flex-2x2x4`
 
 - **Updated (UTC):** `2026-11-01T12:42:01.687425+00:00`
 - **Chip / World Size:** `v7x` (`32` TensorCore ranks, `1153.5` BF16 TFLOP/s/rank)

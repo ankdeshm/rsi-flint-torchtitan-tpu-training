@@ -5,7 +5,7 @@ Experiments:
   - p6_01: Native n49 (ALL 49 SplashAttention + ALL 49 moe.routing) + CompiledOpt/GradNorm +
            forward tile_m=1024 + VMEM-safe default backward tgmm_tiling (512, 2048, 0) at mb=44 (15 steps).
   - p6_02: End-to-End 30-step Real RecursiveSI/flint 15-Shard HuggingFace Safetensors Checkpoint Fine-Tuning
-           on our #1 18.15% Steady / 18.21% Peak MFU Native TpuGraphTrainer recipe (n43 Attn + ALL 49 moe.routing
+           on our 18.15% Steady / 18.21% Peak MFU Native TpuGraphTrainer recipe (n43 Attn + ALL 49 moe.routing
            + CompiledOpt/GradNorm + tile_m=1024, mb=48 = 98,304 tok/rank = 3,145,728 tok/step).
 """
 
@@ -53,7 +53,7 @@ def flint_40b_p6_n49_moe_route_comp_opt() -> TpuGraphTrainer.Config:
 
 
 def flint_40b_p6_real_hf_ckpt_n43_mb48() -> TpuGraphTrainer.Config:
-  """p6_02: Real RecursiveSI/flint 15-shard HF safetensors + tokenizer fine-tuning on #1 18.21% Peak MFU recipe."""
+  """p6_02: Real RecursiveSI/flint 15-shard HF safetensors + tokenizer fine-tuning on 18.21% Peak MFU recipe."""
   config = flint_40b_v014_tile1024()
   config.hf_assets_path = "/models/models/RecursiveSI/flint"
   config.checkpoint = CheckpointManager.Config(

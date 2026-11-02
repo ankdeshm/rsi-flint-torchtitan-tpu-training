@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pass 13 TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) Long-Context (4K / 8K / 16K) TorchTitan MFU Sweep.
 
-Extends our all-time #1 TorchTitan 2K Ironwood configurations (`v7x_p12g_02` @ 20.80% Steady / 20.81% Peak MFU =
+Extends our top TorchTitan 2K Ironwood configurations (`v7x_p12g_02` @ 20.80% Steady / 20.81% Peak MFU =
 441,664 / 441,952 tok/s on Native PR#122 TpuGraphTrainer, and `v7x_p12_04` @ 18.58% MFU = 394,592 tok/s on HF PR#123
 TransformersBackend) across 4,096 / 8,192 / 16,384 context lengths at constant tokens/microbatch/rank:
   - Constant 98,304 tok/rank (24x4096, 12x8192, 6x16384) & 131,072 tok/rank (32x4096, 16x8192, 8x16384)
@@ -418,7 +418,7 @@ def build_v7x_pass13_longctx_experiments(
         }
 
     return [
-        # 1. Native PR#122 (Pass 12G 20.80% champion) @ seq=4096 (mb=24 seqs = 98,304 tok/rank, 8xGA = 25.17M tok/step)
+        # 1. Native PR#122 (Pass 12G 20.80% baseline) @ seq=4096 (mb=24 seqs = 98,304 tok/rank, 8xGA = 25.17M tok/step)
         _nat_longctx(
             "v7x_p13_01_native_s4096_mb24_ga8_sbdp_bf16rope_fusedopt_n49",
             "v7x-16 Native PR#122 LongCtx 4K (seq=4096, mb=24 = 98.3K tok/rank, 8xGA = 25.17M tok/step, SBDP + BF16-RoPE + PureFusedOpt + n49)",
@@ -427,7 +427,7 @@ def build_v7x_pass13_longctx_experiments(
             tok_per_rank=tok_98k,
             ga=8,
         ),
-        # 2. Native PR#122 (Pass 12G champion) @ seq=8192 (mb=12 seqs = 98,304 tok/rank, 8xGA = 25.17M tok/step)
+        # 2. Native PR#122 (Pass 12G baseline) @ seq=8192 (mb=12 seqs = 98,304 tok/rank, 8xGA = 25.17M tok/step)
         _nat_longctx(
             "v7x_p13_02_native_s8192_mb12_ga8_sbdp_bf16rope_fusedopt_n49",
             "v7x-16 Native PR#122 LongCtx 8K (seq=8192, mb=12 = 98.3K tok/rank, 8xGA = 25.17M tok/step, SBDP + BF16-RoPE + PureFusedOpt + n49)",
@@ -436,7 +436,7 @@ def build_v7x_pass13_longctx_experiments(
             tok_per_rank=tok_98k,
             ga=8,
         ),
-        # 3. Native PR#122 (Pass 12G champion) @ seq=16384 (mb=6 seqs = 98,304 tok/rank, 8xGA = 25.17M tok/step)
+        # 3. Native PR#122 (Pass 12G baseline) @ seq=16384 (mb=6 seqs = 98,304 tok/rank, 8xGA = 25.17M tok/step)
         _nat_longctx(
             "v7x_p13_03_native_s16384_mb6_ga8_sbdp_bf16rope_fusedopt_n49",
             "v7x-16 Native PR#122 LongCtx 16K (seq=16384, mb=6 = 98.3K tok/rank, 8xGA = 25.17M tok/step, SBDP + BF16-RoPE + PureFusedOpt + n49)",
@@ -454,7 +454,7 @@ def build_v7x_pass13_longctx_experiments(
             tok_per_rank=tok_131k,
             ga=4,
         ),
-        # 5. HF PR#123 (Pass 12 18.58% champion) @ seq=4096 (mb=32 seqs = 131,072 tok/rank, 2xGA = 8.39M tok/step)
+        # 5. HF PR#123 (Pass 12 18.58% baseline) @ seq=4096 (mb=32 seqs = 131,072 tok/rank, 2xGA = 8.39M tok/step)
         _hf_longctx(
             "v7x_p13_05_hf_pr123_s4096_mb32_ga2_sbdp_fusedopt_sa1024_tile1024_ac12",
             "v7x-16 HF PR#123 LongCtx 4K (seq=4096, mb=32 = 131.1K tok/rank, 2xGA = 8.39M tok/step, SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC12)",
@@ -463,7 +463,7 @@ def build_v7x_pass13_longctx_experiments(
             ga=2,
             n_full_ac=12,
         ),
-        # 6. HF PR#123 (Pass 12 champion) @ seq=8192 (mb=16 seqs = 131,072 tok/rank, 2xGA = 8.39M tok/step)
+        # 6. HF PR#123 (Pass 12 baseline) @ seq=8192 (mb=16 seqs = 131,072 tok/rank, 2xGA = 8.39M tok/step)
         _hf_longctx(
             "v7x_p13_06_hf_pr123_s8192_mb16_ga2_sbdp_fusedopt_sa1024_tile1024_ac12",
             "v7x-16 HF PR#123 LongCtx 8K (seq=8192, mb=16 = 131.1K tok/rank, 2xGA = 8.39M tok/step, SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC12)",
@@ -472,7 +472,7 @@ def build_v7x_pass13_longctx_experiments(
             ga=2,
             n_full_ac=12,
         ),
-        # 7. HF PR#123 (Pass 12 champion) @ seq=16384 (mb=8 seqs = 131,072 tok/rank, 2xGA = 8.39M tok/step)
+        # 7. HF PR#123 (Pass 12 baseline) @ seq=16384 (mb=8 seqs = 131,072 tok/rank, 2xGA = 8.39M tok/step)
         _hf_longctx(
             "v7x_p13_07_hf_pr123_s16384_mb8_ga2_sbdp_fusedopt_sa1024_tile1024_ac16",
             "v7x-16 HF PR#123 LongCtx 16K (seq=16384, mb=8 = 131.1K tok/rank, 2xGA = 8.39M tok/step, SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC16)",

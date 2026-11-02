@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 6 TPU v5p-32 (2x4x4, 32 ranks) >24–26%+ MFU Frontier via Hybrid Partial FullAC + AttentionOnlyAC.
+"""Pass 6 TPU v5p-32 (2x4x4, 32 ranks) >24–26%+ MFU Sweep via Hybrid Partial FullAC + AttentionOnlyAC.
 
 Why Pass 4/5 hit 95 GiB right above `mb=48`:
   - `AttentionOnlyAC` saves `12,416 * T` bytes/layer across all 49 layers (`55.7 GiB` at `mb=48`, `65.0 GiB` at `mb=56`).

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 10B TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Breakthrough Sweep for Flint.
+"""Pass 10B TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Optimization Sweep for Flint.
 
 Incorporates exact VMEM & HBM calibration from Pass 10A + Intra-Host Expert Parallelism (EP=8) + ZeRO-2:
   1. Physical Ironwood TensorCore VMEM is 64 MiB (`xla_tpu_scoped_vmem_limit_kib=65536`) and `--loss.b_block_size=1024`
@@ -44,7 +44,7 @@ MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 NATIVE_P10B_PATCH = '''
 
 # ==============================================================================
-# Pass 10B Flint v7x-16 MFU Breakthrough Configs (Calibrated VMEM + EP=8 ZeRO-2)
+# Pass 10B Flint v7x-16 MFU Optimization Configs (Calibrated VMEM + EP=8 ZeRO-2)
 # ==============================================================================
 from torchtitan.experiments.tpu.token_dispatcher import (
     TpuRoutedExperts,

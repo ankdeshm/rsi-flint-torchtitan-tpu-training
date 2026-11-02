@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 8 TPU v5p-32 (2x4x4, 32 ranks) MFU Frontier for Flint (Priority #1).
+"""Pass 8 TPU v5p-32 (2x4x4, 32 ranks) MFU Sweep for Flint.
 
 Tests Ran Ran's Llama-4-Scout-17B-16E v5p XLA Latency-Hiding Scheduler + AG Backward Pipelining
 + Scoped VMEM (81,920 KiB) + BF16 Reduce + 2x GradAccum + Compiled Optimizer/GradNorm across both:

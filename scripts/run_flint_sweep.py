@@ -5,7 +5,7 @@ Runs both:
   1. PR #123 HF Transformers Modeling Backend (`hf_moe_auto_max_attnac`) on staged `RecursiveSI/flint`
   2. PR #122 Native TorchTPU GraphTrainer (`flint_40b_v011_n40` + hillclimb configs `v012..v015` / `v5p` / `v6e`)
 
-Persists raw logs, per-step metrics JSON, and Markdown leaderboard to `/models/flint-results/`
+Persists raw logs, per-step metrics JSON, and Markdown summary table to `/models/flint-results/`
 and `/models/benchmark-results/` after EVERY configuration so Spot preemptions never lose data.
 """
 

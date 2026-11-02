@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 9 TPU v5p-32 (2x4x4) & v5p-16 (2x2x4) MFU Breakthrough Sweep for Flint.
+"""Pass 9 TPU v5p-32 (2x4x4) & v5p-16 (2x2x4) MFU Optimization Sweep for Flint.
 
 Builds directly on the Pass 8 winner (`v5p_p8_02_hf_scout_xla_bf16red_mb48` @ 24.87% Steady / 24.95% Peak MFU)
 by stacking 6 orthogonal high-impact optimizations uncovered in our TorchTitan TPU source audit & Wan2.1 sweep:
@@ -43,7 +43,7 @@ MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 NATIVE_V5P_P9_PATCH = '''
 
 # ==============================================================================
-# Pass 9 Flint v5p MFU Breakthrough Configs (SBDP + Intra-Host EP=4/8 ZeRO-2)
+# Pass 9 Flint v5p MFU Optimization Configs (SBDP + Intra-Host EP=4/8 ZeRO-2)
 # ==============================================================================
 from torchtitan.experiments.tpu.token_dispatcher import (
     TpuRoutedExperts,

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Pass 9 TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Frontier for Flint (Priority #1).
+"""Pass 9 TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Sweep for Flint.
 
-Combines all Pass 7 v7x-16 breakthroughs (`18.36%` Native PR#122 & `18.02%` HF PR#123) with
-the Pass 8 v5p-32 record-setting breakthroughs (`24.87%` Steady / `24.95%` Peak MFU):
+Combines all Pass 7 v7x-16 optimizations (`18.36%` Native PR#122 & `18.02%` HF PR#123) with
+the Pass 8 v5p-32 previous optimizations (`24.87%` Steady / `24.95%` Peak MFU):
   1. `--training.mixed_precision_reduce=bfloat16` (halves 32-rank FSDP ReduceScatter payload 159 GB -> 79.6 GB)
   2. `Llama-4-Scout` Async AllGather + AG Backward Pipelining + ICI AG Pipelining + `v7x` Hierarchical SparseCore RS
   3. Native `TpuGraphTrainer` (`n45` 1x step & `n43` 2x GradAccum + all-49 `moe.routing` + `tile_m=1024` + CompiledOpt)

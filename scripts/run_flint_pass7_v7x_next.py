@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 7 Next-Wave MFU Frontier on TPU v7x (pushing past 18.21% Native & 17.72% HF Backend).
+"""Pass 7 Next-Wave MFU Sweep on TPU v7x (pushing past 18.21% Native & 17.72% HF Backend).
 
 New MFU Levers over Pass 4 (`18.15%` Steady / `18.21%` Peak) & Pass 5 (`17.68%` Steady / `17.72%` Peak):
   1. `p7_01_native_grad_accum_2x_mb48_n43`: 2x gradient accumulation (`2 * 98,304 = 196,608` tok/rank,

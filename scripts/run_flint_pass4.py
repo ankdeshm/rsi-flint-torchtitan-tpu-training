@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Pass 4 Peak-MFU Frontier + Real `RecursiveSI/flint` Checkpoint Fine-Tuning on v7x-16 (32 ranks).
+"""Pass 4 MFU Optimization + Real `RecursiveSI/flint` Checkpoint Fine-Tuning on v7x-16 (32 ranks).
 
-Builds directly on Pass 3's 18.11% Steady / 18.18% Peak MFU breakthrough (`p3_05`: mb=48, n28):
+Builds directly on Pass 3's 18.11% Steady / 18.18% Peak MFU baseline (`p3_05`: mb=48, n28):
   - At `mb=48` (98,304 tok/rank = 3.15M tok/step), `n49` missed fitting in 96 GiB HBM by only 1.93 GiB,
     while `p3_05` dropped all the way to `n28` (recomputing 21 SplashAttention layers) and still hit 18.18% MFU!
   - `p4_01` saves 43 SplashAttention layers (`n43`) + all-49 `moe.routing` (freeing 4.50 GiB vs `n49`, >1 GiB safety

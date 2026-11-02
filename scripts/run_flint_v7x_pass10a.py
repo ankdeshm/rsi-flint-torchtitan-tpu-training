@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 10A TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Breakthrough Sweep for Flint.
+"""Pass 10A TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Optimization Sweep for Flint.
 
 Root-cause fixes & high-impact optimizations unlocked from full TorchTitan TPU source audit:
   1. Un-padded Pallas GroupedMM (`tile_m=256` instead of `1024`): At `mb=48` (`98,304` tok/rank),
@@ -45,7 +45,7 @@ MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 NATIVE_P10A_PATCH = '''
 
 # ==============================================================================
-# Pass 10A Flint v7x-16 MFU Breakthrough Configs
+# Pass 10A Flint v7x-16 MFU Optimization Configs
 # ==============================================================================
 from torchtitan.experiments.tpu.token_dispatcher import (
     TpuRoutedExperts,

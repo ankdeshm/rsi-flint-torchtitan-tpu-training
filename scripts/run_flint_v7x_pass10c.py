@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 10C & Pass 10D TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Breakthrough Sweeps.
+"""Pass 10C & Pass 10D TPU v7x-16 (2x2x4, 16 Ironwood chips / 32 TensorCores) MFU Optimization Sweeps.
 
 Executes across BOTH v7x-16 slices in parallel (`--suite=pass10c` on `tpu-v7x-16-pool` and
 `--suite=pass10d` on `tpu-v7x-16-pool`), combining ALL root-cause discoveries from Pass 10A/10B
@@ -50,7 +50,7 @@ MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 NATIVE_P10CD_PATCH = '''
 
 # ==============================================================================
-# Pass 10C / 10D Flint v7x-16 Breakthrough Configs (EP=8/16/32 ZeRO-2 + WholeStep + Scan)
+# Pass 10C / 10D Flint v7x-16 Optimization Configs (EP=8/16/32 ZeRO-2 + WholeStep + Scan)
 # ==============================================================================
 from torchtitan.experiments.tpu.token_dispatcher import (
     TpuRoutedExperts,

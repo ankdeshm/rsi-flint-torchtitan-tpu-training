@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Pass 7 TPU v5p-32 (2x4x4, 32 ranks) 41–45%+ MFU Frontier for Flint.
+"""Pass 7 TPU v5p-32 (2x4x4, 32 ranks) 41–45%+ MFU Sweep for Flint.
 
 Compiler-Native HybridAC v2 + Compiled Optimizer / GradNorm + DEFER_AND_FUSE:
   - Keeps 100% of layers inside `SelectiveAC._wrap_block` (`tag_activation_checkpoint` HOP) using

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Pass 9B & Pass 9C TPU v5p-32 (2x4x4) & v5p-16 (2x2x4) MFU Breakthrough Sweep for Flint.
+"""Pass 9B & Pass 9C TPU v5p-32 (2x4x4) & v5p-16 (2x2x4) MFU Optimization Sweep for Flint.
 
-Builds directly on our Pass 9 record (`v5p_p9_02` @ 25.76% Steady / 25.81% Peak MFU on v5p-16 and
+Builds directly on our Pass 9 baseline (`v5p_p9_02` @ 25.76% Steady / 25.81% Peak MFU on v5p-16 and
 24.88% Steady / 24.91% Peak MFU on v5p-32, which used only 22.84 GiB / 95 GiB = 24.04% of v5p HBM!)
 AND brings our verified `StaticTpuAllToAllTokenDispatcher` (`StaticEP=4, 8, 16` + `ZeRO-2`) to v5p:
 

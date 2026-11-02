@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Pass 10 TPU v5p-32 (2x4x4) & v5p-16 (2x2x4) Long-Context (4K / 8K / 16K) TorchTitan MFU Sweep.
 
-Extends our all-time #1 TorchTitan 2K v5p configurations (`v5p_p9_02` @ 25.76% Steady / 25.81% Peak MFU on v5p-16
+Extends our top TorchTitan 2K v5p configurations (`v5p_p9_02` @ 25.76% Steady / 25.81% Peak MFU on v5p-16
 and 24.88% MFU = 210,189 tok/s on v5p-32 for HF PR#123 TransformersBackend, plus `v5p_p9_06` @ 23.89% / 24.00% MFU
 for Native PR#122 TpuGraphTrainer) across 4,096 / 8,192 / 16,384 context lengths:
   - Constant 131,072 tok/rank (32x4096, 16x8192, 8x16384), 196,608 tok/rank (12x16384), and 98,304 tok/rank (Native)
@@ -391,7 +391,7 @@ def build_v5p_pass10_longctx_experiments(world_size: int, hf_model_path: str, st
 
     prefix = f"v5p{world_size}_p10"
     exps = [
-        # 1. Direct 4K extension of v5p_p9_02 (25.76% v5p-16 / 24.88% v5p-32 champion): seq=4096, mb=32 (131.1K tok/rank)
+        # 1. Direct 4K extension of v5p_p9_02 (25.76% v5p-16 / 24.88% v5p-32 baseline): seq=4096, mb=32 (131.1K tok/rank)
         _hf_longctx(
             f"{prefix}_01_hf_pr123_s4096_mb32_1x_sbdp_fusedopt_sa1024_ac16",
             f"v5p-{world_size} HF PR#123 LongCtx 4K (seq=4096, mb=32 = 131.1K tok/rank, 1x, SBDP + FusedOpt + sa=1024 + HybridAC16)",
