@@ -1,0 +1,588 @@
+{
+  "updated_at_utc": "2026-11-01T17:18:15.569147+00:00",
+  "suite": "pass13_longctx",
+  "slice_name": "v7x-16-flex-2x2x4",
+  "chip_type": "v7x",
+  "world_size_ranks": 32,
+  "peak_bf16_tflops_per_rank": 1153.5,
+  "results": [
+    {
+      "name": "v7x_p13_01_native_s4096_mb24_ga8_sbdp_bf16rope_fusedopt_n49",
+      "lane": "v7x-16 Native PR#122 LongCtx 4K (seq=4096, mb=24 = 98.3K tok/rank, 8xGA = 25.17M tok/step, SBDP + BF16-RoPE + PureFusedOpt + n49)",
+      "seq_len": 4096,
+      "status": "PASS",
+      "return_code": 0,
+      "duration_s": 1073.9,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass13-0.flint-v7x-16-pass13-svc.default.svc.cluster.local:29840",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.examples.flint",
+        "--config=flint_40b_p13_s4096_sbdp_fusedopt_n49",
+        "--training.max_context_length=4096",
+        "--training.steps=15",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--metrics.log_freq=5",
+        "--debug.seed=42",
+        "--tpu_config.mfu_benchmark_start_step=5",
+        "--training.num_tokens_per_microbatch_per_dp_rank=98304",
+        "--training.num_tokens_per_train_step=25165824"
+      ],
+      "env_overrides": {
+        "LIBTPU_INIT_ARGS": "--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_dvfs_p_state=7 --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "seq_len": 4096,
+        "flops_per_token_g": 18.7943,
+        "num_logged_steps": 4,
+        "first_loss": 12.32219,
+        "final_loss": 3.7291,
+        "steady_tps": 13455.5,
+        "peak_tps": 13462.0,
+        "steady_mfu_pct": 21.92,
+        "peak_mfu_pct": 21.93,
+        "steady_logged_mfu_pct": 21.92,
+        "peak_logged_mfu_pct": 21.93,
+        "peak_mem_gib": 23.52,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.32219,
+            "tps_per_rank": 3538.0,
+            "logged_tflops": 66.5,
+            "logged_mfu_pct": 5.77,
+            "mfu_pct": 5.76,
+            "mem_gib": 23.52
+          },
+          {
+            "step": 5,
+            "loss": 8.07826,
+            "tps_per_rank": 13188.0,
+            "logged_tflops": 247.85,
+            "logged_mfu_pct": 21.49,
+            "mfu_pct": 21.49,
+            "mem_gib": 23.52
+          },
+          {
+            "step": 10,
+            "loss": 4.53535,
+            "tps_per_rank": 13449.0,
+            "logged_tflops": 252.77,
+            "logged_mfu_pct": 21.91,
+            "mfu_pct": 21.91,
+            "mem_gib": 23.52
+          },
+          {
+            "step": 15,
+            "loss": 3.7291,
+            "tps_per_rank": 13462.0,
+            "logged_tflops": 253.01,
+            "logged_mfu_pct": 21.93,
+            "mfu_pct": 21.93,
+            "mem_gib": 23.52
+          }
+        ]
+      }
+    },
+    {
+      "name": "v7x_p13_02_native_s8192_mb12_ga8_sbdp_bf16rope_fusedopt_n49",
+      "lane": "v7x-16 Native PR#122 LongCtx 8K (seq=8192, mb=12 = 98.3K tok/rank, 8xGA = 25.17M tok/step, SBDP + BF16-RoPE + PureFusedOpt + n49)",
+      "seq_len": 8192,
+      "status": "PASS",
+      "return_code": 0,
+      "duration_s": 1143.9,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass13-0.flint-v7x-16-pass13-svc.default.svc.cluster.local:29845",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.examples.flint",
+        "--config=flint_40b_p13_s8192_sbdp_fusedopt_n49",
+        "--training.max_context_length=8192",
+        "--training.steps=15",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--metrics.log_freq=5",
+        "--debug.seed=42",
+        "--tpu_config.mfu_benchmark_start_step=5",
+        "--training.num_tokens_per_microbatch_per_dp_rank=98304",
+        "--training.num_tokens_per_train_step=25165824"
+      ],
+      "env_overrides": {
+        "LIBTPU_INIT_ARGS": "--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_dvfs_p_state=7 --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "seq_len": 8192,
+        "flops_per_token_g": 21.6129,
+        "num_logged_steps": 4,
+        "first_loss": 12.32358,
+        "final_loss": 3.74033,
+        "steady_tps": 12343.5,
+        "peak_tps": 12346.0,
+        "steady_mfu_pct": 23.13,
+        "peak_mfu_pct": 23.13,
+        "steady_logged_mfu_pct": 23.12,
+        "peak_logged_mfu_pct": 23.13,
+        "peak_mem_gib": 20.52,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.32358,
+            "tps_per_rank": 3565.0,
+            "logged_tflops": 77.04,
+            "logged_mfu_pct": 6.68,
+            "mfu_pct": 6.68,
+            "mem_gib": 20.52
+          },
+          {
+            "step": 5,
+            "loss": 8.07424,
+            "tps_per_rank": 12112.0,
+            "logged_tflops": 261.77,
+            "logged_mfu_pct": 22.69,
+            "mfu_pct": 22.69,
+            "mem_gib": 20.52
+          },
+          {
+            "step": 10,
+            "loss": 4.53394,
+            "tps_per_rank": 12341.0,
+            "logged_tflops": 266.73,
+            "logged_mfu_pct": 23.12,
+            "mfu_pct": 23.12,
+            "mem_gib": 20.52
+          },
+          {
+            "step": 15,
+            "loss": 3.74033,
+            "tps_per_rank": 12346.0,
+            "logged_tflops": 266.82,
+            "logged_mfu_pct": 23.13,
+            "mfu_pct": 23.13,
+            "mem_gib": 20.52
+          }
+        ]
+      }
+    },
+    {
+      "name": "v7x_p13_03_native_s16384_mb6_ga8_sbdp_bf16rope_fusedopt_n49",
+      "lane": "v7x-16 Native PR#122 LongCtx 16K (seq=16384, mb=6 = 98.3K tok/rank, 8xGA = 25.17M tok/step, SBDP + BF16-RoPE + PureFusedOpt + n49)",
+      "seq_len": 16384,
+      "status": "PASS",
+      "return_code": 0,
+      "duration_s": 1214.0,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass13-0.flint-v7x-16-pass13-svc.default.svc.cluster.local:29850",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.examples.flint",
+        "--config=flint_40b_p13_s16384_sbdp_fusedopt_n49",
+        "--training.max_context_length=16384",
+        "--training.steps=15",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--metrics.log_freq=5",
+        "--debug.seed=42",
+        "--tpu_config.mfu_benchmark_start_step=5",
+        "--training.num_tokens_per_microbatch_per_dp_rank=98304",
+        "--training.num_tokens_per_train_step=25165824"
+      ],
+      "env_overrides": {
+        "LIBTPU_INIT_ARGS": "--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_dvfs_p_state=7 --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "seq_len": 16384,
+        "flops_per_token_g": 27.25,
+        "num_logged_steps": 4,
+        "first_loss": 12.32431,
+        "final_loss": 3.73677,
+        "steady_tps": 11494.0,
+        "peak_tps": 11513.0,
+        "steady_mfu_pct": 27.15,
+        "peak_mfu_pct": 27.2,
+        "steady_logged_mfu_pct": 27.16,
+        "peak_logged_mfu_pct": 27.2,
+        "peak_mem_gib": 20.52,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.32431,
+            "tps_per_rank": 3463.0,
+            "logged_tflops": 94.37,
+            "logged_mfu_pct": 8.18,
+            "mfu_pct": 8.18,
+            "mem_gib": 20.52
+          },
+          {
+            "step": 5,
+            "loss": 8.07057,
+            "tps_per_rank": 11260.0,
+            "logged_tflops": 306.83,
+            "logged_mfu_pct": 26.6,
+            "mfu_pct": 26.6,
+            "mem_gib": 20.52
+          },
+          {
+            "step": 10,
+            "loss": 4.52825,
+            "tps_per_rank": 11475.0,
+            "logged_tflops": 312.69,
+            "logged_mfu_pct": 27.11,
+            "mfu_pct": 27.11,
+            "mem_gib": 20.52
+          },
+          {
+            "step": 15,
+            "loss": 3.73677,
+            "tps_per_rank": 11513.0,
+            "logged_tflops": 313.72,
+            "logged_mfu_pct": 27.2,
+            "mfu_pct": 27.2,
+            "mem_gib": 20.52
+          }
+        ]
+      }
+    },
+    {
+      "name": "v7x_p13_04_native_s16384_mb8_ga4_sbdp_bf16rope_fusedopt_n36",
+      "lane": "v7x-16 Native PR#122 LongCtx 16K HighTok (seq=16384, mb=8 = 131.1K tok/rank, 4xGA = 16.78M tok/step, SBDP + BF16-RoPE + PureFusedOpt + n36)",
+      "seq_len": 16384,
+      "status": "FAIL(rc=-9)",
+      "return_code": -9,
+      "duration_s": 285.9,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass13-0.flint-v7x-16-pass13-svc.default.svc.cluster.local:29855",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.examples.flint",
+        "--config=flint_40b_p13_s16384_sbdp_fusedopt_n36",
+        "--training.max_context_length=16384",
+        "--training.steps=15",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--metrics.log_freq=5",
+        "--debug.seed=42",
+        "--tpu_config.mfu_benchmark_start_step=5",
+        "--training.num_tokens_per_microbatch_per_dp_rank=131072",
+        "--training.num_tokens_per_train_step=16777216"
+      ],
+      "env_overrides": {
+        "LIBTPU_INIT_ARGS": "--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_dvfs_p_state=7 --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "seq_len": 16384,
+        "flops_per_token_g": 27.25,
+        "num_logged_steps": 0,
+        "steady_tps": 0.0,
+        "steady_mfu_pct": 0.0
+      }
+    },
+    {
+      "name": "v7x_p13_05_hf_pr123_s4096_mb32_ga2_sbdp_fusedopt_sa1024_tile1024_ac12",
+      "lane": "v7x-16 HF PR#123 LongCtx 4K (seq=4096, mb=32 = 131.1K tok/rank, 2xGA = 8.39M tok/step, SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC12)",
+      "seq_len": 4096,
+      "status": "PASS",
+      "return_code": 0,
+      "duration_s": 571.8,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass13-0.flint-v7x-16-pass13-svc.default.svc.cluster.local:29860",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=4096",
+        "--training.steps=15",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--optimizer.implementation=fused",
+        "--lr_scheduler.warmup_steps=0",
+        "--lr_scheduler.decay_ratio=0.0",
+        "--metrics.log_freq=5",
+        "--debug.seed=42",
+        "--loss.b_block_size=1024",
+        "--splash_attention_kernel.sa_block_q=1024",
+        "--splash_attention_kernel.sa_block_kv=1024",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=1024",
+        "--splash_attention_kernel.sa_block_kv_dkv=1024",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512",
+        "--training.num_tokens_per_microbatch_per_dp_rank=131072",
+        "--training.num_tokens_per_train_step=8388608"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=1024,pallas_grouped_mm_tgmm_tiling=512:2048:0,pallas_grouped_mm_w2_tgmm_tiling=512:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=512:0:2048",
+        "TT_HF_SBDP": "1",
+        "TT_FULL_AC_FIRST_N": "12",
+        "TORCH_TPU_DEFER_AND_FUSE": "1",
+        "LIBTPU_INIT_ARGS": "--xla_tpu_dvfs_p_state=7 --xla_tpu_enable_offloading_copy_to_sparsecore=false --xla_tpu_copy_insertion_use_region_analysis=true --xla_tpu_copy_insertion_use_region_analysis_limit=1000 --xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_tpu_layer_scheduler_min_compute_latency_for_backward_pass=25000000 --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "seq_len": 4096,
+        "flops_per_token_g": 18.7943,
+        "num_logged_steps": 4,
+        "first_loss": 12.30972,
+        "final_loss": 4.05178,
+        "steady_tps": 12018.5,
+        "peak_tps": 12025.0,
+        "steady_mfu_pct": 19.58,
+        "peak_mfu_pct": 19.59,
+        "steady_logged_mfu_pct": 19.58,
+        "peak_logged_mfu_pct": 19.59,
+        "peak_mem_gib": 25.5,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.30972,
+            "tps_per_rank": 1131.0,
+            "logged_tflops": 21.25,
+            "logged_mfu_pct": 1.84,
+            "mfu_pct": 1.84,
+            "mem_gib": 25.5
+          },
+          {
+            "step": 5,
+            "loss": 18.31208,
+            "tps_per_rank": 10441.0,
+            "logged_tflops": 196.24,
+            "logged_mfu_pct": 17.01,
+            "mfu_pct": 17.01,
+            "mem_gib": 25.5
+          },
+          {
+            "step": 10,
+            "loss": 4.25216,
+            "tps_per_rank": 12012.0,
+            "logged_tflops": 225.76,
+            "logged_mfu_pct": 19.57,
+            "mfu_pct": 19.57,
+            "mem_gib": 25.5
+          },
+          {
+            "step": 15,
+            "loss": 4.05178,
+            "tps_per_rank": 12025.0,
+            "logged_tflops": 225.99,
+            "logged_mfu_pct": 19.59,
+            "mfu_pct": 19.59,
+            "mem_gib": 25.5
+          }
+        ]
+      }
+    },
+    {
+      "name": "v7x_p13_06_hf_pr123_s8192_mb16_ga2_sbdp_fusedopt_sa1024_tile1024_ac12",
+      "lane": "v7x-16 HF PR#123 LongCtx 8K (seq=8192, mb=16 = 131.1K tok/rank, 2xGA = 8.39M tok/step, SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC12)",
+      "seq_len": 8192,
+      "status": "PASS",
+      "return_code": 0,
+      "duration_s": 461.5,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass13-0.flint-v7x-16-pass13-svc.default.svc.cluster.local:29865",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=8192",
+        "--training.steps=15",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--optimizer.implementation=fused",
+        "--lr_scheduler.warmup_steps=0",
+        "--lr_scheduler.decay_ratio=0.0",
+        "--metrics.log_freq=5",
+        "--debug.seed=42",
+        "--loss.b_block_size=1024",
+        "--splash_attention_kernel.sa_block_q=1024",
+        "--splash_attention_kernel.sa_block_kv=1024",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=1024",
+        "--splash_attention_kernel.sa_block_kv_dkv=1024",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512",
+        "--training.num_tokens_per_microbatch_per_dp_rank=131072",
+        "--training.num_tokens_per_train_step=8388608"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=1024,pallas_grouped_mm_tgmm_tiling=512:2048:0,pallas_grouped_mm_w2_tgmm_tiling=512:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=512:0:2048",
+        "TT_HF_SBDP": "1",
+        "TT_FULL_AC_FIRST_N": "12",
+        "TORCH_TPU_DEFER_AND_FUSE": "1",
+        "LIBTPU_INIT_ARGS": "--xla_tpu_dvfs_p_state=7 --xla_tpu_enable_offloading_copy_to_sparsecore=false --xla_tpu_copy_insertion_use_region_analysis=true --xla_tpu_copy_insertion_use_region_analysis_limit=1000 --xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_tpu_layer_scheduler_min_compute_latency_for_backward_pass=25000000 --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "seq_len": 8192,
+        "flops_per_token_g": 21.6129,
+        "num_logged_steps": 4,
+        "first_loss": 12.30955,
+        "final_loss": 3.51351,
+        "steady_tps": 11517.0,
+        "peak_tps": 11534.0,
+        "steady_mfu_pct": 21.58,
+        "peak_mfu_pct": 21.61,
+        "steady_logged_mfu_pct": 21.58,
+        "peak_logged_mfu_pct": 21.61,
+        "peak_mem_gib": 25.5,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.30955,
+            "tps_per_rank": 2208.0,
+            "logged_tflops": 47.72,
+            "logged_mfu_pct": 4.14,
+            "mfu_pct": 4.14,
+            "mem_gib": 25.5
+          },
+          {
+            "step": 5,
+            "loss": 18.92475,
+            "tps_per_rank": 11493.0,
+            "logged_tflops": 248.39,
+            "logged_mfu_pct": 21.53,
+            "mfu_pct": 21.53,
+            "mem_gib": 25.5
+          },
+          {
+            "step": 10,
+            "loss": 4.13579,
+            "tps_per_rank": 11500.0,
+            "logged_tflops": 248.55,
+            "logged_mfu_pct": 21.55,
+            "mfu_pct": 21.55,
+            "mem_gib": 25.5
+          },
+          {
+            "step": 15,
+            "loss": 3.51351,
+            "tps_per_rank": 11534.0,
+            "logged_tflops": 249.28,
+            "logged_mfu_pct": 21.61,
+            "mfu_pct": 21.61,
+            "mem_gib": 25.5
+          }
+        ]
+      }
+    },
+    {
+      "name": "v7x_p13_07_hf_pr123_s16384_mb8_ga2_sbdp_fusedopt_sa1024_tile1024_ac16",
+      "lane": "v7x-16 HF PR#123 LongCtx 16K (seq=16384, mb=8 = 131.1K tok/rank, 2xGA = 8.39M tok/step, SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC16)",
+      "seq_len": 16384,
+      "status": "PASS",
+      "return_code": 0,
+      "duration_s": 485.7,
+      "command": [
+        "torchrun",
+        "--nnodes=4",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-16-pass13-0.flint-v7x-16-pass13-svc.default.svc.cluster.local:29870",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
+        "--config=hf_moe_auto_max_attnac",
+        "--hf-model=/models/models/RecursiveSI/flint",
+        "--training.max_context_length=16384",
+        "--training.steps=15",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--optimizer.implementation=fused",
+        "--lr_scheduler.warmup_steps=0",
+        "--lr_scheduler.decay_ratio=0.0",
+        "--metrics.log_freq=5",
+        "--debug.seed=42",
+        "--loss.b_block_size=1024",
+        "--splash_attention_kernel.sa_block_q=1024",
+        "--splash_attention_kernel.sa_block_kv=1024",
+        "--splash_attention_kernel.sa_block_kv_compute=512",
+        "--splash_attention_kernel.sa_block_q_dkv=1024",
+        "--splash_attention_kernel.sa_block_kv_dkv=1024",
+        "--splash_attention_kernel.sa_block_kv_dkv_compute=512",
+        "--training.num_tokens_per_microbatch_per_dp_rank=131072",
+        "--training.num_tokens_per_train_step=8388608"
+      ],
+      "env_overrides": {
+        "TT_HF_GMM": "use_pallas_paired_grouped_mm=true,pallas_grouped_mm_tile_m=1024,pallas_grouped_mm_tgmm_tiling=512:2048:0,pallas_grouped_mm_w2_tgmm_tiling=512:512:0,pallas_grouped_mm_w2_transposed_tgmm_tiling=512:0:2048",
+        "TT_HF_SBDP": "1",
+        "TT_FULL_AC_FIRST_N": "16",
+        "TORCH_TPU_DEFER_AND_FUSE": "1",
+        "LIBTPU_INIT_ARGS": "--xla_tpu_dvfs_p_state=7 --xla_tpu_enable_offloading_copy_to_sparsecore=false --xla_tpu_copy_insertion_use_region_analysis=true --xla_tpu_copy_insertion_use_region_analysis_limit=1000 --xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_tpu_layer_scheduler_min_compute_latency_for_backward_pass=25000000 --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "seq_len": 16384,
+        "flops_per_token_g": 27.25,
+        "num_logged_steps": 4,
+        "first_loss": 12.30953,
+        "final_loss": 3.98046,
+        "steady_tps": 10713.5,
+        "peak_tps": 10731.0,
+        "steady_mfu_pct": 25.31,
+        "peak_mfu_pct": 25.35,
+        "steady_logged_mfu_pct": 25.31,
+        "peak_logged_mfu_pct": 25.35,
+        "peak_mem_gib": 25.5,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.30953,
+            "tps_per_rank": 2170.0,
+            "logged_tflops": 59.12,
+            "logged_mfu_pct": 5.13,
+            "mfu_pct": 5.13,
+            "mem_gib": 25.5
+          },
+          {
+            "step": 5,
+            "loss": 19.43354,
+            "tps_per_rank": 10698.0,
+            "logged_tflops": 291.51,
+            "logged_mfu_pct": 25.27,
+            "mfu_pct": 25.27,
+            "mem_gib": 25.5
+          },
+          {
+            "step": 10,
+            "loss": 5.10361,
+            "tps_per_rank": 10696.0,
+            "logged_tflops": 291.45,
+            "logged_mfu_pct": 25.27,
+            "mfu_pct": 25.27,
+            "mem_gib": 25.5
+          },
+          {
+            "step": 15,
+            "loss": 3.98046,
+            "tps_per_rank": 10731.0,
+            "logged_tflops": 292.41,
+            "logged_mfu_pct": 25.35,
+            "mfu_pct": 25.35,
+            "mem_gib": 25.5
+          }
+        ]
+      }
+    }
+  ]
+}
