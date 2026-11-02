@@ -1,0 +1,119 @@
+{
+  "updated_at_utc": "2026-11-02T20:03:13.776536+00:00",
+  "suite": "pass11_mfu_frontier",
+  "slice_name": "v5p-32-8n-2x4x4",
+  "chip_type": "v5p",
+  "world_size_ranks": 32,
+  "peak_bf16_tflops_per_rank": 459.0,
+  "results": [
+    {
+      "name": "v5p32_p11_01_native_s32768_mb3_ga4_sbdp_bf16rope_fusedopt_n44",
+      "lane": "v5p-32 Native PR#122 LongCtx 32K (seq=32768, mb=3 = 98.3K tok/rank, 4xGA = 12.58M tok/step)",
+      "seq_len": 32768,
+      "status": "PASS",
+      "return_code": 0,
+      "duration_s": 1210.0,
+      "command": [
+        "torchrun",
+        "--nnodes=8",
+        "--nproc_per_node=4",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v5p-32-pass11-0.flint-v5p-32-pass11-svc.default.svc.cluster.local:29920",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.examples.flint",
+        "--config=flint_40b_v5p_p11_s32768_tile256_n44",
+        "--training.max_context_length=32768",
+        "--training.steps=12",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--metrics.log_freq=2",
+        "--debug.seed=42",
+        "--tpu_config.mfu_benchmark_start_step=4",
+        "--training.num_tokens_per_microbatch_per_dp_rank=98304",
+        "--training.num_tokens_per_train_step=12582912"
+      ],
+      "env_overrides": {
+        "LIBTPU_INIT_ARGS": "--xla_tpu_scoped_vmem_limit_kib=81920 --xla_tpu_enable_offloading_copy_to_sparsecore=false --xla_tpu_copy_insertion_use_region_analysis=true --xla_tpu_copy_insertion_use_region_analysis_limit=1000 --xla_tpu_prefer_async_allgather_to_allreduce=true --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "seq_len": 32768,
+        "flops_per_token_g": 38.5243,
+        "num_logged_steps": 7,
+        "first_loss": 12.33327,
+        "final_loss": 4.16861,
+        "steady_tps": 5439.5,
+        "peak_tps": 5468.0,
+        "steady_mfu_pct": 45.65,
+        "peak_mfu_pct": 45.89,
+        "steady_logged_mfu_pct": 45.66,
+        "peak_mem_gib": 27.52,
+        "steps": [
+          {
+            "step": 1,
+            "loss": 12.33327,
+            "tps_per_rank": 1036.0,
+            "logged_tflops": 39.91,
+            "logged_mfu_pct": 8.69,
+            "mfu_pct": 8.7,
+            "mem_gib": 27.52
+          },
+          {
+            "step": 2,
+            "loss": 7.5416,
+            "tps_per_rank": 5295.0,
+            "logged_tflops": 203.98,
+            "logged_mfu_pct": 44.44,
+            "mfu_pct": 44.44,
+            "mem_gib": 27.52
+          },
+          {
+            "step": 4,
+            "loss": 8.62684,
+            "tps_per_rank": 5399.0,
+            "logged_tflops": 207.98,
+            "logged_mfu_pct": 45.31,
+            "mfu_pct": 45.31,
+            "mem_gib": 27.52
+          },
+          {
+            "step": 6,
+            "loss": 6.75933,
+            "tps_per_rank": 5451.0,
+            "logged_tflops": 210.0,
+            "logged_mfu_pct": 45.75,
+            "mfu_pct": 45.75,
+            "mem_gib": 27.52
+          },
+          {
+            "step": 8,
+            "loss": 7.50164,
+            "tps_per_rank": 5446.0,
+            "logged_tflops": 209.82,
+            "logged_mfu_pct": 45.71,
+            "mfu_pct": 45.71,
+            "mem_gib": 27.52
+          },
+          {
+            "step": 10,
+            "loss": 4.51543,
+            "tps_per_rank": 5393.0,
+            "logged_tflops": 207.75,
+            "logged_mfu_pct": 45.26,
+            "mfu_pct": 45.26,
+            "mem_gib": 27.52
+          },
+          {
+            "step": 12,
+            "loss": 4.16861,
+            "tps_per_rank": 5468.0,
+            "logged_tflops": 210.66,
+            "logged_mfu_pct": 45.9,
+            "mfu_pct": 45.89,
+            "mem_gib": 27.52
+          }
+        ]
+      }
+    }
+  ]
+}
