@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flint-v5p-16-pass11-svc
+  namespace: default
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    job-name: flint-v5p-16-pass11
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flint-v5p-16-pass11
+  namespace: default
+spec:
+  completions: 4
+  parallelism: 4
+  completionMode: Indexed
+  backoffLimit: 12
+  template:
+    metadata:
+      labels:
+        app: flint-v5p-16-pass11
+      annotations:
+        tpu-worker-node/volumes: "true"
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+    spec:
+      serviceAccountName: default
+      subdomain: flint-v5p-16-pass11-svc
+      terminationGracePeriodSeconds: 5
+      restartPolicy: OnFailure
+      nodeSelector:
+        cloud.google.com/tpu-worker-node: tpu-v5p-16-pool
+        cloud.google.com/tpu-worker-node: tpu-v5p-slice
+        cloud.google.com/tpu-worker-node: 2x2x4
+      tolerations:
+      - key: "google.com/tpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "cloud.google.com/tpu-worker-node"
+        operator: "Exists"
+        effect: "NoSchedule"
+      containers:
+      - name: trainer
+        image: us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/torchtpu/torchtitan-flint:v0.2.0
+        imagePullPolicy: IfNotPresent
+        command: ["python3", "/scripts/run_flint_v5p_pass11_mfu_frontier.py"]
+        args:
+        - --suite=pass11_mfu_frontier
+        - --chip-type=v5p
+        - --nnodes=4
+        - --nproc-per-node=4
+        - --master-addr=flint-v5p-16-pass11-0.flint-v5p-16-pass11-svc.default.svc.cluster.local
+        - --slice-name=v5p-16-4n-2x2x4
+        - --output-dir=/models/flint-results
+        env:
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token
+              key: HF_TOKEN
+        - name: PJRT_DEVICE
+          value: "TPU"
+        resources:
+          requests:
+            google.com/tpu: "4"
+          limits:
+            google.com/tpu: "4"
+        volumeMounts:
+        - name: models-gcs
+          mountPath: /models
+        - name: pass11-script
+          mountPath: /scripts
+        - name: dshm
+          mountPath: /dev/shm
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+      - name: models-gcs
+        persistentVolumeClaim:
+          claimName: tpu-models-gcs-pvc
+      - name: pass11-script
+        configMap:
+          name: flint-v5p-pass11-script
