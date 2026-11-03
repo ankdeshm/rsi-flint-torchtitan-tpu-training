@@ -1356,6 +1356,12 @@ def build_eng_parity_experiments(world_size: int, steps: int) -> list[dict]:
             "flint_40b_val60_v7x_s2048", 98304, 2, full_seq=False, our_stack=True,
         ),
         _native(
+            "v7x8_ours_05b_val60_recipe_c4eod_mb40_ga2",
+            "ours_02 with a larger batch that fits 16-way FSDP HBM (mb=40 -> 81,920 tok/rank, ga=2 -> 2.62M tok/step); "
+            "NOT iso-batch",
+            "flint_40b_val60_v7x_s2048", 81920, 2, full_seq=False, our_stack=True,
+        ),
+        _native(
             "v7x8_abl_06_v011n40_bf16red_ourflags_c4eod_mb32_ga1",
             "Ablation 1: PR #122 config + BF16 reduce-scatter + async collective flag set",
             "flint_40b_v011_n40", 65536, 1, full_seq=False, our_stack=True,
