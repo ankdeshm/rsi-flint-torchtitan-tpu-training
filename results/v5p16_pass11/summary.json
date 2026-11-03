@@ -7,7 +7,7 @@
   "peak_bf16_tflops_per_rank": 459.0,
   "results": [
     {
-      "name": "v5p32_p11_02_native_s65536_mb1_ga4_sbdp_bf16rope_fusedopt_n44",
+      "name": "v5p16_p11_02_native_s65536_mb1_ga4_sbdp_bf16rope_fusedopt_n44",
       "lane": "v5p-32 Native PR#122 LongCtx 64K (seq=65536, mb=1 = 65.5K tok/rank, 4xGA = 8.39M tok/step)",
       "seq_len": 65536,
       "status": "PASS",
@@ -112,11 +112,18 @@
             "mfu_pct": 65.61,
             "mem_gib": 18.87
           }
-        ]
+        ],
+        "steady_tps_per_chip": 4913.2,
+        "causal_flops_per_token_g": 38.5212,
+        "palm_flops_per_token_g": 61.0729,
+        "steady_causal_mfu_pct": 41.23,
+        "steady_palm_mfu_pct": 65.37,
+        "steady_6n_mfu_pct": 16.16,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     },
     {
-      "name": "v5p32_p11_03_native_s65536_mb1_ga8_overlap_tile512_n49",
+      "name": "v5p16_p11_03_native_s65536_mb1_ga8_overlap_tile512_n49",
       "lane": "v5p-32 Native PR#122 LongCtx 64K + AG/RS Overlap + tile512 + n49 (seq=65536, mb=1, 8xGA = 16.78M tok/step)",
       "seq_len": 65536,
       "status": "PASS",
@@ -221,9 +228,17 @@
             "mfu_pct": 65.46,
             "mem_gib": 18.83
           }
-        ]
+        ],
+        "steady_tps_per_chip": 4919.8,
+        "causal_flops_per_token_g": 38.5212,
+        "palm_flops_per_token_g": 61.0729,
+        "steady_causal_mfu_pct": 41.29,
+        "steady_palm_mfu_pct": 65.46,
+        "steady_6n_mfu_pct": 16.18,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     }
   ],
-  "diagnostic_oom_boundary_probes": 3
+  "diagnostic_oom_boundary_probes": 3,
+  "flops_accounting_note": "Includes both exact Causal-Masked FLOPs/token (6*H*D*(S+1) on 14 full layers) and upstream TorchTitan/PaLM Full-Square FLOPs/token (12*H*D*min(S,W)). Note: historical Pass 10-14 sweeps ran on short-document c4_test with SbdConfig.document_aware_skipping=True; see results/customer_val60/ for 60-step (50 steady steps 11..60) True Unskipped Contiguous Full-Sequence (TT_CONTIGUOUS_FULL_SEQ=1) validation."
 }

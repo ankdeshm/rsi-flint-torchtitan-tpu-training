@@ -112,7 +112,14 @@
             "mfu_pct": 45.89,
             "mem_gib": 27.52
           }
-        ]
+        ],
+        "steady_tps_per_chip": 5439.5,
+        "causal_flops_per_token_g": 27.2435,
+        "palm_flops_per_token_g": 38.5243,
+        "steady_causal_mfu_pct": 32.29,
+        "steady_palm_mfu_pct": 45.65,
+        "steady_6n_mfu_pct": 17.89,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     },
     {
@@ -221,7 +228,14 @@
             "mfu_pct": 63.33,
             "mem_gib": 18.67
           }
-        ]
+        ],
+        "steady_tps_per_chip": 4674.5,
+        "causal_flops_per_token_g": 38.5212,
+        "palm_flops_per_token_g": 61.0729,
+        "steady_causal_mfu_pct": 39.23,
+        "steady_palm_mfu_pct": 62.2,
+        "steady_6n_mfu_pct": 15.37,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     },
     {
@@ -330,7 +344,14 @@
             "mfu_pct": 61.68,
             "mem_gib": 14.96
           }
-        ]
+        ],
+        "steady_tps_per_chip": 4734.5,
+        "causal_flops_per_token_g": 38.5212,
+        "palm_flops_per_token_g": 61.0729,
+        "steady_causal_mfu_pct": 39.73,
+        "steady_palm_mfu_pct": 63.0,
+        "steady_6n_mfu_pct": 15.57,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     },
     {
@@ -439,9 +460,17 @@
             "mfu_pct": 34.97,
             "mem_gib": 27.52
           }
-        ]
+        ],
+        "steady_tps_per_chip": 5868.8,
+        "causal_flops_per_token_g": 21.5994,
+        "palm_flops_per_token_g": 27.25,
+        "steady_causal_mfu_pct": 27.62,
+        "steady_palm_mfu_pct": 34.84,
+        "steady_6n_mfu_pct": 19.3,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     }
   ],
-  "diagnostic_oom_boundary_probes": 1
+  "diagnostic_oom_boundary_probes": 1,
+  "flops_accounting_note": "Includes both exact Causal-Masked FLOPs/token (6*H*D*(S+1) on 14 full layers) and upstream TorchTitan/PaLM Full-Square FLOPs/token (12*H*D*min(S,W)). Note: historical Pass 10-14 sweeps ran on short-document c4_test with SbdConfig.document_aware_skipping=True; see results/customer_val60/ for 60-step (50 steady steps 11..60) True Unskipped Contiguous Full-Sequence (TT_CONTIGUOUS_FULL_SEQ=1) validation."
 }

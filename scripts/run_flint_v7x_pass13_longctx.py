@@ -25,11 +25,16 @@ import sys
 import threading
 import time
 
-BASE_FLOPS_PER_TOKEN_2K = 17.385e9
-# 14 full causal layers out of 49 (35 layers use sliding_window=513 and do NOT grow past S=513):
-# Standard 6*2 = 12 * n_heads(32) * head_dim(128) = 49,152 FLOPs/tok/layer per +1 context token -> 688,128 across 14 full layers.
-FULL_ATTN_FLOPS_PER_TOK_PER_CTX = 14 * 12 * 32 * 128  # 688,128 FLOPs/token per +1 seq_len above 2048
+# Exact RecursiveSI/flint (49 layers: 35 SWA W=513 + 14 Full Causal NoPE, H=32, D=128) FLOPs/token:
+N_ACTIVE_NON_ATTN_FLOPS_PER_TOKEN = 15_093_202_944.0  # 6 * N_active (N_active = 2,515,533,824)
+N_FULL_LAYERS = 14
+N_SWA_LAYERS = 35
+SWA_WINDOW = 513
+N_HEADS = 32
+HEAD_DIM = 128
 PEAK_BF16_TFLOPS_PER_RANK = {"v7x": 1153.5, "v5p": 459.0, "v6e": 918.0}
+RANKS_PER_CHIP = {"v7x": 2, "v5p": 1, "v6e": 1}
+
 
 STEP_RE = re.compile(
     r"step:\s*(?P<step>\d+).*?loss:\s*(?P<loss>[0-9.]+).*?tps:\s*(?P<tps>[0-9.,]+)",
@@ -40,10 +45,25 @@ MFU_RE = re.compile(r"mfu:\s*(?P<mfu>[0-9.]+)%", re.IGNORECASE)
 MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 
 
-def flint_flops_per_token(seq_len: int) -> float:
+def flint_causal_flops_per_token(seq_len: int) -> float:
+    """True hardware-executed causal-masked fwd+bwd FLOPs/token (6*H*D*(S+1) on 14 full layers; exact causal SWA on 35 W=513 layers)."""
+    s = max(int(seq_len), 1)
+    full_attn = N_FULL_LAYERS * 6.0 * N_HEADS * HEAD_DIM * (s + 1.0)
+    w_eff = min(s, SWA_WINDOW)
+    swa_pairs_per_tok = (w_eff * (2 * s - w_eff + 1)) / (2.0 * s)
+    swa_attn = N_SWA_LAYERS * 12.0 * N_HEADS * HEAD_DIM * swa_pairs_per_tok
+    return N_ACTIVE_NON_ATTN_FLOPS_PER_TOKEN + full_attn + swa_attn
+
+
+def flint_palm_flops_per_token(seq_len: int) -> float:
+    """Upstream TorchTitan / PaLM full-square convention (12*H*D*min(S,W) -> 2x overcounts causal full-attention triangle)."""
     if seq_len <= 2048:
-        return BASE_FLOPS_PER_TOKEN_2K
-    return BASE_FLOPS_PER_TOKEN_2K + FULL_ATTN_FLOPS_PER_TOK_PER_CTX * (seq_len - 2048)
+        return 17.385e9
+    return 17.385e9 + (14 * 12 * 32 * 128) * (seq_len - 2048)
+
+
+def flint_flops_per_token(seq_len: int) -> float:
+    return flint_causal_flops_per_token(seq_len)
 
 
 NATIVE_P13_LONGCTX_PATCH = '''

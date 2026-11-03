@@ -20,7 +20,7 @@ import sys
 import time
 from pathlib import Path
 
-FLINT_FLOPS_PER_TOKEN = 17.385e9  # 6 * active_params + attention FLOPs per PR #122/#123
+FLINT_FLOPS_PER_TOKEN = 17.385e9  # Upstream TorchTitan/PaLM 2K convention; exact causal-masked 2K = 16.5704e9, 6*N_active = 15.0932e9
 PEAK_BF16_TFLOPS_PER_RANK = {
     "v7x": 1153.5,  # per TensorCore (2 TensorCores/chip, 8 ranks/host)
     "v5p": 459.0,   # per Megacore chip (4 ranks/host)

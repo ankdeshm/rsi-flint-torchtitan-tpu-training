@@ -86,7 +86,14 @@
             "mfu_pct": 21.93,
             "mem_gib": 23.52
           }
-        ]
+        ],
+        "steady_tps_per_chip": 26911.0,
+        "causal_flops_per_token_g": 17.3302,
+        "palm_flops_per_token_g": 18.7943,
+        "steady_causal_mfu_pct": 20.22,
+        "steady_palm_mfu_pct": 21.92,
+        "steady_6n_mfu_pct": 17.61,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     },
     {
@@ -169,7 +176,14 @@
             "mfu_pct": 23.13,
             "mem_gib": 20.52
           }
-        ]
+        ],
+        "steady_tps_per_chip": 24687.0,
+        "causal_flops_per_token_g": 18.7671,
+        "palm_flops_per_token_g": 21.6129,
+        "steady_causal_mfu_pct": 20.08,
+        "steady_palm_mfu_pct": 23.13,
+        "steady_6n_mfu_pct": 16.15,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     },
     {
@@ -252,7 +266,14 @@
             "mfu_pct": 27.2,
             "mem_gib": 20.52
           }
-        ]
+        ],
+        "steady_tps_per_chip": 22988.0,
+        "causal_flops_per_token_g": 21.5994,
+        "palm_flops_per_token_g": 27.25,
+        "steady_causal_mfu_pct": 21.52,
+        "steady_palm_mfu_pct": 27.15,
+        "steady_6n_mfu_pct": 15.04,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     },
     {
@@ -290,7 +311,14 @@
         "flops_per_token_g": 27.25,
         "num_logged_steps": 0,
         "steady_tps": 0.0,
-        "steady_mfu_pct": 0.0
+        "steady_mfu_pct": 0.0,
+        "steady_tps_per_chip": 0.0,
+        "causal_flops_per_token_g": 21.5994,
+        "palm_flops_per_token_g": 27.25,
+        "steady_causal_mfu_pct": 0.0,
+        "steady_palm_mfu_pct": 0.0,
+        "steady_6n_mfu_pct": 0.0,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     },
     {
@@ -387,7 +415,14 @@
             "mfu_pct": 19.59,
             "mem_gib": 25.5
           }
-        ]
+        ],
+        "steady_tps_per_chip": 24037.0,
+        "causal_flops_per_token_g": 17.3302,
+        "palm_flops_per_token_g": 18.7943,
+        "steady_causal_mfu_pct": 18.06,
+        "steady_palm_mfu_pct": 19.58,
+        "steady_6n_mfu_pct": 15.73,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     },
     {
@@ -484,7 +519,14 @@
             "mfu_pct": 21.61,
             "mem_gib": 25.5
           }
-        ]
+        ],
+        "steady_tps_per_chip": 23034.0,
+        "causal_flops_per_token_g": 18.7671,
+        "palm_flops_per_token_g": 21.6129,
+        "steady_causal_mfu_pct": 18.74,
+        "steady_palm_mfu_pct": 21.58,
+        "steady_6n_mfu_pct": 15.07,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     },
     {
@@ -581,8 +623,16 @@
             "mfu_pct": 25.35,
             "mem_gib": 25.5
           }
-        ]
+        ],
+        "steady_tps_per_chip": 21427.0,
+        "causal_flops_per_token_g": 21.5994,
+        "palm_flops_per_token_g": 27.25,
+        "steady_causal_mfu_pct": 20.06,
+        "steady_palm_mfu_pct": 25.31,
+        "steady_6n_mfu_pct": 14.02,
+        "dataset_packing_mode": "c4_test_eod_packed_sbd_skipping"
       }
     }
-  ]
+  ],
+  "flops_accounting_note": "Includes both exact Causal-Masked FLOPs/token (6*H*D*(S+1) on 14 full layers) and upstream TorchTitan/PaLM Full-Square FLOPs/token (12*H*D*min(S,W)). Note: historical Pass 10-14 sweeps ran on short-document c4_test with SbdConfig.document_aware_skipping=True; see results/customer_val60/ for 60-step (50 steady steps 11..60) True Unskipped Contiguous Full-Sequence (TT_CONTIGUOUS_FULL_SEQ=1) validation."
 }

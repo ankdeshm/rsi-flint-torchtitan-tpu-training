@@ -6,7 +6,7 @@ Pushes TorchTitan (`RecursiveSI/flint` 40B-A2.5B MoE) past Pass 13's `27.15%` St
   1. Long-Context Pre-Training at `32K` (`seq=32,768` -> `38.524` GFLOP/tok, `+41.4%` MXU compute/token) and
      `64K` (`seq=65,536` -> `61.073` GFLOP/tok, `+124%` MXU compute/token) on `Flint`'s native `262K` hybrid
      (`35` sliding-window `W=513` + `14` full causal Pallas `SplashAttention`) architecture — with recursive
-     `Configurable.Config.traverse(object)` `max_context_length` propagation across all RoPE caches & flat `O(1)` HBM!
+     `Configurable.Config.traverse(object)` `max_context_length` propagation across all RoPE caches with Pallas `SplashAttention` avoiding `O(S^2)` score-matrix materialization.
   2. Breaking `p13_04`'s `33.02 GiB` bottom-of-memory executable slab cliff (`24.72 GiB` reservable) at `131,072`
      tok/rank (`mb=8` @ `16K`, `mb=4` @ `32K`, `mb=2` @ `64K`) by switching `GraphSplitter` backward partitioning
      from 7-layer `"fsdp_pipeline"` to 1-layer `"by_layer"` (`backward_layers_per_executable=1`), shrinking peak
@@ -34,11 +34,16 @@ import sys
 import threading
 import time
 
-BASE_FLOPS_PER_TOKEN_2K = 17.385e9
-# 14 full causal layers out of 49 (35 layers use sliding_window=513 and do NOT grow past S=513):
-# Exact causal triangle fwd+bwd = 12 * n_heads(32) * head_dim(128) = 49,152 FLOPs/tok/layer per +1 seq_len -> 688,128 across 14 full layers.
-FULL_ATTN_FLOPS_PER_TOK_PER_CTX = 14 * 12 * 32 * 128  # 688,128 FLOPs/token per +1 seq_len above 2048
+# Exact RecursiveSI/flint (49 layers: 35 SWA W=513 + 14 Full Causal NoPE, H=32, D=128) FLOPs/token:
+N_ACTIVE_NON_ATTN_FLOPS_PER_TOKEN = 15_093_202_944.0  # 6 * N_active (N_active = 2,515,533,824)
+N_FULL_LAYERS = 14
+N_SWA_LAYERS = 35
+SWA_WINDOW = 513
+N_HEADS = 32
+HEAD_DIM = 128
 PEAK_BF16_TFLOPS_PER_RANK = {"v7x": 1153.5, "v5p": 459.0, "v6e": 918.0}
+RANKS_PER_CHIP = {"v7x": 2, "v5p": 1, "v6e": 1}
+
 
 STEP_RE = re.compile(
     r"step:\s*(?P<step>\d+).*?loss:\s*(?P<loss>[0-9.]+).*?tps:\s*(?P<tps>[0-9.,]+)",
@@ -49,10 +54,25 @@ MFU_RE = re.compile(r"mfu:\s*(?P<mfu>[0-9.]+)%", re.IGNORECASE)
 MEM_RE = re.compile(r"memory:\s*(?P<mem>[0-9.]+)GiB", re.IGNORECASE)
 
 
-def flint_flops_per_token(seq_len: int) -> float:
+def flint_causal_flops_per_token(seq_len: int) -> float:
+    """True hardware-executed causal-masked fwd+bwd FLOPs/token (6*H*D*(S+1) on 14 full layers; exact causal SWA on 35 W=513 layers)."""
+    s = max(int(seq_len), 1)
+    full_attn = N_FULL_LAYERS * 6.0 * N_HEADS * HEAD_DIM * (s + 1.0)
+    w_eff = min(s, SWA_WINDOW)
+    swa_pairs_per_tok = (w_eff * (2 * s - w_eff + 1)) / (2.0 * s)
+    swa_attn = N_SWA_LAYERS * 12.0 * N_HEADS * HEAD_DIM * swa_pairs_per_tok
+    return N_ACTIVE_NON_ATTN_FLOPS_PER_TOKEN + full_attn + swa_attn
+
+
+def flint_palm_flops_per_token(seq_len: int) -> float:
+    """Upstream TorchTitan / PaLM full-square convention (12*H*D*min(S,W) -> 2x overcounts causal full-attention triangle)."""
     if seq_len <= 2048:
-        return BASE_FLOPS_PER_TOKEN_2K
-    return BASE_FLOPS_PER_TOKEN_2K + FULL_ATTN_FLOPS_PER_TOK_PER_CTX * (seq_len - 2048)
+        return 17.385e9
+    return 17.385e9 + (14 * 12 * 32 * 128) * (seq_len - 2048)
+
+
+def flint_flops_per_token(seq_len: int) -> float:
+    return flint_causal_flops_per_token(seq_len)
 
 
 NATIVE_P14_FRONTIER_PATCH = '''
@@ -546,26 +566,6 @@ def build_v7x_pass14_experiments(
             tok_per_rank=tok_131k,
             ga=4,
             extra_args=["--loss.b_block_size=2048", *splash_1024],
-        ),
-        # 5. HF PR#123 True Long-Context 64K (seq=65536, 61.073 GF/tok, mb=2 = 131,072 tok/rank, 4xGA = 16.78M tok/step, sa=1024, HybridAC20)
-        _hf_exp(
-            "v7x_p14_05_hf_pr123_s65536_mb2_ga4_sbdp_fusedopt_sa1024_tile1024_ac20",
-            "v7x-16 HF PR#123 LongCtx 64K (seq=65536, mb=2 = 131.1K tok/rank, 4xGA = 16.78M tok/step, SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC20)",
-            seq_len=65536,
-            tok_per_rank=tok_131k,
-            ga=4,
-            n_full_ac=20,
-            splash_args=splash_1024,
-        ),
-        # 6. HF PR#123 Ultra-Long-Context 128K (seq=131072, 106.170 GF/tok, mb=1 = 131,072 tok/rank, 4xGA = 16.78M tok/step, sa=1024, HybridAC24)
-        _hf_exp(
-            "v7x_p14_06_hf_pr123_s131072_mb1_ga4_sbdp_fusedopt_sa1024_tile1024_ac24",
-            "v7x-16 HF PR#123 Ultra-LongCtx 128K (seq=131072, mb=1 = 131.1K tok/rank, 4xGA = 16.78M tok/step, SBDP + PureFusedOpt + sa=1024 + tile1024 + HybridAC24)",
-            seq_len=131072,
-            tok_per_rank=tok_131k,
-            ga=4,
-            n_full_ac=24,
-            splash_args=splash_1024,
         ),
         # 7. Fixed-16K Native 131K Tok/Rank Slab-Fix (bwd by_layer=1 unlocks mb=8 = 131,072 tok/rank, 6xGA = 25.17M tok/step, n45)
         _nat_exp(

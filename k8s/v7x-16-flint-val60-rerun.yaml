@@ -1,0 +1,97 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flint-v7x-16-val60-rerun-svc
+  namespace: default
+spec:
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    job-name: flint-v7x-16-val60-rerun
+---
+# Re-run of v7x-16 CUSTOMER_VAL60 rows 04-08 with the lockstep multi-host runner (`--lockstep`). In the first run
+# row 04 hit a TPU SparseCore RuntimeUnexpectedCoreHalt (infra fault) at step 54, and rows 05-08 then failed with
+# torchrun rendezvous timeouts because the hosts had desynchronized.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: flint-v7x-16-val60-rerun
+  namespace: default
+spec:
+  completions: 4
+  parallelism: 4
+  completionMode: Indexed
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: flint-v7x-16-val60-rerun
+      annotations:
+        gke-gcsfuse/volumes: "true"
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+    spec:
+      serviceAccountName: default
+      subdomain: flint-v7x-16-val60-rerun-svc
+      terminationGracePeriodSeconds: 5
+      restartPolicy: OnFailure
+      nodeSelector:
+        cloud.google.com/gke-nodepool: tpu-v7x-16-pool
+        cloud.google.com/gke-tpu-accelerator: tpu7x
+        cloud.google.com/gke-tpu-topology: 2x2x4
+      tolerations:
+      - key: "google.com/tpu"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "cloud.google.com/gke-spot"
+        operator: "Exists"
+        effect: "NoSchedule"
+      - key: "cloud.google.com/gke-queued"
+        operator: "Exists"
+        effect: "NoSchedule"
+      containers:
+      - name: trainer
+        image: us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/torchtpu/torchtitan-flint:v0.2.0
+        imagePullPolicy: IfNotPresent
+        command: ["python3", "/scripts/run_flint_customer_60step_validation.py"]
+        args:
+        - --suite=customer_val60
+        - --lockstep
+        - --only-filter=val60_04,val60_05,val60_06,val60_07,val60_08
+        - --chip-type=v7x
+        - --nnodes=4
+        - --nproc-per-node=8
+        - --master-addr=flint-v7x-16-val60-rerun-0.flint-v7x-16-val60-rerun-svc.default.svc.cluster.local
+        - --slice-name=v7x-16-flex-2x2x4
+        - --steps=60
+        - --output-dir=/models/flint-results
+        - "--note=Re-run (lockstep runner) of rows 04-08 of v7x-16-flex-2x2x4_customer_val60_20261102T222708Z: row 04 hit a TPU SparseCore RuntimeUnexpectedCoreHalt (infra fault) at step 54 and rows 05-08 then failed with rendezvous timeouts after the hosts desynchronized."
+        env:
+        - name: HF_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-token
+              key: HF_TOKEN
+        - name: PJRT_DEVICE
+          value: "TPU"
+        resources:
+          requests:
+            google.com/tpu: "4"
+          limits:
+            google.com/tpu: "4"
+        volumeMounts:
+        - name: models-gcs
+          mountPath: /models
+        - name: val60-script
+          mountPath: /scripts
+        - name: dshm
+          mountPath: /dev/shm
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+      - name: models-gcs
+        persistentVolumeClaim:
+          claimName: tpu-models-gcs-pvc
+      - name: val60-script
+        configMap:
+          name: flint-val60-script

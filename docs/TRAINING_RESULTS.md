@@ -2,6 +2,42 @@
 
 > **Script & Result Navigation:** See [`../README.md`](../README.md), [`../scripts/README.md`](../scripts/README.md), and [`../results/README.md`](../results/README.md) for direct links from each pass (`v5p` `Pass 1..10` and `v7x-16` `Pass 1..13`) to its Python script line numbers, K8s manifest, and `SUMMARY.md` / `summary.json` files.
 
+## Validated 60-Step Results (`CUSTOMER_VAL60`)
+
+Fixed recipe, `60` steps, steady mean of steps `11..60`, true unskipped full-sequence attention unless marked EoD control; see [`../README.md#validated-60-step-results-customer_val60`](../README.md#validated-60-step-results-customer_val60) for methodology and [`../results/customer_val60/`](../results/customer_val60/) for per-step JSON.
+
+| Slice | Run | Seq | `mb` × `ga` (tok/step) | Attention | **Steady tok/s/chip** | **Causal MFU** | PaLM / TorchTitan MFU | HBM (GiB) | Loss (`1 -> 60`) | Status |
+|---|---|---:|---|---|---:|---:|---:|---:|---|---|
+| TPU `v5p-16` (`2x2x4`, 16 chips) | `01_iso65k_s2048_mb32_ga1_fullseq` | `2,048` | `32` × `1` (`1.05M`) | Full-Seq | **5,874.4** | **21.21%** | 22.25% | 17.55 | `12.32226 -> 2.75305` | `PASS` |
+| TPU `v5p-16` (`2x2x4`, 16 chips) | `02_iso65k_s16384_mb4_ga1_fullseq` | `16,384` | `4` × `1` (`1.05M`) | Full-Seq | **4,949.7** | **23.29%** | 29.39% | 17.55 | `12.33612 -> 2.79439` | `PASS` |
+| TPU `v5p-16` (`2x2x4`, 16 chips) | `03_iso65k_s32768_mb2_ga1_fullseq` | `32,768` | `2` × `1` (`1.05M`) | Full-Seq | **4,170.0** | **24.75%** | 35.00% | 19.43 | `12.33914 -> 2.86616` | `PASS` |
+| TPU `v5p-16` (`2x2x4`, 16 chips) | `04_iso65k_s65536_mb1_ga1_fullseq` | `65,536` | `1` × `1` (`1.05M`) | Full-Seq | **3,159.2** | **26.51%** | 42.04% | 18.83 | `12.34034 -> 2.86275` | `PASS` |
+| TPU `v5p-16` (`2x2x4`, 16 chips) | `05_iso65k_s4096_mb16_ga1_fullseq` | `4,096` | `16` × `1` (`1.05M`) | Full-Seq | **5,799.7** | **21.90%** | 23.75% | 17.55 | `12.3292 -> 3.02743` | `PASS` |
+| TPU `v5p-16` (`2x2x4`, 16 chips) | `06_iso65k_s8192_mb8_ga1_fullseq` | `8,192` | `8` × `1` (`1.05M`) | Full-Seq | **5,504.7** | **22.51%** | 25.92% | 17.55 | `12.33347 -> 3.06289` | `PASS` |
+| TPU `v5p-16` (`2x2x4`, 16 chips) | `07_ctrl_s65536_mb1_ga1_c4eod` | `65,536` | `1` × `1` (`1.05M`) | `c4_test` EoD (control) | **4,870.9** | **40.88%** | 64.81% | 18.83 | `12.32183 -> 2.78776` | `PASS` |
+| TPU `v5p-16` (`2x2x4`, 16 chips) | `08_opt_s65536_mb1_ga4_fullseq` | `65,536` | `1` × `4` (`4.19M`) | Full-Seq | **3,199.3** | **26.85%** | 42.57% | 18.83 | `12.33868 -> 2.87057` | `PASS` |
+| TPU `v5p-32` (`2x4x4`, 32 chips) | `01_iso65k_s2048_mb32_ga1_fullseq` | `2,048` | `32` × `1` (`2.10M`) | Full-Seq | **5,925.7** | **21.39%** | 22.44% | 17.53 | `12.32683 -> 2.7928` | `PASS` |
+| TPU `v5p-32` (`2x4x4`, 32 chips) | `02_iso65k_s16384_mb4_ga1_fullseq` | `16,384` | `4` × `1` (`2.10M`) | Full-Seq | **4,995.9** | **23.51%** | 29.66% | 17.53 | `12.3406 -> 2.80076` | `PASS` |
+| TPU `v5p-32` (`2x4x4`, 32 chips) | `03_iso65k_s32768_mb2_ga1_fullseq` | `32,768` | `2` × `1` (`2.10M`) | Full-Seq | **4,214.4** | **25.01%** | 35.37% | 17.53 | `12.34433 -> 2.77856` | `PASS` |
+| TPU `v5p-32` (`2x4x4`, 32 chips) | `04_iso65k_s65536_mb1_ga1_fullseq` | `65,536` | `1` × `1` (`2.10M`) | Full-Seq | **3,218.7** | **27.01%** | 42.83% | 14.96 | `12.34367 -> 2.78643` | `PASS` |
+| TPU `v5p-32` (`2x4x4`, 32 chips) | `05_iso65k_s4096_mb16_ga1_fullseq` | `4,096` | `16` × `1` (`2.10M`) | Full-Seq | **5,809.7** | **21.94%** | 23.79% | 17.53 | `12.33364 -> 2.79027` | `PASS` |
+| TPU `v5p-32` (`2x4x4`, 32 chips) | `06_iso65k_s8192_mb8_ga1_fullseq` | `8,192` | `8` × `1` (`2.10M`) | Full-Seq | **5,513.6** | **22.54%** | 25.96% | 17.53 | `12.33846 -> 2.78548` | `PASS` |
+| TPU `v5p-32` (`2x4x4`, 32 chips) | `07_ctrl_s65536_mb1_ga1_c4eod` | `65,536` | `1` × `1` (`2.10M`) | `c4_test` EoD (control) | **4,765.8** | **40.00%** | 63.41% | 14.96 | `12.33451 -> 2.82996` | `PASS` |
+| TPU `v5p-32` (`2x4x4`, 32 chips) | `08_opt_s65536_mb1_ga4_fullseq` | `65,536` | `1` × `4` (`8.39M`) | Full-Seq | **3,240.9** | **27.20%** | 43.12% | 14.96 | `12.34191 -> 2.84033` | `PASS` |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `01_iso65k_s2048_mb32_ga1_fullseq` | `2,048` | `32` × `1` (`2.10M`) | Full-Seq | **25,168.4** | **18.08%** | 18.97% | 15.52 | `12.31906 -> 2.82746` | `PASS` |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `02_iso65k_s16384_mb4_ga1_fullseq` | `16,384` | `4` × `1` (`2.10M`) | Full-Seq | **18,958.8** | **17.75%** | 22.39% | 14.02 | `12.33117 -> 2.78966` | `PASS` |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `03_iso65k_s32768_mb2_ga1_fullseq` | `32,768` | `2` × `1` (`2.10M`) | Full-Seq | **14,866.0** | **17.56%** | 24.82% | 14.02 | `12.33477 -> 2.78622` | `PASS` |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `04_iso65k_s65536_mb1_ga1_fullseq` | `65,536` | `1` × `1` (`2.10M`) | Full-Seq | 10,724.9 *(steps 11..54)* | 17.91% | 28.39% | 14.02 | `12.33406 -> 2.80243` | TPU SparseCore infra fault at step 54; re-run in progress (`k8s/v7x-16-flint-val60-rerun.yaml`) |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `05_iso65k_s4096_mb16_ga1_fullseq` | `4,096` | `16` × `1` (`2.10M`) | Full-Seq | - | - | - | - | - | rendezvous timeout after the row-04 fault; re-run in progress (`k8s/v7x-16-flint-val60-rerun.yaml`) |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `06_iso65k_s8192_mb8_ga1_fullseq` | `8,192` | `8` × `1` (`2.10M`) | Full-Seq | - | - | - | - | - | rendezvous timeout after the row-04 fault; re-run in progress (`k8s/v7x-16-flint-val60-rerun.yaml`) |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `07_ctrl_s65536_mb1_ga1_c4eod` | `65,536` | `1` × `1` (`2.10M`) | `c4_test` EoD (control) | - | - | - | - | - | rendezvous timeout after the row-04 fault; re-run in progress (`k8s/v7x-16-flint-val60-rerun.yaml`) |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `08_opt_s65536_mb1_ga4_fullseq` | `65,536` | `1` × `4` (`8.39M`) | Full-Seq | - | - | - | - | - | rendezvous timeout after the row-04 fault; re-run in progress (`k8s/v7x-16-flint-val60-rerun.yaml`) |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `09_opt_s2048_mb48_ga2_fullseq` | `2,048` | `48` × `2` (`6.29M`) | Full-Seq | **26,947.8** | **19.36%** | 20.31% | 23.02 | `12.31829 -> 2.86263` | `PASS` |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `10_opt_s16384_mb6_ga2_fullseq` | `16,384` | `6` × `2` (`6.29M`) | Full-Seq | **19,323.3** | **18.09%** | 22.82% | 20.52 | `12.32923 -> 2.81084` | `PASS` |
+| TPU `v7x-16` (`2x2x4`, 16 chips / 32 TensorCores) | `11_opt_s32768_mb3_ga2_fullseq` | `32,768` | `3` × `2` (`6.29M`) | Full-Seq | **15,202.8** | **17.95%** | 25.39% | 20.52 | `12.33113 -> 2.80935` | `PASS` |
+
+## Historical Tuning Sweeps (10–15 steps, `c4_test` EoD skipping, PaLM / TorchTitan MFU)
+
 - **Project / Region:** `YOUR_GCP_PROJECT_ID` / `us-central1`
 - **Clusters:** `tpu-v5p-cluster` & `tpu-v7x-cluster`
 - **GCS Bucket:** `gs://YOUR_GCS_BUCKET/flint-results/`
