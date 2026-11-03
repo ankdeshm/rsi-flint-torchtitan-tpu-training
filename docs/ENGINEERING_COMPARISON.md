@@ -8,7 +8,7 @@ Apples-to-apples comparison of `RecursiveSI/flint` (39.8B total / 2.52B active M
 - **Both PR recipes were re-run unchanged in this environment:** PR #122 = 16.68% (published 16.23%), PR #123 = 15.49% (published 16.29%). Scored with each PR's own short window the re-runs give 16.77% and 15.50%, so the window is not the cause of any gap. PR #123 re-runs ~5% below its published number in this image (TorchTPU `0.2.0` GA, `libtpu 0.0.50`); PR #123 was measured with its own `...-flint-tune2` image, which we did not have.
 - **Against our PR #122 re-run the gain is +11.1%**, from four changes (table in section 3): BF16 gradient reduce-scatter + async-collective flags (no measurable gain at this size), Splash output saved in all 49 layers + grouped-mm `tile_m=1024` (+2.3%), `scale_before_down_proj` + BF16 RoPE (+5.0%), saved MoE routing + compiled fused AdamW / grad-norm (+3.4%).
 - **Without end-of-document attention skipping** (every row attends over the full 2,048 tokens): 18.38%, only 0.14 MFU points lower, so the packing mode barely matters at `2K`.
-- **Not apples-to-apples, labelled as such:** a larger batch, `mb=40 x ga=2` is running (results will be added); `mb=48 x ga=2` does not fit 16-way FSDP HBM on `v7x-8` (OOM by 0.6 GiB). On `v7x-16` (32 TensorCores) the same recipe gives 18.97% at the PR per-rank batch and 20.31% with `mb=48 x ga=2` (full-sequence attention).
+- **Not apples-to-apples, labelled as such:** larger batches do not fit 16-way FSDP HBM on `v7x-8` with this recipe (`mb=48 x ga=2`: compile-time OOM by 0.6 GiB; `mb=40 x ga=2`: program-load OOM, 17.26 GiB needed vs 16.58 GiB reservable), so `mb=32 x ga=1` (the PR batch) is also the largest batch measured on this slice. On `v7x-16` (32 TensorCores, 2x the aggregate HBM) the same recipe gives 18.97% at the PR per-rank batch and 20.31% with `mb=48 x ga=2` (full-sequence attention).
 - **MFU definition:** both PRs use the TorchTitan counter (`17.385` GFLOP/token at `2K`), which also counts the masked half of full-attention FLOPs. Counting attention exactly (`16.570` GFLOP/token) lowers every number by ~4.7% relative at `2K`; that column is shown in section 2.
 
 ## 1. Matching the setup
@@ -34,7 +34,7 @@ Apples-to-apples comparison of `RecursiveSI/flint` (39.8B total / 2.52B active M
 | `eng_04` | PR #123 recipe, unchanged, re-run here | 10,279.2 | 15.49% | -4.6% | -4.9% |
 | **`ours_02`** | **This repo's recipe, same batch and packing** | **12,291.4** | **18.52%** | **+14.0%** | **+13.7%** |
 | `ours_03` | This repo's recipe, true full-sequence attention (no EoD skipping) | 12,198.4 | 18.38% | +13.2% | +12.8% |
-| `ours_05b` | This repo's recipe, `mb=40 x ga=2` (*not iso-batch*) | running | - | - | - |
+| `ours_05b` | This repo's recipe, `mb=40 x ga=2` (*not iso-batch*) | HBM OOM at program load (needs 17.26 GiB, 16.58 GiB reservable per TensorCore) | - | - | - |
 
 ## 3. What we changed, one step at a time (iso-batch, `C4-EoD`, same seed)
 
@@ -57,7 +57,7 @@ Numerics: BF16 gradient reduce-scatter and BF16 RoPE change rounding; `scale_bef
 | `v7x8_ours_02_val60_recipe_c4eod_mb32_ga1` | This repo's recipe, same batch and packing | `1.05M` | C4-EoD (as upstream) | **12,291.4** | **18.52%** | 18.61% / 18.50% | 17.66% | +11.1% | `12.23864 -> 2.84265` | 15.52 | `PASS` |
 | `v7x8_ours_03_val60_recipe_fullseq_mb32_ga1` | This repo's recipe, true full-sequence attention (no EoD skipping) | `1.05M` | Full-Seq | **12,198.4** | **18.38%** | 18.50% / 18.43% | 17.52% | +10.2% | `12.23512 -> 2.80278` | 15.52 | `PASS` |
 | `v7x8_ours_05_val60_recipe_c4eod_mb48_ga2` | This repo's recipe, `mb=48 x ga=2` (*not iso-batch*) | `3.15M` | C4-EoD (as upstream) | - | - | - | - | - | - | HBM OOM at compile (needs 12.04 GiB more, 11.46 GiB free per TensorCore) |
-| `v7x8_ours_05b` | This repo's recipe, `mb=40 x ga=2` (*not iso-batch*) | - | - | - | - | - | - | - | - | running |
+| `v7x8_ours_05b_val60_recipe_c4eod_mb40_ga2` | This repo's recipe, `mb=40 x ga=2` (*not iso-batch*) | `2.62M` | C4-EoD (as upstream) | - | - | - | - | - | - | HBM OOM at program load (needs 17.26 GiB, 16.58 GiB reservable per TensorCore) |
 | `v7x8_abl_06_v011n40_bf16red_ourflags_c4eod_mb32_ga1` | PR #122 + BF16 gradient reduce-scatter + async-collective XLA flags | `1.05M` | C4-EoD (as upstream) | **11,065.8** | **16.68%** | 16.76% / 16.69% | 15.90% | -0.0% | `12.23862 -> 2.83789` | 16.35 | `PASS` |
 | `v7x8_abl_07_v014_bf16red_ourflags_c4eod_mb32_ga1` | + Splash output saved in all 49 layers + grouped-mm `tile_m=1024` | `1.05M` | C4-EoD (as upstream) | **11,320.0** | **17.06%** | 17.14% / 17.01% | 16.26% | +2.3% | `12.23862 -> 2.83674` | 14.76 | `PASS` |
 | `v7x8_abl_08_v014_sbdp_rope_bf16red_ourflags_c4eod_mb32_ga1` | + `scale_before_down_proj` + BF16 RoPE | `1.05M` | C4-EoD (as upstream) | **11,887.1** | **17.92%** | 17.97% / 17.92% | 17.08% | +7.4% | `12.23864 -> 2.83929` | 15.54 | `PASS` |

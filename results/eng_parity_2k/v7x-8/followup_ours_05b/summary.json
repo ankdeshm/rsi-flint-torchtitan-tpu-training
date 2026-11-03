@@ -1,0 +1,69 @@
+{
+  "updated_at_utc": "2026-11-03T03:32:50.071554+00:00",
+  "suite": "eng_parity_2k",
+  "slice_name": "v7x-8-2x2x2",
+  "chip_type": "v7x",
+  "num_chips": 8,
+  "world_size_ranks": 16,
+  "ranks_per_chip": 2,
+  "peak_bf16_tflops_per_rank": 1153.5,
+  "peak_bf16_tflops_per_chip": 2307.0,
+  "notes": [
+    "**Apples-to-apples with google-pytorch/torchtitan PR #122 (native lane, 16.23% MFU) and PR #123 (HF backend, 16.29% MFU):** same slice shape (`tpu7x-2x2x2` = v7x-8, `16` TensorCore ranks, SimpleFSDP over 16), same `seq_len=2048`, same global batch `512 x 2048 = 1,048,576` tok/step (`mb=32`, `ga=1`) unless a row says otherwise, same `c4_test` EoD packing as upstream (`C4-EoD`) unless marked `Full-Seq`, and the same MFU definition (TorchTitan counter `17.385` GFLOP/token = **PaLM GF/tok** column, `1,153.5` BF16 TFLOP/s per TensorCore).",
+    "Each run is `60` steps; the steady column averages steps `11..60`. The two PR-window columns re-score the same run with each PR's own window (PR #122: median of steps `3..8`; PR #123: mean of steps `2..10`).",
+    "`eng_*` rows reproduce the PR recipes verbatim with this repo's image; `abl_*` rows add one group of changes at a time; `ours_*` rows are the full recipe of this repo (`ours_05` also changes the batch, so it is not iso-batch)."
+  ],
+  "results": [
+    {
+      "name": "v7x8_ours_05b_val60_recipe_c4eod_mb40_ga2",
+      "lane": "ours_02 with a larger batch that fits 16-way FSDP HBM (mb=40 -> 81,920 tok/rank, ga=2 -> 2.62M tok/step); NOT iso-batch",
+      "seq_len": 2048,
+      "mb": 40,
+      "tok_per_rank": 81920,
+      "ga": 2,
+      "contiguous_full_seq": false,
+      "status": "FAIL(rc=1)",
+      "attempt": 2,
+      "return_code": 1,
+      "duration_s": 93.5,
+      "command": [
+        "torchrun",
+        "--nnodes=2",
+        "--nproc_per_node=8",
+        "--rdzv_backend=static",
+        "--rdzv_endpoint=flint-v7x-8-engparity-05b-0.flint-v7x-8-engparity-05b-svc.default.svc.cluster.local:30020",
+        "--node_rank=0",
+        "-m",
+        "torchtitan.experiments.tpu.train",
+        "--module=torchtitan.experiments.tpu.examples.flint",
+        "--config=flint_40b_val60_v7x_s2048",
+        "--training.max_context_length=2048",
+        "--training.steps=60",
+        "--training.mixed_precision_reduce=bfloat16",
+        "--metrics.log_freq=1",
+        "--debug.seed=42",
+        "--tpu_config.mfu_benchmark_start_step=11",
+        "--training.num_tokens_per_microbatch_per_dp_rank=81920",
+        "--training.num_tokens_per_train_step=2621440"
+      ],
+      "env_overrides": {
+        "TT_CONTIGUOUS_FULL_SEQ": "0",
+        "LIBTPU_INIT_ARGS": "--xla_tpu_enable_sparse_core_collective_aggregator=true --xla_tpu_enable_latency_hiding_layer_scheduler=true --xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false --xla_tpu_enable_sparse_core_collective_offload_nd_reduce_scatter=true --xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true --xla_tpu_dvfs_p_state=7 --xla_enable_async_all_gather=true --xla_enable_async_all_reduce=true --xla_tpu_enable_async_all_to_all=true --xla_tpu_enable_ag_backward_pipelining=true --xla_tpu_enable_ici_ag_pipelining=true --xla_tpu_overlap_compute_collective_tc=true --xla_max_concurrent_async_all_gathers=4 --xla_latency_hiding_scheduler_rerun=2 --xla_enable_transpose_trace=false"
+      },
+      "metrics": {
+        "seq_len": 2048,
+        "causal_gflops_per_tok": 16.5704,
+        "palm_gflops_per_tok": 17.385,
+        "param_only_gflops_per_tok": 15.0932,
+        "num_logged_steps": 1,
+        "num_steady_steps": 0,
+        "steady_tps_per_rank": 0.0,
+        "steady_tps_per_chip": 0.0,
+        "steady_slice_tps": 0.0,
+        "steady_causal_mfu_pct": 0.0,
+        "steady_palm_mfu_pct": 0.0,
+        "steady_param_only_mfu_pct": 0.0
+      }
+    }
+  ]
+}

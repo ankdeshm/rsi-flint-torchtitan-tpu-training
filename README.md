@@ -20,7 +20,7 @@ Same slice (`tpu7x-2x2x2`, 16 TensorCores, SimpleFSDP over 16), same `seq_len=20
 | `eng_04` | PR #123 recipe, unchanged, re-run here | 10,279.2 | 15.49% | -4.6% | -4.9% |
 | **`ours_02`** | **This repo's recipe, same batch and packing** | **12,291.4** | **18.52%** | **+14.0%** | **+13.7%** |
 | `ours_03` | This repo's recipe, true full-sequence attention (no EoD skipping) | 12,198.4 | 18.38% | +13.2% | +12.8% |
-| `ours_05b` | This repo's recipe, `mb=40 x ga=2` (*not iso-batch*) | running | - | - | - |
+| `ours_05b` | This repo's recipe, `mb=40 x ga=2` (*not iso-batch*) | HBM OOM at program load (needs 17.26 GiB, 16.58 GiB reservable per TensorCore) | - | - | - |
 
 How the +11.1% over the PR #122 re-run was obtained (each row adds one group of changes; same batch, same packing, same seed):
 
