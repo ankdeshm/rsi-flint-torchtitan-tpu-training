@@ -46,9 +46,9 @@ spec:
       - name: trainer
         image: us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/torchtpu/torchtitan-flint:v0.2.0
         imagePullPolicy: IfNotPresent
-        command: ["python3", "/scripts/run_flint_customer_60step_validation.py"]
+        command: ["python3", "/scripts/run_flint_60step_validation.py"]
         args:
-        - --suite=customer_val60
+        - --suite=val60
         - --chip-type=v5p
         - --nnodes=8
         - --nproc-per-node=4

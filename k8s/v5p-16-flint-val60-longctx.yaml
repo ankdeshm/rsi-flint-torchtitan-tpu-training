@@ -11,7 +11,7 @@ spec:
 ---
 # 128K / 256K True Unskipped Full-Seq extension of the 60-step validation (mb=1 -> seq_len tokens/rank/microbatch).
 # Uses the same ConfigMap as k8s/v5p-16-flint-val60.yaml:
-#   kubectl create configmap flint-val60-script --from-file=scripts/run_flint_customer_60step_validation.py
+#   kubectl create configmap flint-val60-script --from-file=scripts/run_flint_60step_validation.py
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -49,9 +49,9 @@ spec:
       - name: trainer
         image: us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/torchtpu/torchtitan-flint:v0.2.0
         imagePullPolicy: IfNotPresent
-        command: ["python3", "/scripts/run_flint_customer_60step_validation.py"]
+        command: ["python3", "/scripts/run_flint_60step_validation.py"]
         args:
-        - --suite=customer_val60_longctx
+        - --suite=longctx_128k
         - --chip-type=v5p
         - --nnodes=4
         - --nproc-per-node=4

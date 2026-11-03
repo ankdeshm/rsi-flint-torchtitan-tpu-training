@@ -8,7 +8,7 @@
 > 1. **`c4_test` Short-Document EoD Block Skipping:** `c4_test` web documents average `~450` tokens. Packing `~145` documents into a `65,536`-token row causes SplashAttention's segment mask to skip `>98%` of global attention tiles across the `14` full-attention layers, making step time nearly as fast as short-context training while the FLOPs numerator still assumes full `65,536`-token attention (`+59%`–`+69%` throughput inflation at `64K`).
 > 2. **Square-Attention FLOPs Counter:** Upstream TorchTitan counts full `S × S` attention (`61.07` GFLOP/tok at `64K`) rather than the lower-triangular causal `S × (S+1) / 2` FLOPs (`38.52` GFLOP/tok at `64K`), adding another `1.585×` multiplier at `64K`.
 >
-> Our 60-step validation suite ([`scripts/run_flint_customer_60step_validation.py`](../scripts/run_flint_customer_60step_validation.py)) explicitly includes a `64K` `c4_test` EoD control run (`07_ctrl_s65536_mb1_ga1_c4eod`) that reproduces this exact effect (`48.06%` TorchTitan Counter MFU on `v7x-16` and `64.81%` on `v5p-16`), alongside the **true contiguous full-sequence 60-step runs** (`17.90%–18.08%` Exact Causal MFU / `28.38%–28.67%` TorchTitan Counter MFU on `v7x-16`, and `26.51%–27.20%` Exact Causal MFU / `42.04%–43.12%` TorchTitan Counter MFU on `v5p-16` / `v5p-32`).
+> The 60-step validation suite ([`scripts/run_flint_60step_validation.py`](../scripts/run_flint_60step_validation.py)) explicitly includes a `64K` `c4_test` EoD control run (`07_ctrl_s65536_mb1_ga1_c4eod`) that reproduces this exact effect (`48.06%` TorchTitan Counter MFU on `v7x-16` and `64.81%` on `v5p-16`), alongside the **true contiguous full-sequence 60-step runs** (`17.90%–18.08%` Exact Causal MFU / `28.38%–28.67%` TorchTitan Counter MFU on `v7x-16`, and `26.51%–27.20%` Exact Causal MFU / `42.04%–43.12%` TorchTitan Counter MFU on `v5p-16` / `v5p-32`).
 
 ---
 
@@ -24,7 +24,7 @@ All legacy exploratory scripts, Kubernetes manifests, and raw JSON/Markdown summ
 
 ## 2. Summary of Exploratory Findings (`2K`–`16K` Short-Window Sweeps & Parallelism Studies)
 
-While the `32K`/`64K` `c4_test` numbers were superseded by `CUSTOMER_VAL60`, the `Pass 1..13` tuning sweeps identified the kernel, memory, and communication optimizations that form the validated recipe:
+While the `32K`/`64K` `c4_test` numbers were superseded by the 60-step validated runs in the main README, the `Pass 1..13` tuning sweeps identified the kernel, memory, and communication optimizations that form the validated recipe:
 
 1. **Kernel & Compiler Optimizations Incorporated into the Validated Recipe:**
    - **Native `TpuGraphTrainer` on `v5p`:** Fixed the `16 MiB` Scoped VMEM compilation error on `v5p` by lowering Pallas grouped-MM `tile_m` from `512` to `256` (`flint_40b_v5p_n40` in [`docker/patch_flint_configs.py`](../docker/patch_flint_configs.py)).
@@ -36,13 +36,16 @@ While the `32K`/`64K` `c4_test` numbers were superseded by `CUSTOMER_VAL60`, the
    - Streaming layer activations asynchronously between HBM and host DRAM (`save_last_n=0, prefetch=2`) enabled `mb=64` (`394,966` slice tok/s, `34.91 GiB` HBM) and `mb=96` (`385,200` slice tok/s, `53.43 GiB` HBM) on `v7x-16`, though keeping activations in HBM (`n49`, `mb=48`) achieved higher throughput (`431,165`–`441,664` slice tok/s at `23.02 GiB` HBM).
 4. **Static-Shape Expert Parallelism (`StaticEP=2..32` on `v7x-16` and `v5p-32`, `2K`):**
    - Replacing dynamic `TokenDispatcher` / `torch.bincount` with static-capacity `[EP, E_local, C, D]` `all_to_all_single` eliminated XLA recompilation across `EP = 2, 4, 8, 16, 32`.
-   - Because `RecursiveSI/flint` activates `6` of `256` tiny experts (`d_ff = 512`) per token across `49` MoE layers (`98` `AllToAll` collectives per forward+backward microbatch), pure `SimpleFSDP` (`18.08%–19.36%` Exact Causal MFU at `2K` on `v7x-16`) substantially outperformed `StaticEP=2 × FSDP=16` (`11.85%` TorchTitan Counter MFU, intra-package `0`-hop `AllToAll`), `StaticEP=4` (`7.17%`), `StaticEP=8` (`6.73%`), `StaticEP=16` (`5.85%`), and `StaticEP=32` (`4.70%`).
+   - Because `RecursiveSI/flint` activates `6` of `256` tiny experts (`d_ff = 512`) per token across `49` MoE layers (`98` `AllToAll` collectives per forward+backward microbatch), pure `SimpleFSDP` (`18.97%–20.31%` TorchTitan Counter MFU at `2K` on `v7x-16` in the 60-step validated runs) substantially outperformed `StaticEP=2 × FSDP=16` (`11.85%` TorchTitan Counter MFU, intra-package `0`-hop `AllToAll`), `StaticEP=4` (`7.17%`), `StaticEP=8` (`6.73%`), `StaticEP=16` (`5.85%`), and `StaticEP=32` (`4.70%`).
 
 ---
 
 ## 3. Selected Historical `2K`–`16K` Short-Window Reference Rows (`10–15` Steps, `C4-EoD`, TorchTitan Counter MFU)
 
 For traceability to archived logs in [`archive/results/`](../archive/results/), the table below lists representative `2K`–`16K` short-window tuning runs (`10–15` steps, `c4_test` EoD packing, TorchTitan Counter MFU):
+
+> [!WARNING]
+> These rows are not comparable with the validated results. They use the same two inflating factors described above: document-boundary attention skipping and the TorchTitan counter. That includes the `16K` rows at `27.15%` (`v7x-16`) and `35.33%` (`v5p-32`). The validated `16K` numbers are `18.09%` exact causal / `22.82%` TorchTitan counter on `v7x-16` (`mb=6, ga=2`) and `23.51%` / `29.66%` on `v5p-32` (`mb=4, ga=1`).
 
 | TPU Slice | Archived Run ID | Lane & Seq Length | Global Batch (tok/step) | Steady tok/s/rank | Slice tok/s | TorchTitan Counter MFU (`C4-EoD`) | Peak HBM (GiB) | Archived Script |
 |---|---|---|---:|---:|---:|---:|---:|---|

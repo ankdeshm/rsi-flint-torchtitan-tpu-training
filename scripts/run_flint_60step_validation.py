@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Customer-Grade 60-Step Steady-State TorchTitan TPU Validation & Context-Length Ablation for RSI Flint.
+"""60-Step Steady-State TorchTitan TPU Validation & Context-Length Scaling Runner for RSI Flint.
 
-Addresses all customer audit requirements on TPU v7x-16 (32 TensorCores / 16 Ironwood chips),
+Covers TPU v7x-16 (32 TensorCores / 16 Ironwood chips),
 TPU v5p-16 (16 chips), and TPU v5p-32 (32 chips):
   1. Exact First-Principles FLOPs/Token Accounting (`RecursiveSI/flint/config.json`):
      - `hidden_size = 2048`, `vocab_size = 150,144`, `49` layers (`2` dense SwiGLU `inter=6144` +
@@ -22,7 +22,7 @@ TPU v5p-16 (16 chips), and TPU v5p-32 (32 chips):
        so every `[mb, seq_len]` row executes 100% unskipped `seq_len` causal attention across `2K, 4K, 8K, 16K, 32K, 64K`
        at strictly constant recipe and constant `65,536` tokens/microbatch/rank (`mb=32..1`), plus direct `c4_test`
        EoD-packed control comparison at `64K`.
-  4. Long-Context Extension Suite (`--suite=customer_val60_longctx`: `128K` and `256K`, Flint `max_position_embeddings`):
+  4. Long-Context Extension Suite (`--suite=longctx_128k`: `128K` and `256K`, Flint `max_position_embeddings`):
      - Flint in this TorchTitan TPU stack rejects context/tensor parallelism, so each rank holds one full `seq_len`
        sequence per microbatch (`mb=1` -> `131,072` / `262,144` tokens/rank/microbatch instead of `65,536`).
      - Starts from the identical val60 recipe (Splash-attention output saved in all `49` layers) and, only after an HBM
@@ -108,7 +108,7 @@ def flint_palm_flops_per_token(seq_len: int) -> float:
 NATIVE_VAL60_CONFIG_PATCH = '''
 
 # ==============================================================================
-# Customer 60-Step Validation Fixed-Recipe Context-Length Configs (2K..64K)
+# 60-Step Validation Fixed-Recipe Context-Length Configs (2K..64K)
 # ==============================================================================
 from torchtitan.experiments.tpu.token_dispatcher import (
     TpuRoutedExperts,
@@ -263,7 +263,10 @@ __all__.extend([
 # ==============================================================================
 # Long-Context Extension Suite (128K / 256K True Unskipped Full-Seq, mb=1)
 # ==============================================================================
-LONGCTX_SUITE = "customer_val60_longctx"
+LONGCTX_SUITE = "longctx_128k"
+VAL60_SUITE = "val60"
+# Old suite names stay accepted so earlier manifests and notes keep working.
+SUITE_ALIASES = {"customer_val60": VAL60_SUITE, "customer_val60_longctx": LONGCTX_SUITE}
 # Every attention-save count a long-context attempt may use (one registry config each).
 LONGCTX_ATTN_SAVE_CHOICES = (49, 32, 16, 0)
 # (group tag, seq_len, attention-save counts tried in order -- next one only after an HBM OOM, per-attempt timeout s)
@@ -312,7 +315,7 @@ def longctx_config_patch() -> str:
         "",
         "",
         "# ==============================================================================",
-        "# Customer 60-Step Validation Long-Context Extension Configs (128K / 256K, mb=1)",
+        "# 60-Step Validation Long-Context Extension Configs (128K / 256K, mb=1)",
         "# ==============================================================================",
         "def _build_val60_long(chip: str, seq_len: int, n_attn_saved: int) -> TpuGraphTrainer.Config:",
         '  """val60 fixed recipe at `seq_len`, keeping the Splash output of the last `n_attn_saved` layers',
@@ -817,7 +820,7 @@ def write_summary(
         )
         sep = "|---|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|"
     md_lines = [
-        f"# RSI Flint (`RecursiveSI/flint` 40B-A2.5B MoE) 60-Step Customer Validation (`{suite.upper()}`) — `{slice_name}`",
+        f"# RSI Flint (`RecursiveSI/flint` 40B-A2.5B MoE) 60-Step Validation (`{suite}`) — `{slice_name}`",
         "",
         f"- **Updated (UTC):** `{payload['updated_at_utc']}`",
         f"- **Hardware:** `{num_chips}` × `{chip_type}` chips (`{world_size}` TensorCore ranks, `{payload['peak_bf16_tflops_per_chip']}` BF16 TFLOP/s/chip)",
@@ -1025,7 +1028,9 @@ def build_longctx_attempt(
 def load_previous_longctx_passes(output_dir: Path, slice_name: str) -> dict[str, dict]:
     """PASS rows from earlier runs of this suite on this slice, so a Spot-preempted Job resumes instead of redoing them."""
     passed: dict[str, dict] = {}
-    for summary in sorted(output_dir.glob(f"{slice_name}_{LONGCTX_SUITE}_*/summary.json")):
+    # Also pick up run directories written under the old suite name (see SUITE_ALIASES).
+    names = [LONGCTX_SUITE] + [old for old, new in SUITE_ALIASES.items() if new == LONGCTX_SUITE]
+    for summary in sorted(p for n in names for p in output_dir.glob(f"{slice_name}_{n}_*/summary.json")):
         try:
             payload = json.loads(summary.read_text())
         except Exception:
@@ -1486,7 +1491,7 @@ def run_lockstep_suite(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--suite", default="customer_val60")
+    parser.add_argument("--suite", default="val60")
     parser.add_argument("--chip-type", choices=["v7x", "v5p", "v6e"], required=True)
     parser.add_argument("--nnodes", type=int, required=True)
     parser.add_argument("--nproc-per-node", type=int, required=True)
@@ -1501,6 +1506,7 @@ def main() -> int:
     parser.add_argument("--lockstep", action="store_true", help="Run the selected suite with the multi-host lockstep runner.")
     parser.add_argument("--note", action="append", default=[], help="Extra methodology note for SUMMARY.md (repeatable).")
     args = parser.parse_args()
+    args.suite = SUITE_ALIASES.get(args.suite, args.suite)
 
     apply_runtime_patches()
     node_rank = int(os.environ.get("JOB_COMPLETION_INDEX", os.environ.get("NODE_RANK", "0")))

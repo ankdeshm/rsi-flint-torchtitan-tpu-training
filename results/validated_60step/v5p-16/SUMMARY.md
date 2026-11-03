@@ -1,4 +1,4 @@
-# RSI Flint (`RecursiveSI/flint` 40B-A2.5B MoE) 60-Step Customer Validation (`CUSTOMER_VAL60`) — `v5p-16-4n-2x2x4`
+# RSI Flint (`RecursiveSI/flint` 40B-A2.5B MoE) 60-Step Validated Runs (`val60`) — `v5p-16-4n-2x2x4`
 
 - **Updated (UTC):** `2026-11-03T01:57:38.540624+00:00`
 - **Hardware:** `16` × `v5p` chips (`16` TensorCore ranks, `459.0` BF16 TFLOP/s/chip)

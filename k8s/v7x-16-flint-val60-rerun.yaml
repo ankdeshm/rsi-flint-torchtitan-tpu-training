@@ -9,7 +9,7 @@ spec:
   selector:
     job-name: flint-v7x-16-val60-rerun
 ---
-# Re-run of v7x-16 CUSTOMER_VAL60 rows 04-08 with the lockstep multi-host runner (`--lockstep`). In the first run
+# Re-run of v7x-16 val60 rows 04-08 with the lockstep multi-host runner (`--lockstep`). In the first run
 # row 04 hit a TPU SparseCore RuntimeUnexpectedCoreHalt (infra fault) at step 54, and rows 05-08 then failed with
 # torchrun rendezvous timeouts because the hosts had desynchronized.
 apiVersion: batch/v1
@@ -52,9 +52,9 @@ spec:
       - name: trainer
         image: us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/torchtpu/torchtitan-flint:v0.2.0
         imagePullPolicy: IfNotPresent
-        command: ["python3", "/scripts/run_flint_customer_60step_validation.py"]
+        command: ["python3", "/scripts/run_flint_60step_validation.py"]
         args:
-        - --suite=customer_val60
+        - --suite=val60
         - --lockstep
         - --only-filter=val60_04,val60_05,val60_06,val60_07,val60_08
         - --chip-type=v7x

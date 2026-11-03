@@ -11,7 +11,7 @@ spec:
 ---
 # TorchTitan TPU 2K baseline reproduction and step-by-step ablation suite on tpu7x-2x2x2
 # (v7x-8, 16 TensorCore ranks, SimpleFSDP-16, global batch 512 x 2048 = 1,048,576 tokens/step).
-# See scripts/run_flint_customer_60step_validation.py (--suite=baseline_2k).
+# See scripts/run_flint_60step_validation.py (--suite=baseline_2k).
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -52,7 +52,7 @@ spec:
       - name: trainer
         image: us-central1-docker.pkg.dev/YOUR_GCP_PROJECT_ID/torchtpu/torchtitan-flint:v0.2.0
         imagePullPolicy: IfNotPresent
-        command: ["python3", "/scripts/run_flint_customer_60step_validation.py"]
+        command: ["python3", "/scripts/run_flint_60step_validation.py"]
         args:
         - --suite=baseline_2k
         - --chip-type=v7x
