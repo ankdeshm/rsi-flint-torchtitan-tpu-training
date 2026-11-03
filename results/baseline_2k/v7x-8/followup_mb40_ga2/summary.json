@@ -1,6 +1,6 @@
 {
   "updated_at_utc": "2026-11-03T03:32:50.071554+00:00",
-  "suite": "eng_parity_2k",
+  "suite": "baseline_2k",
   "slice_name": "v7x-8-2x2x2",
   "chip_type": "v7x",
   "num_chips": 8,
@@ -9,14 +9,14 @@
   "peak_bf16_tflops_per_rank": 1153.5,
   "peak_bf16_tflops_per_chip": 2307.0,
   "notes": [
-    "**Apples-to-apples with google-pytorch/torchtitan PR #122 (native lane, 16.23% MFU) and PR #123 (HF backend, 16.29% MFU):** same slice shape (`tpu7x-2x2x2` = v7x-8, `16` TensorCore ranks, SimpleFSDP over 16), same `seq_len=2048`, same global batch `512 x 2048 = 1,048,576` tok/step (`mb=32`, `ga=1`) unless a row says otherwise, same `c4_test` EoD packing as upstream (`C4-EoD`) unless marked `Full-Seq`, and the same MFU definition (TorchTitan counter `17.385` GFLOP/token = **PaLM GF/tok** column, `1,153.5` BF16 TFLOP/s per TensorCore).",
-    "Each run is `60` steps; the steady column averages steps `11..60`. The two PR-window columns re-score the same run with each PR's own window (PR #122: median of steps `3..8`; PR #123: mean of steps `2..10`).",
-    "`eng_*` rows reproduce the PR recipes verbatim with this repo's image; `abl_*` rows add one group of changes at a time; `ours_*` rows are the full recipe of this repo (`ours_05` also changes the batch, so it is not iso-batch)."
+    "**TorchTitan TPU 2K baseline & ablation suite (`google-pytorch/torchtitan` PR #122 Native lane and PR #123 HF backend lane):** fixed `tpu7x-2x2x2` (`v7x-8`, `16` TensorCore ranks, `SimpleFSDP` over 16), `seq_len=2048`, global batch `512 x 2048 = 1,048,576` tok/step (`mb=32`, `ga=1`) unless marked as a batch-scaling probe, and both Exact Causal MFU (`16.5704` GFLOP/tok) and TorchTitan Counter MFU (`17.385` GFLOP/tok, `1,153.5` BF16 TFLOP/s per TensorCore).",
+    "Each run executes `60` optimizer steps; steady-state columns average steps `11..60`. The two PR-window columns also score the same run over the upstream step windows (PR #122: median of steps `3..8`; PR #123: mean of steps `2..10`).",
+    "Base rows reproduce the unmodified PR #122 and PR #123 recipes on this image; step-by-step rows (`step1..step4`) add one optimization group at a time on top of the PR #122 Native baseline."
   ],
   "results": [
     {
-      "name": "v7x8_ours_05b_val60_recipe_c4eod_mb40_ga2",
-      "lane": "ours_02 with a larger batch that fits 16-way FSDP HBM (mb=40 -> 81,920 tok/rank, ga=2 -> 2.62M tok/step); NOT iso-batch",
+      "name": "v7x8_09_batch_probe_c4eod_mb40_ga2",
+      "lane": "Batch-scaling HBM probe on 16-rank FSDP (mb=40 -> 81,920 tok/rank, ga=2 -> 2.62M tok/step)",
       "seq_len": 2048,
       "mb": 40,
       "tok_per_rank": 81920,
@@ -31,7 +31,7 @@
         "--nnodes=2",
         "--nproc_per_node=8",
         "--rdzv_backend=static",
-        "--rdzv_endpoint=flint-v7x-8-engparity-05b-0.flint-v7x-8-engparity-05b-svc.default.svc.cluster.local:30020",
+        "--rdzv_endpoint=flint-v7x-8-baseline-2k-05b-0.flint-v7x-8-baseline-2k-05b-svc.default.svc.cluster.local:30020",
         "--node_rank=0",
         "-m",
         "torchtitan.experiments.tpu.train",

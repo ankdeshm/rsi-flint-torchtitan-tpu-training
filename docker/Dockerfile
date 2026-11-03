@@ -10,13 +10,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # 1. Install PyTorch 2.15.0 CPU release wheel first so downstream deps never pull CUDA wheels
 RUN pip install "torch==2.15.0" --index-url https://download.pytorch.org/whl/cpu
 
-# 2. Clone both TorchTitan Flint lanes:
-#    - /torchtitan-hf:     PR #123 (hf-backend-tpu-20261028-v020-flint-tune)
-#    - /torchtitan-native: PR #122 (alekseyv_flint)
-RUN git clone --depth 1 --branch hf-backend-tpu-20261028-v020-flint-tune \
-      https://github.com/google-pytorch/torchtitan.git /torchtitan-hf && \
-    git clone --depth 1 --branch alekseyv_flint \
-      https://github.com/google-pytorch/torchtitan.git /torchtitan-native
+# 2. Fetch both google-pytorch/torchtitan Flint TPU lanes by pull-request ref:
+#    - /torchtitan-hf:     PR #123 (HuggingFace modeling backend lane)
+#    - /torchtitan-native: PR #122 (Native TpuGraphTrainer lane)
+RUN git init /torchtitan-hf && \
+    git -C /torchtitan-hf fetch --depth 1 https://github.com/google-pytorch/torchtitan.git refs/pull/123/head && \
+    git -C /torchtitan-hf checkout FETCH_HEAD && \
+    git init /torchtitan-native && \
+    git -C /torchtitan-native fetch --depth 1 https://github.com/google-pytorch/torchtitan.git refs/pull/122/head && \
+    git -C /torchtitan-native checkout FETCH_HEAD
 
 # 3. Install TorchTPU 0.2.0 GA + JAX/Pallas/Tokamax/libtpu stack + TorchTitan requirements
 RUN pip install -r /torchtitan-hf/torchtitan/experiments/tpu/requirements.txt \

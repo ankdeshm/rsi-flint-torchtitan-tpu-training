@@ -115,7 +115,7 @@ def build_v7x_pass8_experiments(world_size: int, hf_model_path: str, steps: int)
     )
 
     if world_size == 16:
-        # True 8-chip (2x2x2, 16 TensorCores) FSDP-16 topology (matching Aleksey's 2x2x2 row!)
+        # True 8-chip (2x2x2, 16 TensorCores) FSDP-16 topology (matching PR #122 2x2x2 topology)
         return [
             {
                 "name": "v7x8_p8_01_hf_pr123_fsdp16_hybridac28_mb48",

@@ -9,7 +9,6 @@
   "peak_bf16_tflops_per_rank": 1153.5,
   "peak_bf16_tflops_per_chip": 2307.0,
   "notes": [
-    "Rows `04`, `05`, `06`, `07` come from the lockstep re-run (`k8s/v7x-16-flint-val60-rerun.yaml`): in the first run row `04` hit a TPU SparseCore RuntimeUnexpectedCoreHalt (infra fault) at step 54 and rows `05`-`08` then failed with rendezvous timeouts after the hosts desynchronized. Same image, recipe and 60-step method.",
     "Rows `04`, `05`, `06`, `07`, `08` come from the lockstep re-run (`k8s/v7x-16-flint-val60-rerun.yaml`): in the first run row `04` hit a TPU SparseCore RuntimeUnexpectedCoreHalt (infra fault) at step 54 and rows `05`-`08` then failed with rendezvous timeouts after the hosts desynchronized. Same image, recipe and 60-step method."
   ],
   "results": [

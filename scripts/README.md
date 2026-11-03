@@ -1,20 +1,19 @@
-# `scripts/` — Script Index by Optimization Pass
+# Validated Benchmark & Staging Scripts (`scripts/`)
 
-This directory contains the benchmark and ablation scripts progressing from the initial baselines (`15.87%`–`19.76%` MFU) to `35.33%` MFU on `v5p-32`, `35.21%` MFU on `v5p-16`, and `27.15%` MFU on `v7x-16`.
+This directory contains only the active, validated scripts used to stage `RecursiveSI/flint` weights and run the 60-step TorchTitan TPU suites across TPU `v7x` and `v5p`.
 
-## 1. Primary Scripts
+| Script | Purpose | Kubernetes Manifests | Results Directory |
+|---|---|---|---|
+| [`stage_hf_to_gcs.py`](stage_hf_to_gcs.py) | Downloads all `15` `RecursiveSI/flint` safetensors shards + tokenizer files from Hugging Face into GCS (`gs://YOUR_GCS_BUCKET/models/RecursiveSI/flint`) so multi-host TPU pods read directly via GCSFuse | [`../k8s/stage-flint-job.yaml`](../k8s/stage-flint-job.yaml) | — |
+| [`run_flint_customer_60step_validation.py`](run_flint_customer_60step_validation.py) | Multi-host 60-step validation and baseline/ablation runner with lockstep rendezvous coordination, contiguous full-sequence causal attention (`TT_CONTIGUOUS_FULL_SEQ=1`), and dual MFU accounting (Exact Causal FLOPs + TorchTitan Counter FLOPs) | [`../k8s/v7x-8-flint-baseline-2k.yaml`](../k8s/v7x-8-flint-baseline-2k.yaml)<br>[`../k8s/v7x-16-flint-val60.yaml`](../k8s/v7x-16-flint-val60.yaml)<br>[`../k8s/v7x-16-flint-val60-rerun.yaml`](../k8s/v7x-16-flint-val60-rerun.yaml)<br>[`../k8s/v5p-16-flint-val60.yaml`](../k8s/v5p-16-flint-val60.yaml)<br>[`../k8s/v5p-32-flint-val60.yaml`](../k8s/v5p-32-flint-val60.yaml)<br>[`../k8s/v5p-16-flint-val60-longctx.yaml`](../k8s/v5p-16-flint-val60-longctx.yaml)<br>[`../k8s/v5p-32-flint-val60-longctx.yaml`](../k8s/v5p-32-flint-val60-longctx.yaml) | [`../results/baseline_2k/`](../results/baseline_2k/)<br>[`../results/customer_val60/`](../results/customer_val60/)<br>[`../results/customer_val60_longctx/`](../results/customer_val60_longctx/) |
 
-| Script | Target Hardware | Measured Results | Matching K8s Manifest | Result Files |
-|---|---|---|---|---|
-| **[`run_flint_v5p_pass10_longctx.py`](./run_flint_v5p_pass10_longctx.py)** | `v5p-32` (`2x4x4`) & `v5p-16` (`2x2x4`) | `35.33%` / `36.20%` MFU (`v5p32_p10_03` HF `16K`), `35.21%` / `35.92%` MFU (`v5p16_p10_03` HF `16K`), & `33.67%` / `34.63%` MFU (`v5p32_p10_07` Native `16K`) | [`v5p-32-flint-pass10.yaml`](../k8s/v5p-32-flint-pass10.yaml) · [`v5p-16-flint-pass10.yaml`](../k8s/v5p-16-flint-pass10.yaml) | [`results/v5p32_pass10/`](../results/v5p32_pass10/SUMMARY.md) · [`results/v5p16_pass10/`](../results/v5p16_pass10/SUMMARY.md) |
-| **[`run_flint_v7x_pass13_longctx.py`](./run_flint_v7x_pass13_longctx.py)** | `v7x-16` (`2x2x4`, 32 TC) | `27.15%` / `27.20%` MFU (`v7x_p13_03` Native `16K`) & `25.31%` / `25.35%` MFU (`v7x_p13_07` HF `16K`) | [`v7x-16-flint-pass13.yaml`](../k8s/v7x-16-flint-pass13.yaml) | [`results/v7x16_pass13/`](../results/v7x16_pass13/SUMMARY.md) |
-| **[`run_flint_v7x_pass12.py`](./run_flint_v7x_pass12.py)** | `v7x-16` (`2x2x4`, 32 TC) | `441,664` tok/s / `20.80%` MFU (`v7x_p12g_02` Native `2K`), `18.58%` MFU (`v7x_p12_04` HF `2K`), `18.60%` MFU (`v7x_p12e_04` Host Offload), & `11.85%` / `12.24%` MFU (`v7x_p12_08` `StaticEP=2`) | [`v7x-16-flint-pass12g.yaml`](../k8s/v7x-16-flint-pass12g.yaml) · [`v7x-16-flint-pass12b.yaml`](../k8s/v7x-16-flint-pass12b.yaml) | [`pass12g SUMMARY.md`](../results/v7x-16-flex-2x2x4_pass12g_20261101T114752Z/SUMMARY.md) · [`pass12 SUMMARY.md`](../results/flint_v7x-16-flex-2x2x4_pass12_SUMMARY.md) |
-| **[`run_flint_v5p_pass9.py`](./run_flint_v5p_pass9.py)** | `v5p-16` & `v5p-32` | `25.76%` / `25.81%` MFU (`v5p-16` `2K`) & `24.88%` MFU (`v5p-32` `2K`, `210,189` tok/s) in `v5p_p9_02`; `23.89%` MFU Native `2K` (`v5p_p9_06`) | [`v5p-32-and-16-flint-pass9.yaml`](../k8s/v5p-32-and-16-flint-pass9.yaml) | [`v5p-16 pass9 MD`](../results/flint_v5p-16-2x2x4_pass9_SUMMARY.md) · [`v5p-32 pass9 MD`](../results/flint_v5p-32-2x4x4_pass9_SUMMARY.md) |
+## Suite Modes in `run_flint_customer_60step_validation.py`
 
-## 2. Iterative Ablation Scripts
+1. **`--suite=baseline_2k` (`v7x-8`, `16` TensorCore ranks):**
+   - Reproduces the unmodified `google-pytorch/torchtitan` Native `TpuGraphTrainer` ([PR #122](https://github.com/google-pytorch/torchtitan/pull/122)) and HuggingFace Modeling Backend ([PR #123](https://github.com/google-pytorch/torchtitan/pull/123)) `2K` recipes, followed by 4 incremental optimization steps and 2 batch-scaling HBM probes (`60` steps each, steady mean of steps `11..60`).
+2. **`--suite=customer_val60` (`v7x-16`, `v5p-16`, `v5p-32`):**
+   - Evaluates context-length scaling (`2K`, `4K`, `8K`, `16K`, `32K`, `64K`) at `60` optimizer steps per configuration with true contiguous full-sequence causal attention (`TT_CONTIGUOUS_FULL_SEQ=1`), plus a `64K` `c4_test` End-of-Document (`EoD`) control run (`07_ctrl_s65536_mb1_ga1_c4eod`) that quantifies how short-document packing skips global attention blocks.
+3. **`--suite=customer_val60_longctx` (`v5p-16`, `v5p-32`):**
+   - Probes `128K` (`seq_len=131,072`) single-sequence-per-rank (`mb=1`) HBM limits across progressive attention-activation checkpointing levels (`attn49 -> attn32 -> attn16`) without Context/Tensor Parallelism.
 
-- [`stage_hf_to_gcs.py`](./stage_hf_to_gcs.py): Streams the 15 `RecursiveSI/flint` Hugging Face safetensors shards (`79.59 GB`) into regional GCS.
-- [`run_flint_sweep.py`](./run_flint_sweep.py): **Pass 1** default PR #122 (`16.56%` `v7x-16`) & PR #123 (`15.87%` `v7x-16`, `19.76%` `v5p-16`) baselines + `HierSC` / `n49` / `tile_m=1024`.
-- [`run_flint_pass2.py`](./run_flint_pass2.py) .. [`run_flint_pass7_v7x_next.py`](./run_flint_pass7_v7x_next.py): **Passes 2–7 (`v7x-16`)** — compiled AdamW + GradNorm (`p3_01`), saved `moe.routing` (`p3_02`), 15-shard numerical parity `loss=3.43601` (`p6_02` in [`run_flint_pass6.py`](./run_flint_pass6.py)), and `mb=48` + `2×` GA (`p7_01` -> `18.36%`).
-- [`run_flint_v7x_pass8.py`](./run_flint_v7x_pass8.py) .. [`run_flint_v7x_pass11.py`](./run_flint_v7x_pass11.py): **Passes 8–11 (`v7x-16`)** — `BF16` Reduce + Scout XLA (`v7x_p9_02` -> `18.68%`), `tile_m=256` zero-padding (`pass10b`), `mb=96` host offload (`pass11b`), and `StaticEP=8/16/32` (`pass11`).
-- [`run_flint_v5p_pass2.py`](./run_flint_v5p_pass2.py) .. [`run_flint_v5p_pass8.py`](./run_flint_v5p_pass8.py) & [`run_flint_v5p_pass9b.py`](./run_flint_v5p_pass9b.py): **Passes 2–8 & 9B (`v5p`)** — `16 MiB` Scoped VMEM `tile_m=256` fix, `BF16` Reduce + XLA LHS (`v5p_p8_02` -> `24.87%`), `HSDP 2×16` (`v5p_p8_06` -> `23.81%`), and `StaticEP=8/16` (`pass9b` -> `7.30%`).
+> **Historical Tuning Scripts:** Earlier `10–15`-step exploratory scripts (`Pass 1..14`) are archived under [`../archive/scripts/`](../archive/scripts/) and documented in [`../docs/APPENDIX_HISTORICAL_RUNS.md`](../docs/APPENDIX_HISTORICAL_RUNS.md).

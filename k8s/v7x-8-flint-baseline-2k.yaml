@@ -1,22 +1,21 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: flint-v7x-8-engparity-svc
+  name: flint-v7x-8-baseline-2k-svc
   namespace: default
 spec:
   clusterIP: None
   publishNotReadyAddresses: true
   selector:
-    job-name: flint-v7x-8-engparity
+    job-name: flint-v7x-8-baseline-2k
 ---
-# Apples-to-apples 2K comparison with google-pytorch/torchtitan PR #122 / PR #123 on the same slice shape
-# (tpu7x-2x2x2 = v7x-8, 16 TensorCore ranks, global batch 512 x 2048). See scripts/run_flint_customer_60step_validation.py
-# (`--suite=eng_parity_2k`) for the 8 runs: both PR recipes verbatim, this repo's recipe at the PR batch (C4-EoD and
-# full-seq), a larger-batch variant, and a 3-step ablation ladder.
+# TorchTitan TPU 2K baseline reproduction and step-by-step ablation suite on tpu7x-2x2x2
+# (v7x-8, 16 TensorCore ranks, SimpleFSDP-16, global batch 512 x 2048 = 1,048,576 tokens/step).
+# See scripts/run_flint_customer_60step_validation.py (--suite=baseline_2k).
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: flint-v7x-8-engparity
+  name: flint-v7x-8-baseline-2k
   namespace: default
 spec:
   completions: 2
@@ -26,13 +25,13 @@ spec:
   template:
     metadata:
       labels:
-        app: flint-v7x-8-engparity
+        app: flint-v7x-8-baseline-2k
       annotations:
         gke-gcsfuse/volumes: "true"
         cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
     spec:
       serviceAccountName: default
-      subdomain: flint-v7x-8-engparity-svc
+      subdomain: flint-v7x-8-baseline-2k-svc
       terminationGracePeriodSeconds: 5
       restartPolicy: OnFailure
       nodeSelector:
@@ -55,11 +54,11 @@ spec:
         imagePullPolicy: IfNotPresent
         command: ["python3", "/scripts/run_flint_customer_60step_validation.py"]
         args:
-        - --suite=eng_parity_2k
+        - --suite=baseline_2k
         - --chip-type=v7x
         - --nnodes=2
         - --nproc-per-node=8
-        - --master-addr=flint-v7x-8-engparity-0.flint-v7x-8-engparity-svc.default.svc.cluster.local
+        - --master-addr=flint-v7x-8-baseline-2k-0.flint-v7x-8-baseline-2k-svc.default.svc.cluster.local
         - --slice-name=v7x-8-2x2x2
         - --steps=60
         - --output-dir=/models/flint-results

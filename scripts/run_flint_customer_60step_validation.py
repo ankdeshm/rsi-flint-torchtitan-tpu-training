@@ -355,9 +355,9 @@ def apply_runtime_patches() -> None:
             nat_reg.write_text(txt + longctx_config_patch())
             print("[flint-val60] Patched Native config_registry.py with 128K/256K long-context configs", flush=True)
         txt = nat_reg.read_text()
-        if "def flint_40b_engabl_v014_sbdp_rope(" not in txt:
-            nat_reg.write_text(txt + ENG_ABLATION_CONFIG_PATCH)
-            print("[flint-val60] Patched Native config_registry.py with eng-parity 2K ablation config", flush=True)
+        if "def flint_40b_abl_v014_sbdp_rope(" not in txt:
+            nat_reg.write_text(txt + BASELINE_ABLATION_CONFIG_PATCH)
+            print("[flint-val60] Patched Native config_registry.py with 2K ablation config", flush=True)
 
     packing_py = Path("/torchtitan-native/torchtitan/components/data/packing.py")
     if packing_py.exists():
@@ -739,19 +739,19 @@ def parse_metrics(log_text: str, chip_type: str, seq_len: int, world_size: int) 
     std_tps = statistics.stdev(tps_vals) if len(tps_vals) > 1 else 0.0
     avg_logged_mfu = sum(s["logged_mfu_pct"] for s in steady) / len(steady)
 
-    # Engineering-team measurement windows on the same run (google-pytorch/torchtitan PR #122: median of
-    # steps 3..8; PR #123: mean of steps 2..10), MFU with the TorchTitan counter (= PaLM column convention).
-    eng_windows: dict = {}
+    # Upstream PR measurement windows on the same 60-step run (PR #122: median of steps 3..8;
+    # PR #123: mean of steps 2..10), MFU with the TorchTitan counter (= PaLM column convention).
+    pr_windows: dict = {}
     w122 = [s["tps_per_rank"] for s in steps if 3 <= s["step"] <= 8]
     if w122:
         med122 = statistics.median(w122)
-        eng_windows["eng_pr122_tps_per_rank"] = round(med122, 1)
-        eng_windows["eng_pr122_palm_mfu_pct"] = round(100.0 * palm_flops * med122 / peak_tf, 2)
+        pr_windows["pr122_window_tps_per_rank"] = round(med122, 1)
+        pr_windows["pr122_window_palm_mfu_pct"] = round(100.0 * palm_flops * med122 / peak_tf, 2)
     w123 = [s["tps_per_rank"] for s in steps if 2 <= s["step"] <= 10]
     if w123:
         mean123 = sum(w123) / len(w123)
-        eng_windows["eng_pr123_tps_per_rank"] = round(mean123, 1)
-        eng_windows["eng_pr123_palm_mfu_pct"] = round(100.0 * palm_flops * mean123 / peak_tf, 2)
+        pr_windows["pr123_window_tps_per_rank"] = round(mean123, 1)
+        pr_windows["pr123_window_palm_mfu_pct"] = round(100.0 * palm_flops * mean123 / peak_tf, 2)
 
     return {
         "seq_len": seq_len,
@@ -774,7 +774,7 @@ def parse_metrics(log_text: str, chip_type: str, seq_len: int, world_size: int) 
         "steady_param_only_mfu_pct": round(100.0 * param_flops * avg_tps / peak_tf, 2),
         "steady_logged_mfu_pct": round(avg_logged_mfu, 2),
         "peak_mem_gib": max((s["mem_gib"] for s in steps if s["mem_gib"] is not None), default=None),
-        **eng_windows,
+        **pr_windows,
         "steps": steps,
     }
 
@@ -805,13 +805,13 @@ def write_summary(
         "results": results,
     }
     (out_dir / "summary.json").write_text(json.dumps(payload, indent=2))
-    eng_cols = suite == ENG_PARITY_SUITE
+    show_pr_windows = suite == BASELINE_2K_SUITE
     header = (
         "| Experiment | Seq | Seq Mode | Steady Steps | **tok/s/chip** | tok/s/rank (±std) | Slice tok/s | Causal GF/tok "
         "| **Steady Causal MFU** | PaLM GF/tok | Steady PaLM MFU | `6*N_act` MFU | HBM (GiB) | Loss (`1 -> 60`) | Status |"
     )
     sep = "|---|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|"
-    if eng_cols:
+    if show_pr_windows:
         header = header.replace(
             " | HBM (GiB)", " | PR #122-window PaLM MFU (median 3..8) | PR #123-window PaLM MFU (mean 2..10) | HBM (GiB)"
         )
@@ -831,9 +831,9 @@ def write_summary(
         m = r.get("metrics", {})
         mode = "Full-Seq" if r.get("contiguous_full_seq", True) else "C4-EoD"
         loss_str = f"{m.get('first_loss', '-')} -> {m.get('final_loss', '-')}" if m.get("num_logged_steps") else "-"
-        eng_part = (
-            f"{m.get('eng_pr122_palm_mfu_pct', 0.0):.2f}% | {m.get('eng_pr123_palm_mfu_pct', 0.0):.2f}% | "
-            if eng_cols
+        pr_win_part = (
+            f"{m.get('pr122_window_palm_mfu_pct', 0.0):.2f}% | {m.get('pr123_window_palm_mfu_pct', 0.0):.2f}% | "
+            if show_pr_windows
             else ""
         )
         md_lines.append(
@@ -842,7 +842,7 @@ def write_summary(
             f"{m.get('steady_slice_tps', 0.0):,.0f} | `{m.get('causal_gflops_per_tok', '-')}` | "
             f"**{m.get('steady_causal_mfu_pct', 0.0):.2f}%** | `{m.get('palm_gflops_per_tok', '-')}` | "
             f"{m.get('steady_palm_mfu_pct', 0.0):.2f}% | {m.get('steady_param_only_mfu_pct', 0.0):.2f}% | "
-            f"{eng_part}{m.get('peak_mem_gib') or '-'} | {loss_str} | `{r['status']}` |"
+            f"{pr_win_part}{m.get('peak_mem_gib') or '-'} | {loss_str} | `{r['status']}` |"
         )
     md_text = "\n".join(md_lines) + "\n"
     (out_dir / "SUMMARY.md").write_text(md_text)
@@ -1206,12 +1206,12 @@ def run_longctx_suite(
 
 
 # ==============================================================================
-# Engineering-parity 2K suite (apples-to-apples vs google-pytorch/torchtitan PR #122 / PR #123)
+# TorchTitan TPU 2K baseline reproduction and incremental ablation suite (v7x-8)
 # ==============================================================================
-ENG_PARITY_SUITE = "eng_parity_2k"
-ENG_HF_MODEL_PATH = "/models/models/RecursiveSI/flint"
-# PR #123 best arm (r3) libtpu flags, verbatim from the PR description.
-ENG_PR123_LIBTPU_FLAGS = (
+BASELINE_2K_SUITE = "baseline_2k"
+BASELINE_HF_MODEL_PATH = "/models/models/RecursiveSI/flint"
+# PR #123 r3 libtpu flags from google-pytorch/torchtitan PR #123.
+PR123_LIBTPU_FLAGS = (
     "xla_tpu_enable_sparse_core_collective_aggregator=true "
     "xla_tpu_enable_latency_hiding_layer_scheduler=true "
     "xla_tpu_use_single_sparse_core_for_reduce_scatter_offload=false "
@@ -1219,26 +1219,26 @@ ENG_PR123_LIBTPU_FLAGS = (
     "xla_tpu_enable_sparse_core_hierarchical_reduce_scatter=true "
     "xla_tpu_dvfs_p_state=7"
 )
-ENG_PARITY_NOTES = (
-    "**Apples-to-apples with google-pytorch/torchtitan PR #122 (native lane, 16.23% MFU) and PR #123 (HF backend, "
-    "16.29% MFU):** same slice shape (`tpu7x-2x2x2` = v7x-8, `16` TensorCore ranks, SimpleFSDP over 16), same "
-    "`seq_len=2048`, same global batch `512 x 2048 = 1,048,576` tok/step (`mb=32`, `ga=1`) unless a row says "
-    "otherwise, same `c4_test` EoD packing as upstream (`C4-EoD`) unless marked `Full-Seq`, and the same MFU "
-    "definition (TorchTitan counter `17.385` GFLOP/token = **PaLM GF/tok** column, `1,153.5` BF16 TFLOP/s per "
-    "TensorCore).",
-    "Each run is `60` steps; the steady column averages steps `11..60`. The two PR-window columns re-score the same "
-    "run with each PR's own window (PR #122: median of steps `3..8`; PR #123: mean of steps `2..10`).",
-    "`eng_*` rows reproduce the PR recipes verbatim with this repo's image; `abl_*` rows add one group of changes at "
-    "a time; `ours_*` rows are the full recipe of this repo (`ours_05` also changes the batch, so it is not iso-batch).",
+BASELINE_2K_NOTES = (
+    "**TorchTitan TPU 2K baseline & ablation suite (`google-pytorch/torchtitan` PR #122 Native lane and PR #123 HF "
+    "backend lane):** fixed `tpu7x-2x2x2` (`v7x-8`, `16` TensorCore ranks, `SimpleFSDP` over 16), `seq_len=2048`, "
+    "global batch `512 x 2048 = 1,048,576` tok/step (`mb=32`, `ga=1`) unless marked as a batch-scaling probe, and "
+    "both Exact Causal MFU (`16.5704` GFLOP/tok) and TorchTitan Counter MFU (`17.385` GFLOP/tok, `1,153.5` BF16 "
+    "TFLOP/s per TensorCore).",
+    "Each run executes `60` optimizer steps; steady-state columns average steps `11..60`. The two PR-window columns "
+    "also score the same run over the upstream step windows (PR #122: median of steps `3..8`; PR #123: mean of steps "
+    "`2..10`).",
+    "Base rows reproduce the unmodified PR #122 and PR #123 recipes on this image; step-by-step rows (`step1..step4`) "
+    "add one optimization group at a time on top of the PR #122 Native baseline.",
 )
 
-ENG_ABLATION_CONFIG_PATCH = '''
+BASELINE_ABLATION_CONFIG_PATCH = '''
 
 
 # ==============================================================================
-# Engineering-parity (PR #122 / #123) 2K ablation config: v014 + SBDP + BF16 RoPE only
+# 2K ablation config: v014 + scale_before_down_proj + BF16 RoPE (prior to routing save & compiled fused optimizer)
 # ==============================================================================
-def flint_40b_engabl_v014_sbdp_rope() -> TpuGraphTrainer.Config:
+def flint_40b_abl_v014_sbdp_rope() -> TpuGraphTrainer.Config:
   """flint_40b_v014_tile1024 + scale_before_down_proj + BF16 RoPE (no routing save, eager optimizer)."""
   config = flint_40b_v014_tile1024()
   _val60_set_max_context_length(config, 2048)
@@ -1252,16 +1252,16 @@ def flint_40b_engabl_v014_sbdp_rope() -> TpuGraphTrainer.Config:
   return config
 
 
-__all__.extend(["flint_40b_engabl_v014_sbdp_rope"])
+__all__.extend(["flint_40b_abl_v014_sbdp_rope"])
 '''
 
 
-def build_eng_parity_experiments(world_size: int, steps: int) -> list[dict]:
-    """2K runs on v7x-8 that line up with PR #122 / PR #123, ordered by priority."""
-    our_flags, _ = chip_xla_flags_and_prefix("v7x")
+def build_baseline_2k_experiments(world_size: int, steps: int) -> list[dict]:
+    """2K baseline reproduction and incremental optimization steps on v7x-8."""
+    tuned_flags, _ = chip_xla_flags_and_prefix("v7x")
     seq = 2048
 
-    def _native(name: str, lane: str, config: str, tok_per_rank: int, ga: int, full_seq: bool, our_stack: bool) -> dict:
+    def _native(name: str, lane: str, config: str, tok_per_rank: int, ga: int, full_seq: bool, tuned_comm: bool) -> dict:
         env = {"TT_CONTIGUOUS_FULL_SEQ": "1" if full_seq else "0"}
         args = [
             "--module=torchtitan.experiments.tpu.examples.flint",
@@ -1269,9 +1269,8 @@ def build_eng_parity_experiments(world_size: int, steps: int) -> list[dict]:
             f"--training.max_context_length={seq}",
             f"--training.steps={steps}",
         ]
-        if our_stack:
-            # Our collective/async flag set on top of the config's own libtpu flags, plus BF16 gradient reduce-scatter.
-            env["LIBTPU_INIT_ARGS"] = our_flags
+        if tuned_comm:
+            env["LIBTPU_INIT_ARGS"] = tuned_flags
             args.append("--training.mixed_precision_reduce=bfloat16")
         args += [
             "--metrics.log_freq=1",
@@ -1294,10 +1293,10 @@ def build_eng_parity_experiments(world_size: int, steps: int) -> list[dict]:
         }
 
     pr123 = {
-        "name": "v7x8_eng_04_pr123_hf_attnac_r3_c4eod_mb32_ga1",
+        "name": "v7x8_02_base_hf_pr123_attnac_r3_c4eod_mb32_ga1",
         "lane": (
-            "PR #123 verbatim (HF backend r3: hf_moe_auto_max_attnac, TT_HF_GMM tile_m 1024, CE b-block 1024, "
-            "Splash 512 blocks, hier-SC RS + dvfs flags)"
+            "Baseline HF Modeling Backend (PR #123 recipe: hf_moe_auto_max_attnac, TT_HF_GMM tile_m 1024, "
+            "CE b-block 1024, Splash 512 blocks, hierarchical SparseCore RS + dvfs flags)"
         ),
         "seq_len": seq,
         "mb": 32,
@@ -1309,7 +1308,7 @@ def build_eng_parity_experiments(world_size: int, steps: int) -> list[dict]:
         "args": [
             "--module=torchtitan.experiments.tpu.transformers_modeling_backend",
             "--config=hf_moe_auto_max_attnac",
-            f"--hf-model={ENG_HF_MODEL_PATH}",
+            f"--hf-model={BASELINE_HF_MODEL_PATH}",
             f"--training.max_context_length={seq}",
             f"--training.steps={steps}",
             "--metrics.log_freq=1",
@@ -1328,58 +1327,53 @@ def build_eng_parity_experiments(world_size: int, steps: int) -> list[dict]:
                     "sa_block_kv_dkv_compute",
                 )
             ],
-            f"--extra-libtpu-init-flags={ENG_PR123_LIBTPU_FLAGS}",
+            f"--extra-libtpu-init-flags={PR123_LIBTPU_FLAGS}",
         ],
     }
     return [
         _native(
-            "v7x8_eng_01_pr122_v011_n40_c4eod_mb32_ga1",
-            "PR #122 verbatim (flint_40b_v011_n40: GraphTrainer split, Pallas GMM tile_m 512, n40 selective remat, "
-            "FP32 reduce, eager AdamW, config libtpu flags)",
-            "flint_40b_v011_n40", 65536, 1, full_seq=False, our_stack=False,
-        ),
-        _native(
-            "v7x8_ours_02_val60_recipe_c4eod_mb32_ga1",
-            "This repo's full 2K recipe at the PR batch (v014 + SBDP + BF16 RoPE + routing save + compiled/fused "
-            "AdamW + compiled grad-norm + BF16 reduce + async collective flags)",
-            "flint_40b_val60_v7x_s2048", 65536, 1, full_seq=False, our_stack=True,
-        ),
-        _native(
-            "v7x8_ours_03_val60_recipe_fullseq_mb32_ga1",
-            "ours_02 with true unskipped full-sequence attention (no EoD block skipping)",
-            "flint_40b_val60_v7x_s2048", 65536, 1, full_seq=True, our_stack=True,
+            "v7x8_01_base_native_pr122_v011_n40_c4eod_mb32_ga1",
+            "Baseline Native TpuGraphTrainer (PR #122 recipe: flint_40b_v011_n40, Pallas GMM tile_m 512, "
+            "40/49 Splash outputs saved, FP32 reduce-scatter, eager AdamW)",
+            "flint_40b_v011_n40", 65536, 1, full_seq=False, tuned_comm=False,
         ),
         pr123,
         _native(
-            "v7x8_ours_05_val60_recipe_c4eod_mb48_ga2",
-            "ours_02 with a larger batch (mb=48 -> 98,304 tok/rank, ga=2 -> 3.15M tok/step); NOT iso-batch",
-            "flint_40b_val60_v7x_s2048", 98304, 2, full_seq=False, our_stack=True,
+            "v7x8_03_step1_bf16red_async_xla_c4eod_mb32_ga1",
+            "Step 1 over Native baseline: + BF16 gradient reduce-scatter + async collective / latency-hiding XLA flags",
+            "flint_40b_v011_n40", 65536, 1, full_seq=False, tuned_comm=True,
         ),
         _native(
-            "v7x8_ours_05b_val60_recipe_c4eod_mb40_ga2",
-            "ours_02 with a larger batch that fits 16-way FSDP HBM (mb=40 -> 81,920 tok/rank, ga=2 -> 2.62M tok/step); "
-            "NOT iso-batch",
-            "flint_40b_val60_v7x_s2048", 81920, 2, full_seq=False, our_stack=True,
+            "v7x8_04_step2_attn49_tile1024_c4eod_mb32_ga1",
+            "Step 2: + Splash attention output saved in all 49 layers (0% attention recompute) + Pallas GMM tile_m=1024",
+            "flint_40b_v014_tile1024", 65536, 1, full_seq=False, tuned_comm=True,
         ),
         _native(
-            "v7x8_abl_06_v011n40_bf16red_ourflags_c4eod_mb32_ga1",
-            "Ablation 1: PR #122 config + BF16 reduce-scatter + async collective flag set",
-            "flint_40b_v011_n40", 65536, 1, full_seq=False, our_stack=True,
+            "v7x8_05_step3_sbdp_bf16rope_c4eod_mb32_ga1",
+            "Step 3: + scale_before_down_proj (router weights applied before expert down_proj) + BF16 RoPE",
+            "flint_40b_abl_v014_sbdp_rope", 65536, 1, full_seq=False, tuned_comm=True,
         ),
         _native(
-            "v7x8_abl_07_v014_bf16red_ourflags_c4eod_mb32_ga1",
-            "Ablation 2: + hierarchical SparseCore RS, Splash saved in all 49 layers, Pallas GMM tile_m 1024 "
-            "(flint_40b_v014_tile1024)",
-            "flint_40b_v014_tile1024", 65536, 1, full_seq=False, our_stack=True,
+            "v7x8_06_step4_compiled_fused_opt_c4eod_mb32_ga1",
+            "Step 4 (full 2K recipe, C4-EoD): + MoE routing saved for backward + compiled fused AdamW & grad-norm",
+            "flint_40b_val60_v7x_s2048", 65536, 1, full_seq=False, tuned_comm=True,
         ),
         _native(
-            "v7x8_abl_08_v014_sbdp_rope_bf16red_ourflags_c4eod_mb32_ga1",
-            "Ablation 3: + scale_before_down_proj + BF16 RoPE (ours_02 then adds routing save + compiled/fused "
-            "optimizer)",
-            "flint_40b_engabl_v014_sbdp_rope", 65536, 1, full_seq=False, our_stack=True,
+            "v7x8_07_step4_compiled_fused_opt_fullseq_mb32_ga1",
+            "Step 4 (full 2K recipe, Contiguous Full-Seq): disables C4 EoD attention block skipping (TT_CONTIGUOUS_FULL_SEQ=1)",
+            "flint_40b_val60_v7x_s2048", 65536, 1, full_seq=True, tuned_comm=True,
+        ),
+        _native(
+            "v7x8_08_batch_probe_c4eod_mb48_ga2",
+            "Batch-scaling HBM probe on 16-rank FSDP (mb=48 -> 98,304 tok/rank, ga=2 -> 3.15M tok/step)",
+            "flint_40b_val60_v7x_s2048", 98304, 2, full_seq=False, tuned_comm=True,
+        ),
+        _native(
+            "v7x8_09_batch_probe_c4eod_mb40_ga2",
+            "Batch-scaling HBM probe on 16-rank FSDP (mb=40 -> 81,920 tok/rank, ga=2 -> 2.62M tok/step)",
+            "flint_40b_val60_v7x_s2048", 81920, 2, full_seq=False, tuned_comm=True,
         ),
     ]
-
 
 def run_lockstep_suite(
     args: argparse.Namespace,
@@ -1523,18 +1517,18 @@ def main() -> int:
     if args.suite == LONGCTX_SUITE:
         return run_longctx_suite(args, node_rank, world_size, master_ip, out_dir, bench_dir)
 
-    if args.suite == ENG_PARITY_SUITE:
+    if args.suite == BASELINE_2K_SUITE:
         if args.chip_type != "v7x":
-            raise SystemExit(f"--suite={ENG_PARITY_SUITE} reproduces v7x-8 PR results; use --chip-type=v7x")
-        exps = build_eng_parity_experiments(world_size, steps=args.steps)
+            raise SystemExit(f"--suite={BASELINE_2K_SUITE} targets v7x-8; use --chip-type=v7x")
+        exps = build_baseline_2k_experiments(world_size, steps=args.steps)
     else:
         exps = build_experiments(args.chip_type, world_size, steps=args.steps)
     if args.only_filter:
         tokens = [t.strip() for t in args.only_filter.split(",") if t.strip()]
         exps = [e for e in exps if any(t in e["name"] for t in tokens)]
 
-    if args.suite == ENG_PARITY_SUITE or args.lockstep:
-        notes = (list(ENG_PARITY_NOTES) if args.suite == ENG_PARITY_SUITE else []) + list(args.note)
+    if args.suite == BASELINE_2K_SUITE or args.lockstep:
+        notes = (list(BASELINE_2K_NOTES) if args.suite == BASELINE_2K_SUITE else []) + list(args.note)
         return run_lockstep_suite(args, exps, node_rank, world_size, master_ip, out_dir, bench_dir, notes)
 
     results = []
