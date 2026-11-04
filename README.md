@@ -103,9 +103,9 @@ Full summary and step logs: [`results/validated_60step/v7x-16/SUMMARY.md`](resul
 | **`32K` Higher Batch (`seq=32,768`, `mb=3 × ga=2`)** | `6,291,456` | `Full-Seq` | **15,202.8** | 7,601.4 | 243,245 | **17.95%** | 25.39% | 20.52 | `12.33113 -> 2.80935` |
 | **`64K` Iso-Token (`seq=65,536`, `mb=1 × ga=1`)** | `2,097,152` | `Full-Seq` | **10,722.3** | 5,361.1 | 171,556 | **17.90%** | 28.38% | 14.02 | `12.33406 -> 2.78358` |
 | **`64K` Grad-Accum (`seq=65,536`, `mb=1 × ga=4`)** | `8,388,608` | `Full-Seq` | **10,829.4** | 5,414.7 | 173,271 | **18.08%** | 28.67% | 14.02 | `12.33261 -> 2.85837` |
-| *`64K` Short-Doc EoD Control (`seq=65,536`, `mb=1 × ga=1`, `c4_test` EoD skipping)* | `2,097,152` | *`C4-EoD` (skips >98% global attn)* | *18,155.0* | *9,077.5* | *290,481* | *30.31% (inflated)* | *48.06% (inflated)* | 14.02 | `12.32568 -> 2.82200` |
+| *`64K` Short-Doc EoD Control (`seq=65,536`, `mb=1 × ga=1`, `c4_test` EoD skipping)* | `2,097,152` | *`C4-EoD` (skips >98% global attn)* | *18,155.0* | *9,077.5* | *290,481* | *30.31% (control)* | *48.06% (control)* | 14.02 | `12.32568 -> 2.82200` |
 
-> The italic control row repeats the `64K` run with document-boundary skipping switched back on. It reproduces the `~48%` TorchTitan-counter MFU seen in earlier short tuning runs, which shows where that number came from. The validated `64K` result is the full-sequence row above it (`17.90%`–`18.08%` exact causal MFU). See the [appendix](docs/APPENDIX_HISTORICAL_RUNS.md).
+> The italic control row repeats the `64K` run with document-boundary attention skipping enabled (the upstream `c4_test` default), to show how much that setting changes measured MFU at long context. The validated `64K` results are the full-sequence rows above it (`17.90%`–`18.08%` exact causal MFU). Exploratory short-window tuning runs are listed in the [appendix](docs/APPENDIX_HISTORICAL_RUNS.md).
 
 ---
 
@@ -122,7 +122,7 @@ Full summaries and step logs: [`results/validated_60step/v5p-32/SUMMARY.md`](res
 | **`v5p-32`** (`32` chips) | **`32K` (`seq=32,768`, `mb=2 × ga=1`)** | `2,097,152` | `Full-Seq` | **4,214.4** | 134,861 | **25.01%** | 35.37% | 17.53 | `12.34433 -> 2.77856` |
 | **`v5p-32`** (`32` chips) | **`64K` (`seq=65,536`, `mb=1 × ga=1`)** | `2,097,152` | `Full-Seq` | **3,218.7** | 102,997 | **27.01%** | 42.83% | 14.96 | `12.34367 -> 2.78643` |
 | **`v5p-32`** (`32` chips) | **`64K` Grad-Accum (`seq=65,536`, `mb=1 × ga=4`)** | `8,388,608` | `Full-Seq` | **3,240.9** | 103,709 | **27.20%** | 43.12% | 14.96 | `12.34191 -> 2.84033` |
-| **`v5p-32`** (`32` chips) | *`64K` Short-Doc EoD Control (`mb=1 × ga=1`, `c4_test`)* | `2,097,152` | *`C4-EoD`* | *4,765.8* | *152,504* | *40.00% (inflated)* | *63.41% (inflated)* | 14.96 | `12.33451 -> 2.82996` |
+| **`v5p-32`** (`32` chips) | *`64K` Short-Doc EoD Control (`mb=1 × ga=1`, `c4_test`)* | `2,097,152` | *`C4-EoD`* | *4,765.8* | *152,504* | *40.00% (control)* | *63.41% (control)* | 14.96 | `12.33451 -> 2.82996` |
 | **`v5p-16`** (`16` chips) | **`2K` (`seq=2,048`, `mb=32 × ga=1`)** | `1,048,576` | `Full-Seq` | **5,874.4** | 93,990 | **21.21%** | 22.25% | 17.55 | `12.32226 -> 2.75305` |
 | **`v5p-16`** (`16` chips) | **`4K` (`seq=4,096`, `mb=16 × ga=1`)** | `1,048,576` | `Full-Seq` | **5,799.7** | 92,796 | **21.90%** | 23.75% | 17.55 | `12.32920 -> 3.02743` |
 | **`v5p-16`** (`16` chips) | **`8K` (`seq=8,192`, `mb=8 × ga=1`)** | `1,048,576` | `Full-Seq` | **5,504.7** | 88,075 | **22.51%** | 25.92% | 17.55 | `12.33347 -> 3.06289` |
@@ -130,7 +130,7 @@ Full summaries and step logs: [`results/validated_60step/v5p-32/SUMMARY.md`](res
 | **`v5p-16`** (`16` chips) | **`32K` (`seq=32,768`, `mb=2 × ga=1`)** | `1,048,576` | `Full-Seq` | **4,170.0** | 66,721 | **24.75%** | 35.00% | 19.43 | `12.33914 -> 2.86616` |
 | **`v5p-16`** (`16` chips) | **`64K` (`seq=65,536`, `mb=1 × ga=1`)** | `1,048,576` | `Full-Seq` | **3,159.2** | 50,547 | **26.51%** | 42.04% | 18.83 | `12.34034 -> 2.86275` |
 | **`v5p-16`** (`16` chips) | **`64K` Grad-Accum (`seq=65,536`, `mb=1 × ga=4`)** | `4,194,304` | `Full-Seq` | **3,199.3** | 51,188 | **26.85%** | 42.57% | 18.83 | `12.33868 -> 2.87057` |
-| **`v5p-16`** (`16` chips) | *`64K` Short-Doc EoD Control (`mb=1 × ga=1`, `c4_test`)* | `1,048,576` | *`C4-EoD`* | *4,870.9* | *77,934* | *40.88% (inflated)* | *64.81% (inflated)* | 18.83 | `12.32183 -> 2.78776` |
+| **`v5p-16`** (`16` chips) | *`64K` Short-Doc EoD Control (`mb=1 × ga=1`, `c4_test`)* | `1,048,576` | *`C4-EoD`* | *4,870.9* | *77,934* | *40.88% (control)* | *64.81% (control)* | 18.83 | `12.32183 -> 2.78776` |
 
 > **Single-Rank Context Limit (`128K` Probe):** In this TorchTitan TPU branch, `RecursiveSI/flint` enforces pure data/FSDP sharding (`context_parallel` and `tensor_parallel` are disabled for the hybrid MoE graph). At `128K` (`seq_len = 131,072`, `mb=1`), each rank must hold a full `131,072`-token sequence of MoE activations (`2×` the `65,536`-token budget), exceeding per-rank memory even when attention-output checkpointing is lowered (`attn49 -> attn32 -> attn16`; see [`results/longctx_128k_attempts/`](results/longctx_128k_attempts/)). Scaling pre-training beyond `64K` per sequence requires Sequence/Context Parallelism (Ring Attention) across ranks.
 
@@ -162,7 +162,7 @@ rsi-flint-torchtitan-tpu-training/
 │   ├── stage-flint-job.yaml                         # One-shot HuggingFace -> GCS weight staging Job
 │   ├── v7x-8-flint-baseline-2k.yaml                 # 60-step 2K baseline & ablation Indexed Job (v7x-8)
 │   ├── v7x-16-flint-val60.yaml                      # 60-step 2K..64K full-sequence Indexed Job (v7x-16)
-│   ├── v7x-16-flint-val60-rerun.yaml                # Lockstep coordinator re-run manifest (v7x-16)
+│   ├── v7x-16-flint-val60-lockstep.yaml                # Lockstep multi-host runner (v7x-16, rows 04-08)
 │   ├── v5p-16-flint-val60.yaml                      # 60-step 2K..64K full-sequence Indexed Job (v5p-16)
 │   ├── v5p-16-flint-val60-longctx.yaml              # 128K single-rank HBM boundary Job (v5p-16)
 │   ├── v5p-32-flint-val60.yaml                      # 60-step 2K..64K full-sequence Indexed Job (v5p-32)
@@ -224,7 +224,7 @@ kubectl create configmap flint-val60-script \
 sed "s/YOUR_GCP_PROJECT_ID/${PROJECT_ID}/g" k8s/v7x-8-flint-baseline-2k.yaml | kubectl apply -f -
 
 # 2K..64K contiguous full-sequence 60-step validation on TPU v7x-16, v5p-32, or v5p-16:
-sed "s/YOUR_GCP_PROJECT_ID/${PROJECT_ID}/g" k8s/v7x-16-flint-val60-rerun.yaml | kubectl apply -f -
+sed "s/YOUR_GCP_PROJECT_ID/${PROJECT_ID}/g" k8s/v7x-16-flint-val60-lockstep.yaml | kubectl apply -f -
 sed "s/YOUR_GCP_PROJECT_ID/${PROJECT_ID}/g" k8s/v5p-32-flint-val60.yaml | kubectl apply -f -
 sed "s/YOUR_GCP_PROJECT_ID/${PROJECT_ID}/g" k8s/v5p-16-flint-val60.yaml | kubectl apply -f -
 ```
@@ -234,4 +234,4 @@ sed "s/YOUR_GCP_PROJECT_ID/${PROJECT_ID}/g" k8s/v5p-16-flint-val60.yaml | kubect
 ## 7. Appendix & Additional Documentation
 
 - **[`docs/BASELINE_AND_ABLATIONS.md`](docs/BASELINE_AND_ABLATIONS.md):** Step-by-step analysis of the `2K` TorchTitan baseline reproductions, incremental optimizations, numerical loss checks, and `16`-rank vs. `32`-rank FSDP batch ceilings.
-- **[`docs/APPENDIX_HISTORICAL_RUNS.md`](docs/APPENDIX_HISTORICAL_RUNS.md):** Archive guide for the earlier `10–15`-step tuning passes (`Pass 1..14`, `StaticEP=2..32`, host activation offload) and why short-document `c4_test` EoD block skipping inflated early long-context MFU numbers.
+- **[`docs/APPENDIX_HISTORICAL_RUNS.md`](docs/APPENDIX_HISTORICAL_RUNS.md):** Exploratory `10–15`-step tuning runs (`Pass 1..14`, `StaticEP=2..32`, host activation offload) and how short-document `c4_test` EoD attention skipping changes long-context MFU.

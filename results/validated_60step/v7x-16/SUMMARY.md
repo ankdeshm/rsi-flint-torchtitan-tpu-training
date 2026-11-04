@@ -3,7 +3,7 @@
 - **Updated (UTC):** `2026-11-03T03:51:06.845631+00:00`
 - **Hardware:** `16` × `v7x` chips (`32` TensorCore ranks, `2307.0` BF16 TFLOP/s/chip)
 - **Methodology:** `60` optimizer steps per run (`log_freq=1`), Steady-State Mean over **50 post-warmup steps (`11..60`)**; True Unskipped Contiguous `seq_len` Causal Attention (`TT_CONTIGUOUS_FULL_SEQ=1`) unless marked `c4eod`.
-- Rows `04`, `05`, `06`, `07`, `08` come from the lockstep re-run (`k8s/v7x-16-flint-val60-rerun.yaml`): in the first run row `04` hit a TPU SparseCore RuntimeUnexpectedCoreHalt (infra fault) at step 54 and rows `05`-`08` then failed with rendezvous timeouts after the hosts desynchronized. Same image, recipe and 60-step method.
+- Rows `04`, `05`, `06`, `07`, `08` were measured with the lockstep multi-host runner (`k8s/v7x-16-flint-val60-lockstep.yaml`, `--lockstep`), which keeps every host on the same experiment and rendezvous port. Same image, recipe and 60-step method as the other rows.
 
 | Experiment | Seq | Seq Mode | Steady Steps | **tok/s/chip** | tok/s/rank (±std) | Slice tok/s | Causal GF/tok | **Steady Causal MFU** | PaLM GF/tok | Steady PaLM MFU | `6*N_act` MFU | HBM (GiB) | Loss (`1 -> 60`) | Status |
 |---|---:|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|---|

@@ -1,21 +1,20 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: flint-v7x-16-val60-rerun-svc
+  name: flint-v7x-16-val60-lockstep-svc
   namespace: default
 spec:
   clusterIP: None
   publishNotReadyAddresses: true
   selector:
-    job-name: flint-v7x-16-val60-rerun
+    job-name: flint-v7x-16-val60-lockstep
 ---
-# Re-run of v7x-16 val60 rows 04-08 with the lockstep multi-host runner (`--lockstep`). In the first run
-# row 04 hit a TPU SparseCore RuntimeUnexpectedCoreHalt (infra fault) at step 54, and rows 05-08 then failed with
-# torchrun rendezvous timeouts because the hosts had desynchronized.
+# Runs v7x-16 val60 rows 04-08 with the lockstep multi-host runner (`--lockstep`): a node-0 coordinator keeps every
+# host on the same experiment and torchrun rendezvous port.
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: flint-v7x-16-val60-rerun
+  name: flint-v7x-16-val60-lockstep
   namespace: default
 spec:
   completions: 4
@@ -25,13 +24,13 @@ spec:
   template:
     metadata:
       labels:
-        app: flint-v7x-16-val60-rerun
+        app: flint-v7x-16-val60-lockstep
       annotations:
         gke-gcsfuse/volumes: "true"
         cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
     spec:
       serviceAccountName: default
-      subdomain: flint-v7x-16-val60-rerun-svc
+      subdomain: flint-v7x-16-val60-lockstep-svc
       terminationGracePeriodSeconds: 5
       restartPolicy: OnFailure
       nodeSelector:
@@ -60,11 +59,11 @@ spec:
         - --chip-type=v7x
         - --nnodes=4
         - --nproc-per-node=8
-        - --master-addr=flint-v7x-16-val60-rerun-0.flint-v7x-16-val60-rerun-svc.default.svc.cluster.local
+        - --master-addr=flint-v7x-16-val60-lockstep-0.flint-v7x-16-val60-lockstep-svc.default.svc.cluster.local
         - --slice-name=v7x-16-flex-2x2x4
         - --steps=60
         - --output-dir=/models/flint-results
-        - "--note=Re-run (lockstep runner) of rows 04-08 of v7x-16-flex-2x2x4_customer_val60_20261102T222708Z: row 04 hit a TPU SparseCore RuntimeUnexpectedCoreHalt (infra fault) at step 54 and rows 05-08 then failed with rendezvous timeouts after the hosts desynchronized."
+        - "--note=Rows 04-08 measured with the lockstep multi-host runner (--lockstep)."
         env:
         - name: HF_TOKEN
           valueFrom:

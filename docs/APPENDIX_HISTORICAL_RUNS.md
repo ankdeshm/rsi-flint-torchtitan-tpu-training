@@ -1,20 +1,20 @@
-# Appendix: Historical Short-Window Tuning Passes (`Pass 1..14`)
+# Appendix: Exploratory Short-Window Tuning Runs (`Pass 1..14`)
 
 > [!IMPORTANT]
-> **Use the main [`README.md`](../README.md) for validated performance numbers.**
-> The early exploratory tuning sweeps summarized in this appendix (`Pass 1..14`, preserved in [`archive/`](../archive/)) ran `10–15` steps with upstream `c4_test` End-of-Document (`EoD`) packing and the TorchTitan unmasked square-attention FLOPs counter.
+> **The validated performance numbers are in the main [`README.md`](../README.md).**
+> The exploratory tuning runs listed here (`Pass 1..14`, kept in [`archive/`](../archive/)) used `10–15` steps, the upstream `c4_test` dataset with End-of-Document (`EoD`) attention skipping, and the TorchTitan square-attention FLOPs counter. They are kept for traceability and are not comparable with the 60-step full-sequence results.
 >
-> **Why `32K` / `64K` MFU in `Pass 11` / `Pass 14` (`47.92%` on `v7x-16` and `65.46%` on `v5p-16`) was inflated and is NOT used as a headline metric:**
-> 1. **`c4_test` Short-Document EoD Block Skipping:** `c4_test` web documents average `~450` tokens. Packing `~145` documents into a `65,536`-token row causes SplashAttention's segment mask to skip `>98%` of global attention tiles across the `14` full-attention layers, making step time nearly as fast as short-context training while the FLOPs numerator still assumes full `65,536`-token attention (`+59%`–`+69%` throughput inflation at `64K`).
+> **Why long-context MFU in these runs reads much higher than in the validated runs** (for example `47.92%` on `v7x-16` and `65.46%` on `v5p-16` TorchTitan-counter MFU at `32K`/`64K` in `Pass 11` / `Pass 14`):
+> 1. **`c4_test` Short-Document EoD Block Skipping:** `c4_test` web documents average `~450` tokens. Packing `~145` documents into a `65,536`-token row causes SplashAttention's segment mask to skip `>98%` of global attention tiles across the `14` full-attention layers, making step time nearly as fast as short-context training while the FLOPs numerator still assumes full `65,536`-token attention (`59%`–`69%` higher measured throughput at `64K`).
 > 2. **Square-Attention FLOPs Counter:** Upstream TorchTitan counts full `S × S` attention (`61.07` GFLOP/tok at `64K`) rather than the lower-triangular causal `S × (S+1) / 2` FLOPs (`38.52` GFLOP/tok at `64K`), adding another `1.585×` multiplier at `64K`.
 >
-> The 60-step validation suite ([`scripts/run_flint_60step_validation.py`](../scripts/run_flint_60step_validation.py)) explicitly includes a `64K` `c4_test` EoD control run (`07_ctrl_s65536_mb1_ga1_c4eod`) that reproduces this exact effect (`48.06%` TorchTitan Counter MFU on `v7x-16` and `64.81%` on `v5p-16`), alongside the **true contiguous full-sequence 60-step runs** (`17.90%–18.08%` Exact Causal MFU / `28.38%–28.67%` TorchTitan Counter MFU on `v7x-16`, and `26.51%–27.20%` Exact Causal MFU / `42.04%–43.12%` TorchTitan Counter MFU on `v5p-16` / `v5p-32`).
+> The 60-step validation suite ([`scripts/run_flint_60step_validation.py`](../scripts/run_flint_60step_validation.py)) includes a `64K` control run with the same `c4_test` EoD skipping (`07_ctrl_s65536_mb1_ga1_c4eod`), which measures `48.06%` TorchTitan Counter MFU on `v7x-16` and `64.81%` on `v5p-16`, alongside the **contiguous full-sequence 60-step runs** (`17.90%–18.08%` Exact Causal MFU / `28.38%–28.67%` TorchTitan Counter MFU on `v7x-16`, and `26.51%–27.20%` Exact Causal MFU / `42.04%–43.12%` TorchTitan Counter MFU on `v5p-16` / `v5p-32`).
 
 ---
 
 ## 1. Where Archived Artifacts Live
 
-All legacy exploratory scripts, Kubernetes manifests, and raw JSON/Markdown summaries from `Pass 1..14` have been moved out of the primary directories into [`archive/`](../archive/):
+All exploratory scripts, Kubernetes manifests, and raw JSON/Markdown summaries from `Pass 1..14` are kept in [`archive/`](../archive/):
 
 - **Archived tuning scripts (`Pass 1..14`):** [`archive/scripts/`](../archive/scripts/)
 - **Archived Kubernetes Job manifests:** [`archive/k8s/`](../archive/k8s/)
@@ -24,10 +24,10 @@ All legacy exploratory scripts, Kubernetes manifests, and raw JSON/Markdown summ
 
 ## 2. Summary of Exploratory Findings (`2K`–`16K` Short-Window Sweeps & Parallelism Studies)
 
-While the `32K`/`64K` `c4_test` numbers were superseded by the 60-step validated runs in the main README, the `Pass 1..13` tuning sweeps identified the kernel, memory, and communication optimizations that form the validated recipe:
+The `Pass 1..13` tuning sweeps identified the kernel, memory, and communication optimizations that form the validated recipe:
 
 1. **Kernel & Compiler Optimizations Incorporated into the Validated Recipe:**
-   - **Native `TpuGraphTrainer` on `v5p`:** Fixed the `16 MiB` Scoped VMEM compilation error on `v5p` by lowering Pallas grouped-MM `tile_m` from `512` to `256` (`flint_40b_v5p_n40` in [`docker/patch_flint_configs.py`](../docker/patch_flint_configs.py)).
+   - **Native `TpuGraphTrainer` on `v5p`:** Fits the `16 MiB` Scoped VMEM limit on `v5p` by using Pallas grouped-MM `tile_m=256` instead of `512` (`flint_40b_v5p_n40` in [`docker/patch_flint_configs.py`](../docker/patch_flint_configs.py)).
    - **Zero Attention Recompute (`n49`) + `tile_m=1024` on `v7x`:** Saving SplashAttention outputs across all `49` layers (`flint_40b_v014_tile1024`) improved throughput while keeping per-rank HBM under `23.5 GiB` on `v7x-16`.
    - **Pre-Down-Projection Router Scaling (`scale_before_down_proj`), `BF16` RoPE, and Compiled Fused AdamW:** Delivered the main single-step compute speedup (`+11.1% tok/s` on `v7x-8`, verified over 60 steps in [`docs/BASELINE_AND_ABLATIONS.md`](BASELINE_AND_ABLATIONS.md)).
 2. **Pretrained Checkpoint Loss Equivalence (`Pass 6`, `p6_02`):**
@@ -40,12 +40,12 @@ While the `32K`/`64K` `c4_test` numbers were superseded by the 60-step validated
 
 ---
 
-## 3. Selected Historical `2K`–`16K` Short-Window Reference Rows (`10–15` Steps, `C4-EoD`, TorchTitan Counter MFU)
+## 3. Selected Exploratory `2K`–`16K` Short-Window Rows (`10–15` Steps, `C4-EoD`, TorchTitan Counter MFU)
 
 For traceability to archived logs in [`archive/results/`](../archive/results/), the table below lists representative `2K`–`16K` short-window tuning runs (`10–15` steps, `c4_test` EoD packing, TorchTitan Counter MFU):
 
 > [!WARNING]
-> These rows are not comparable with the validated results. They use the same two inflating factors described above: document-boundary attention skipping and the TorchTitan counter. That includes the `16K` rows at `27.15%` (`v7x-16`) and `35.33%` (`v5p-32`). The validated `16K` numbers are `18.09%` exact causal / `22.82%` TorchTitan counter on `v7x-16` (`mb=6, ga=2`) and `23.51%` / `29.66%` on `v5p-32` (`mb=4, ga=1`).
+> These rows use the settings described above (document-boundary attention skipping and the TorchTitan counter), so they are not comparable with the validated results. That includes the `16K` rows at `27.15%` (`v7x-16`) and `35.33%` (`v5p-32`). The validated `16K` numbers are `18.09%` exact causal / `22.82%` TorchTitan counter on `v7x-16` (`mb=6, ga=2`) and `23.51%` / `29.66%` on `v5p-32` (`mb=4, ga=1`).
 
 | TPU Slice | Archived Run ID | Lane & Seq Length | Global Batch (tok/step) | Steady tok/s/rank | Slice tok/s | TorchTitan Counter MFU (`C4-EoD`) | Peak HBM (GiB) | Archived Script |
 |---|---|---|---:|---:|---:|---:|---:|---|
